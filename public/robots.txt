@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://openstage.online/sitemap.xml
+
+# Disallow admin/auth routes from indexing
+Disallow: /api/
+Disallow: /auth/

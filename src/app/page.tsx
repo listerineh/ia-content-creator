@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import {
   Sparkles,
   Zap,
@@ -11,6 +12,17 @@ import {
   CheckCircle,
   Play,
 } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'OpenStage - Plataforma Open Source para Músicos',
+  description:
+    'Genera clips virales, gestiona contenido y crece en redes sociales. Herramientas gratuitas para bandas. 🇪🇨 Hecho en Ecuador.',
+  openGraph: {
+    title: 'OpenStage - Plataforma Open Source para Músicos',
+    description:
+      'Genera clips virales, gestiona contenido y crece en redes sociales. Herramientas gratuitas para bandas.',
+  },
+};
 
 const FEATURES = [
   {

@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import { Sparkles } from 'lucide-react';
 import { TOOL_CATEGORIES, getAvailableTools, getComingSoonTools } from '@/lib/tools';
 import { ToolCard } from '@/components/tools';
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description:
+    'Accede a todas las herramientas de OpenStage para crear contenido viral para tu banda.',
+};
 
 export default function DashboardPage() {
   const availableTools = getAvailableTools();
