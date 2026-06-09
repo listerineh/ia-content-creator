@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
@@ -12,17 +12,14 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const { signInWithEmail, signInWithGoogle } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await signInWithEmail(email, password);
 
     if (error) {
       setError(error.message);
@@ -36,12 +33,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setError(null);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    const { error } = await signInWithGoogle();
 
     if (error) {
       setError(error.message);
