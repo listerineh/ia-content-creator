@@ -106,6 +106,28 @@ Seguimos SemVer: `vMAJOR.MINOR.PATCH`
 
 **Solución:** Eliminar workflows de deploy, dejar solo CI (lint + build). Vercel maneja deploys automáticamente al estar conectado a GitHub.
 
+### [2026-06-09] Storage de Videos - Google Drive
+
+**Problema:** Supabase Storage en plan gratuito tiene límite de 50MB por archivo, insuficiente para videos largos.
+
+**Solución:** Usar Google Drive como storage externo:
+
+- Usuario sube video a su Google Drive
+- Comparte con "Cualquier persona con el enlace"
+- Pega la URL en la app
+- Convertimos la URL a formato de descarga directa
+
+**Ventajas:**
+
+- Sin límite de tamaño (depende del Drive del usuario)
+- Gratis para el proyecto
+- Usuario mantiene control de sus archivos
+- Escala infinitamente
+
+**Archivos clave:**
+
+- `src/components/features/video-upload/video-url-input.tsx` - Input + tutorial
+
 ---
 
 ## Limitaciones Conocidas
