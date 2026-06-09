@@ -1,7 +1,7 @@
 export const env = {
   supabase: {
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '',
     secretKey: process.env.SUPABASE_SECRET_KEY ?? '',
   },
   app: {
@@ -15,3 +15,16 @@ export const env = {
 } as const;
 
 export type Env = typeof env;
+
+export function validateEnv(): void {
+  const required = [
+    ['NEXT_PUBLIC_SUPABASE_URL', env.supabase.url],
+    ['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', env.supabase.publishableKey],
+  ] as const;
+
+  const missing = required.filter(([, value]) => !value).map(([key]) => key);
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+}
