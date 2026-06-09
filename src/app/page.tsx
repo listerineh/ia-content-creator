@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import {
-  Sparkles,
   Zap,
   ArrowRight,
   Heart,
@@ -12,6 +11,7 @@ import {
   CheckCircle,
   Play,
 } from 'lucide-react';
+import { Logo } from '@/components/ui/logo';
 
 export const metadata: Metadata = {
   title: 'OpenStage - Plataforma Open Source para Músicos',
@@ -85,12 +85,7 @@ export default function Home() {
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8 md:px-8 lg:px-12">
         {/* Header */}
         <header className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600">
-              <Sparkles className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">OpenStage</span>
-          </div>
+          <Logo size="md" />
           <div className="flex items-center gap-6">
             <a
               href="https://github.com/listerineh/open-stage"
@@ -313,12 +308,7 @@ export default function Home() {
         <footer className="border-t border-zinc-800 py-10">
           <div className="flex flex-col items-center gap-6">
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600">
-                <Sparkles className="h-4 w-4 text-white" />
-              </div>
-              <span className="text-lg font-semibold text-white">OpenStage</span>
-            </div>
+            <Logo size="sm" />
 
             {/* Made with love */}
             <p className="flex items-center gap-1.5 text-sm text-zinc-400">
