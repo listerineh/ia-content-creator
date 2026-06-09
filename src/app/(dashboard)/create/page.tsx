@@ -2,8 +2,12 @@
 
 import { useState, useCallback } from 'react';
 import { VideoUrlInput } from '@/components/features/video-upload';
-import { FormatSelector } from '@/components/features/clip-settings';
-import { IntentSelector } from '@/components/features/clip-settings';
+import {
+  FormatSelector,
+  IntentSelector,
+  SubtitleConfig,
+  type SubtitleSettings,
+} from '@/components/features/clip-settings';
 import { PageContainer } from '@/components/ui/page-container';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,11 +18,12 @@ import {
   Film,
   Layers,
   Sparkles,
+  Type,
   Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type Step = 'video' | 'formats' | 'intent' | 'review';
+type Step = 'video' | 'formats' | 'intent' | 'subtitles';
 
 interface VideoInfo {
   accessible: boolean;
@@ -31,6 +36,7 @@ const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'video', label: 'Video', icon: Film },
   { id: 'formats', label: 'Formatos', icon: Layers },
   { id: 'intent', label: 'Intención', icon: Sparkles },
+  { id: 'subtitles', label: 'Subtítulos', icon: Type },
 ];
 
 export default function CreatePage() {
@@ -41,6 +47,13 @@ export default function CreatePage() {
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   const [selectedIntent, setSelectedIntent] = useState<string | null>('viral');
+  const [subtitleSettings, setSubtitleSettings] = useState<SubtitleSettings>({
+    enabled: true,
+    style: 'bold',
+    position: 'bottom',
+    alignment: 'center',
+    language: 'auto',
+  });
 
   const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
 
@@ -80,8 +93,15 @@ export default function CreatePage() {
     } else if (currentStep === 'formats' && selectedFormats.length > 0) {
       setCurrentStep('intent');
     } else if (currentStep === 'intent' && selectedIntent) {
+      setCurrentStep('subtitles');
+    } else if (currentStep === 'subtitles') {
       // Aquí iría la lógica de procesamiento
-      console.log('Procesando...', { videoUrl, selectedFormats, selectedIntent });
+      console.log('Procesando...', {
+        videoUrl,
+        selectedFormats,
+        selectedIntent,
+        subtitleSettings,
+      });
     }
   };
 
@@ -90,6 +110,8 @@ export default function CreatePage() {
       setCurrentStep('video');
     } else if (currentStep === 'intent') {
       setCurrentStep('formats');
+    } else if (currentStep === 'subtitles') {
+      setCurrentStep('intent');
     }
   };
 
@@ -103,6 +125,7 @@ export default function CreatePage() {
     if (currentStep === 'video') return !!videoInfo;
     if (currentStep === 'formats') return selectedFormats.length > 0;
     if (currentStep === 'intent') return !!selectedIntent;
+    if (currentStep === 'subtitles') return true;
     return false;
   };
 
@@ -252,6 +275,20 @@ export default function CreatePage() {
               />
             </div>
           )}
+
+          {/* Step 4: Subtitles */}
+          {currentStep === 'subtitles' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-medium text-white">Subtítulos</h2>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Configura los subtítulos automáticos para tus clips
+                </p>
+              </div>
+
+              <SubtitleConfig settings={subtitleSettings} onChange={setSubtitleSettings} />
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -266,7 +303,7 @@ export default function CreatePage() {
           </div>
 
           <Button size="lg" onClick={handleNext} disabled={!canProceed()}>
-            {currentStep === 'intent' ? (
+            {currentStep === 'subtitles' ? (
               <>
                 Generar clips
                 <Sparkles className="h-4 w-4" />
