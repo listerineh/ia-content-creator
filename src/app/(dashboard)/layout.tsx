@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { Sparkles, LayoutDashboard, Plus, ChevronDown, LogOut, User } from 'lucide-react';
+import { Sparkles, LayoutDashboard, ChevronDown, LogOut, User } from 'lucide-react';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -39,13 +39,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             >
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
-            </Link>
-            <Link
-              href="/create"
-              className="flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-500"
-            >
-              <Plus className="h-4 w-4" />
-              Crear
             </Link>
           </nav>
 
