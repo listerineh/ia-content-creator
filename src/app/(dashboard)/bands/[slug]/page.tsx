@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
@@ -18,6 +18,10 @@ import {
   Check,
   Loader2,
   Calendar,
+  MoreVertical,
+  UserMinus,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Band, BandMember, BandRole, Profile } from '@/types/database';
@@ -34,14 +38,18 @@ const ROLE_CONFIG: Record<BandRole, { label: string; icon: typeof Crown; color: 
 
 export default function BandDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const supabase = createClient();
 
   const [band, setBand] = useState<Band | null>(null);
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [userRole, setUserRole] = useState<BandRole | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBandData = async () => {
@@ -50,6 +58,7 @@ export default function BandDetailPage() {
       } = await supabase.auth.getUser();
 
       if (!user) return;
+      setCurrentUserId(user.id);
 
       // Fetch band
       const { data: bandData } = await supabase.from('bands').select('*').eq('slug', slug).single();
@@ -84,6 +93,45 @@ export default function BandDetailPage() {
     navigator.clipboard.writeText(band?.slug || '');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleChangeRole = async (memberId: string, newRole: BandRole) => {
+    if (!band) return;
+    setActionLoading(memberId);
+    setOpenMenu(null);
+
+    await supabase.from('band_members').update({ role: newRole }).eq('id', memberId);
+
+    setMembers(members.map(m => (m.id === memberId ? { ...m, role: newRole } : m)));
+    setActionLoading(null);
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!band) return;
+    setActionLoading(memberId);
+    setOpenMenu(null);
+
+    await supabase.from('band_members').delete().eq('id', memberId);
+
+    setMembers(members.filter(m => m.id !== memberId));
+    setActionLoading(null);
+  };
+
+  const handleLeaveBand = async () => {
+    if (!band || !currentUserId) return;
+
+    const myMembership = members.find(m => m.user_id === currentUserId);
+    if (!myMembership) return;
+
+    // Check if user is the only admin
+    const adminCount = members.filter(m => m.role === 'admin').length;
+    if (myMembership.role === 'admin' && adminCount === 1) {
+      alert('No puedes salir siendo el único admin. Asigna otro admin primero.');
+      return;
+    }
+
+    await supabase.from('band_members').delete().eq('id', myMembership.id);
+    router.push('/bands');
   };
 
   if (loading) {
@@ -185,19 +233,35 @@ export default function BandDetailPage() {
               {members.length}
             </span>
           </div>
-          {isAdmin && (
-            <Link href={`/bands/${band.slug}/settings#invitations`}>
-              <Button size="sm" className="bg-violet-600 hover:bg-violet-500">
-                Invitar
+          <div className="flex items-center gap-2">
+            {!isAdmin && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleLeaveBand}
+                className="border-zinc-700 bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-red-400"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Salir
               </Button>
-            </Link>
-          )}
+            )}
+            {isAdmin && (
+              <Link href={`/bands/${band.slug}/settings#invitations`}>
+                <Button size="sm" className="bg-violet-600 hover:bg-violet-500">
+                  Invitar
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 space-y-2">
           {members.map(member => {
             const roleConfig = ROLE_CONFIG[member.role];
             const RoleIcon = roleConfig.icon;
+            const isCurrentUser = member.user_id === currentUserId;
+            const isLoading = actionLoading === member.id;
+            const isMenuOpen = openMenu === member.id;
 
             return (
               <div
@@ -223,11 +287,12 @@ export default function BandDetailPage() {
                   <div>
                     <p className="font-medium text-white">
                       {member.profiles.full_name || 'Sin nombre'}
+                      {isCurrentUser && <span className="ml-2 text-xs text-zinc-500">(tú)</span>}
                     </p>
                     <p className="text-xs text-zinc-500">{member.profiles.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1.5">
                     <RoleIcon className={cn('h-4 w-4', roleConfig.color)} />
                     <span className={cn('text-sm', roleConfig.color)}>{roleConfig.label}</span>
@@ -236,6 +301,53 @@ export default function BandDetailPage() {
                     <Calendar className="h-3 w-3" />
                     {new Date(member.joined_at).toLocaleDateString()}
                   </div>
+
+                  {/* Admin actions */}
+                  {isAdmin && !isCurrentUser && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setOpenMenu(isMenuOpen ? null : member.id)}
+                        className="rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-white"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <MoreVertical className="h-4 w-4" />
+                        )}
+                      </button>
+
+                      {isMenuOpen && (
+                        <div className="absolute right-0 top-full z-10 mt-1 w-48 rounded-lg border border-zinc-800 bg-zinc-900 py-1 shadow-xl">
+                          <div className="px-3 py-1.5 text-xs font-medium text-zinc-500">
+                            Cambiar rol
+                          </div>
+                          {(['admin', 'editor', 'viewer'] as BandRole[]).map(role => (
+                            <button
+                              key={role}
+                              onClick={() => handleChangeRole(member.id, role)}
+                              className={cn(
+                                'flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-zinc-800',
+                                member.role === role ? 'text-violet-400' : 'text-zinc-300'
+                              )}
+                            >
+                              <ShieldCheck className="h-4 w-4" />
+                              {ROLE_CONFIG[role].label}
+                              {member.role === role && <Check className="ml-auto h-3 w-3" />}
+                            </button>
+                          ))}
+                          <div className="my-1 border-t border-zinc-800" />
+                          <button
+                            onClick={() => handleRemoveMember(member.id)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 transition-colors hover:bg-zinc-800"
+                          >
+                            <UserMinus className="h-4 w-4" />
+                            Expulsar
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );
