@@ -146,8 +146,8 @@ export default function CreatePage() {
     } else if (currentStep === 'intent' && selectedIntent) {
       updateWizard({ currentStep: 'subtitles' });
     } else if (currentStep === 'subtitles') {
-      // Aquí iría la lógica de procesamiento
-      console.log('Procesando...', {
+      // TODO: Navigate to processing page when implemented
+      console.log('Ready to process:', {
         videoUrl,
         selectedFormats,
         selectedIntent,

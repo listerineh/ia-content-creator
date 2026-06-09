@@ -13,6 +13,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Exclude heavy WASM modules from server-side bundling
+  serverExternalPackages: [
+    '@ffmpeg/ffmpeg',
+    '@ffmpeg/util',
+    '@transcribe/transcriber',
+    '@transcribe/shout',
+  ],
 };
 
 export default nextConfig;
