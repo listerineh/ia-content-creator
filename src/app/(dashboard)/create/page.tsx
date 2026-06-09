@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, startTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { VideoUrlInput } from '@/components/features/video-upload';
 import {
   FormatSelector,
@@ -68,6 +69,7 @@ const DEFAULT_WIZARD_STATE: WizardState = {
 };
 
 export default function CreatePage() {
+  const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
   const [wizardState, setWizardState] = useState<WizardState>(DEFAULT_WIZARD_STATE);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -146,13 +148,7 @@ export default function CreatePage() {
     } else if (currentStep === 'intent' && selectedIntent) {
       updateWizard({ currentStep: 'subtitles' });
     } else if (currentStep === 'subtitles') {
-      // TODO: Navigate to processing page when implemented
-      console.log('Ready to process:', {
-        videoUrl,
-        selectedFormats,
-        selectedIntent,
-        subtitleSettings,
-      });
+      router.push('/processing');
     }
   };
 
