@@ -128,7 +128,7 @@ export function ProcessingView() {
     setState(prev => ({ ...prev, status: 'processing' }));
 
     // Create Web Worker for processing
-    const worker = new Worker('/workers/video-processor.js', { type: 'module' });
+    const worker = new Worker('/workers/video-processor.js');
     workerRef.current = worker;
 
     worker.onmessage = (event: MessageEvent) => {
