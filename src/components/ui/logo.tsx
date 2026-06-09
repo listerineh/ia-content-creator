@@ -26,9 +26,36 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps) {
         className="shrink-0"
       >
         <rect width="32" height="32" rx="8" fill="#7c3aed" />
-        <path d="M16 6l2.5 5.5L24 14l-5.5 2.5L16 22l-2.5-5.5L8 14l5.5-2.5L16 6z" fill="white" />
-        <circle cx="22" cy="10" r="2" fill="white" opacity="0.6" />
-        <circle cx="10" cy="22" r="1.5" fill="white" opacity="0.4" />
+        <path
+          d="M16 3a13 13 0 0 0-13 13"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.3"
+        />
+        <path
+          d="M16 29a13 13 0 0 0 13-13"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.3"
+        />
+        <path
+          d="M16 6a10 10 0 0 0-10 10"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.5"
+        />
+        <path
+          d="M16 26a10 10 0 0 0 10-10"
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity="0.5"
+        />
+        <circle cx="16" cy="16" r="6" stroke="white" strokeWidth="2" fill="none" />
+        <path d="M14 13v6l5-3-5-3z" fill="white" />
       </svg>
       {showText && (
         <span className="font-bold tracking-tight" style={{ fontSize: text }}>
@@ -51,9 +78,36 @@ export function LogoIcon({ className, size = 32 }: { className?: string; size?: 
       className={className}
     >
       <rect width="32" height="32" rx="8" fill="#7c3aed" />
-      <path d="M16 6l2.5 5.5L24 14l-5.5 2.5L16 22l-2.5-5.5L8 14l5.5-2.5L16 6z" fill="white" />
-      <circle cx="22" cy="10" r="2" fill="white" opacity="0.6" />
-      <circle cx="10" cy="22" r="1.5" fill="white" opacity="0.4" />
+      <path
+        d="M16 3a13 13 0 0 0-13 13"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        opacity="0.3"
+      />
+      <path
+        d="M16 29a13 13 0 0 0 13-13"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        opacity="0.3"
+      />
+      <path
+        d="M16 6a10 10 0 0 0-10 10"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        opacity="0.5"
+      />
+      <path
+        d="M16 26a10 10 0 0 0 10-10"
+        stroke="white"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        opacity="0.5"
+      />
+      <circle cx="16" cy="16" r="6" stroke="white" strokeWidth="2" fill="none" />
+      <path d="M14 13v6l5-3-5-3z" fill="white" />
     </svg>
   );
 }
