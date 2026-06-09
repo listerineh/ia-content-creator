@@ -117,7 +117,7 @@ export function ProcessingView() {
       );
 
       setTimeout(() => {
-        router.push('/results');
+        router.push('/tools/clip-generator/results');
       }, 1500);
     } catch (error) {
       setState(prev => ({
@@ -251,7 +251,7 @@ export function ProcessingView() {
         {state.status === 'error' && (
           <div className="flex justify-center gap-3">
             <button
-              onClick={() => router.push('/create')}
+              onClick={() => router.push('/tools/clip-generator')}
               className="rounded-lg border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:text-white"
             >
               Volver al wizard

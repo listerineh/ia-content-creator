@@ -1,57 +1,70 @@
-import Link from 'next/link';
-import { Film, Scissors, ArrowRight } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
+import { TOOL_CATEGORIES, getAvailableTools, getComingSoonTools } from '@/lib/tools';
+import { ToolCard } from '@/components/tools';
 
 export default function DashboardPage() {
+  const availableTools = getAvailableTools();
+  const comingSoonTools = getComingSoonTools();
+
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10 md:px-8 lg:px-12">
+    <div className="mx-auto max-w-6xl px-6 py-10 md:px-8 lg:px-12">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-white">Dashboard</h1>
-        <p className="mt-1 text-sm text-zinc-500">Resumen de tu actividad</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
+            Bienvenido a OpenStage
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">Selecciona una herramienta para comenzar</p>
+        </div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
+          <Sparkles className="h-5 w-5 text-violet-400" />
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <div className="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-colors hover:border-zinc-700">
-          <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
-              <Film className="h-5 w-5 text-violet-400" />
+      {/* Available Tools */}
+      <section className="mt-10">
+        <h2 className="text-lg font-medium text-white">Herramientas disponibles</h2>
+        <p className="mt-1 text-sm text-zinc-500">Empieza a usar estas herramientas ahora</p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {availableTools.map(tool => (
+            <ToolCard key={tool.id} tool={tool} />
+          ))}
+        </div>
+      </section>
+
+      {/* Coming Soon */}
+      <section className="mt-12">
+        <h2 className="text-lg font-medium text-white">Próximamente</h2>
+        <p className="mt-1 text-sm text-zinc-500">Estamos trabajando en más herramientas</p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {comingSoonTools.map(tool => (
+            <ToolCard key={tool.id} tool={tool} variant="compact" />
+          ))}
+        </div>
+      </section>
+
+      {/* Quick Stats */}
+      <section className="mt-12">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
+          <h3 className="text-sm font-medium text-zinc-400">Resumen</h3>
+          <div className="mt-4 grid gap-6 sm:grid-cols-3">
+            <div>
+              <div className="text-2xl font-bold text-white">{availableTools.length}</div>
+              <div className="text-sm text-zinc-500">Herramientas activas</div>
             </div>
-            <span className="text-3xl font-semibold text-white">0</span>
-          </div>
-          <p className="mt-4 text-sm font-medium text-white">Videos</p>
-          <p className="mt-1 text-xs text-zinc-500">Videos agregados</p>
-        </div>
-
-        <div className="group rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-colors hover:border-zinc-700">
-          <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-              <Scissors className="h-5 w-5 text-emerald-400" />
+            <div>
+              <div className="text-2xl font-bold text-white">{comingSoonTools.length}</div>
+              <div className="text-sm text-zinc-500">En desarrollo</div>
             </div>
-            <span className="text-3xl font-semibold text-white">0</span>
+            <div>
+              <div className="text-2xl font-bold text-white">
+                {Object.keys(TOOL_CATEGORIES).length}
+              </div>
+              <div className="text-sm text-zinc-500">Categorías</div>
+            </div>
           </div>
-          <p className="mt-4 text-sm font-medium text-white">Clips</p>
-          <p className="mt-1 text-xs text-zinc-500">Clips generados</p>
         </div>
-      </div>
-
-      {/* Empty state */}
-      <div className="mt-10 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/30 p-10 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-800">
-          <Film className="h-6 w-6 text-zinc-500" />
-        </div>
-        <h3 className="mt-4 text-sm font-medium text-white">Sin videos aún</h3>
-        <p className="mt-2 text-sm text-zinc-500">
-          Agrega tu primer video para empezar a generar clips
-        </p>
-        <Link
-          href="/create"
-          className="mt-6 inline-flex items-center gap-2 text-sm text-violet-400 transition-colors hover:text-violet-300"
-        >
-          Crear clips
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+      </section>
     </div>
   );
 }

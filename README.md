@@ -7,6 +7,8 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+🌐 **Producción:** [openstage.online](https://openstage.online) | **Staging:** [open-stage-dev.vercel.app](https://open-stage-dev.vercel.app)
+
 ---
 
 ## 🎯 ¿Qué es OpenStage?
@@ -39,8 +41,8 @@ OpenStage es una plataforma all-in-one diseñada para bandas y músicos que quie
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/listerineh/ia-content-creator.git
-cd ia-content-creator
+git clone https://github.com/listerineh/open-stage.git
+cd open-stage
 
 # Instalar dependencias
 pnpm install
@@ -103,7 +105,7 @@ public/
 
 ### Convención de Commits
 
-```
+```text
 tipo(alcance): descripción breve
 
 Ejemplos:
@@ -125,4 +127,4 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) par
 
 ---
 
-**Hecho con ❤️ para músicos, por músicos.**
+**Hecho con ❤️ para músicos por [listerineh](https://listerineh.dev)** 🇪🇨
