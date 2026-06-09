@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Background -->
+  <rect width="32" height="32" rx="8" fill="#7c3aed"/>
+  <!-- Ondas externas (alcance/broadcast) -->
+  <path d="M16 3a13 13 0 0 0-13 13" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+  <path d="M16 29a13 13 0 0 0 13-13" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+  <!-- Ondas medias -->
+  <path d="M16 6a10 10 0 0 0-10 10" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <path d="M16 26a10 10 0 0 0 10-10" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+  <!-- Círculo central (la O de Open/Stage) -->
+  <circle cx="16" cy="16" r="6" stroke="white" stroke-width="2" fill="none"/>
+  <!-- Play button en el centro -->
+  <path d="M14 13v6l5-3-5-3z" fill="white"/>
+</svg>

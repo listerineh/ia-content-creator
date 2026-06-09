@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { LogoIcon } from '@/components/ui/logo';
 import { Loader2, Mail } from 'lucide-react';
 
 export default function SignupPage() {
@@ -49,8 +50,8 @@ export default function SignupPage() {
           <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/10 blur-3xl animate-pulse" />
         </div>
 
-        <div className="relative z-10 w-full max-w-sm text-center">
-          <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10">
+        <div className="relative z-10 w-full max-w-sm text-center animate-in fade-in zoom-in duration-500">
+          <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 animate-bounce">
             <Mail className="h-8 w-8 text-emerald-400" />
           </div>
           <h2 className="text-xl font-semibold text-white">Revisa tu email</h2>
@@ -82,28 +83,21 @@ export default function SignupPage() {
 
       <div className="relative z-10 w-full max-w-sm">
         {/* Logo */}
-        <div className="mb-10 text-center">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600 mb-4">
-            <svg
-              className="h-6 w-6 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-              />
-            </svg>
+        <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="mb-4 inline-block animate-in zoom-in duration-700">
+            <LogoIcon size={56} className="drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Crear cuenta</h1>
-          <p className="mt-2 text-sm text-zinc-500">Únete a OpenStage</p>
+          <h1 className="text-2xl font-bold tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
+            <span className="text-white">Crear cuenta</span>
+          </h1>
+          <p className="mt-2 text-sm text-zinc-500 animate-in fade-in duration-500 delay-300">
+            Únete a <span className="text-white">Open</span>
+            <span className="text-violet-400">Stage</span>
+          </p>
         </div>
 
         {/* Form */}
-        <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/50 p-8 backdrop-blur-sm">
+        <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/50 p-8 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           <form onSubmit={handleSignup} className="space-y-5">
             {error && (
               <div className="animate-in fade-in slide-in-from-top-2 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">

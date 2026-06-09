@@ -2,7 +2,8 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { Sparkles, LayoutDashboard, ChevronDown, LogOut, User } from 'lucide-react';
+import { LayoutDashboard, ChevronDown, LogOut, User } from 'lucide-react';
+import { Logo } from '@/components/ui/logo';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -24,11 +25,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <header className="sticky top-0 z-50 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6 md:px-8 lg:px-12">
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <span className="text-lg font-semibold text-white">OpenStage</span>
+          <Link href="/dashboard">
+            <Logo size="sm" />
           </Link>
 
           {/* Nav Links */}

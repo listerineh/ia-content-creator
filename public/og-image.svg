@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#09090b"/>
+      <stop offset="100%" style="stop-color:#18181b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="620" width="1200" height="10" fill="url(#accent)"/>
+  
+  <!-- Logo V6 Abstract -->
+  <g transform="translate(100, 200)">
+    <rect width="80" height="80" rx="16" fill="#7c3aed"/>
+    <path d="M40 7.5a32.5 32.5 0 0 0-32.5 32.5" stroke="white" stroke-width="3.75" stroke-linecap="round" opacity="0.3"/>
+    <path d="M40 72.5a32.5 32.5 0 0 0 32.5-32.5" stroke="white" stroke-width="3.75" stroke-linecap="round" opacity="0.3"/>
+    <path d="M40 15a25 25 0 0 0-25 25" stroke="white" stroke-width="3.75" stroke-linecap="round" opacity="0.5"/>
+    <path d="M40 65a25 25 0 0 0 25-25" stroke="white" stroke-width="3.75" stroke-linecap="round" opacity="0.5"/>
+    <circle cx="40" cy="40" r="15" stroke="white" stroke-width="5" fill="none"/>
+    <path d="M35 32.5v15l12.5-7.5-12.5-7.5z" fill="white"/>
+  </g>
+  
+  <!-- Title -->
+  <text x="200" y="260" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="white">OpenStage</text>
+  
+  <!-- Subtitle -->
+  <text x="100" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="32" fill="#a1a1aa">Plataforma open source para músicos</text>
+  
+  <!-- Features -->
+  <text x="100" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#7c3aed">▶</text>
+  <text x="130" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#71717a">Genera clips virales</text>
+  
+  <text x="400" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#7c3aed">▶</text>
+  <text x="430" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#71717a">Gestiona contenido</text>
+  
+  <text x="700" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#7c3aed">▶</text>
+  <text x="730" y="420" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#71717a">Crece en redes</text>
+  
+  <!-- URL -->
+  <text x="100" y="560" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="#52525b">openstage.online</text>
+  
+  <!-- Made in Ecuador -->
+  <text x="1000" y="560" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#52525b">🇪🇨 Ecuador</text>
+</svg>
