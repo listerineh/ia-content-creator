@@ -61,6 +61,39 @@ Este archivo documenta decisiones técnicas, aprendizajes y soluciones encontrad
 
 **Razón:** Minimizar costos operativos, mantener el proyecto open source viable.
 
+**Servicios implementados:**
+
+| Servicio | Ubicación             | Descripción                            |
+| -------- | --------------------- | -------------------------------------- |
+| Whisper  | `@/lib/transcription` | Transcripción con Whisper.cpp WASM     |
+| FFmpeg   | `@/lib/video`         | Procesamiento de video con FFmpeg.wasm |
+
+**Whisper Service (`@/lib/transcription`):**
+
+```typescript
+import { initTranscriber, transcribeAudio, destroyTranscriber } from '@/lib/transcription';
+
+await initTranscriber('tiny', p => console.log(p)); // tiny, base, small
+const result = await transcribeAudio(audioFile, 'es');
+// result.segments = [{ text, start, end }, ...]
+```
+
+**FFmpeg Service (`@/lib/video`):**
+
+```typescript
+import { loadFFmpeg, extractAudio, generateClip, addSubtitlesToClip } from '@/lib/video';
+
+await loadFFmpeg(p => console.log(p.message));
+const audio = await extractAudio(videoUrl); // WAV 16kHz mono para Whisper
+const clip = await generateClip(videoUrl, {
+  startTime: 10,
+  endTime: 30,
+  format: { id: 'tiktok', width: 1080, height: 1920, aspectRatio: '9:16' },
+  outputName: 'clip-1',
+});
+const withSubs = await addSubtitlesToClip(clip, segments, { position: 'bottom' });
+```
+
 ### Límites Definidos
 
 | Parámetro           | Valor       | Notas                                  |
@@ -74,16 +107,23 @@ Este archivo documenta decisiones técnicas, aprendizajes y soluciones encontrad
 
 ### Estructura de Carpetas
 
-```
+```text
 src/
-├── app/           # Rutas (Next.js App Router)
+├── app/                    # Rutas (Next.js App Router)
+│   ├── (dashboard)/        # Rutas protegidas con layout unificado
+│   └── api/                # API Routes
 ├── components/
-│   ├── ui/        # shadcn/ui (no modificar directamente)
-│   └── features/  # Componentes específicos por feature
-├── lib/           # Utilidades y clientes
-├── hooks/         # Custom hooks
-├── stores/        # Estado global (Zustand)
-└── types/         # TypeScript types/interfaces
+│   ├── ui/                 # shadcn/ui (no modificar directamente)
+│   └── features/           # Componentes específicos por feature
+│       ├── video-upload/   # Input de URL, verificación
+│       └── clip-settings/  # Formatos, intención, subtítulos
+├── lib/
+│   ├── supabase/           # Cliente Supabase (server/client)
+│   ├── transcription/      # Whisper.cpp WASM service
+│   └── video/              # FFmpeg.wasm service
+├── hooks/                  # Custom hooks
+├── stores/                 # Estado global (Zustand)
+└── types/                  # TypeScript types/interfaces
 ```
 
 ### Convención de Commits
