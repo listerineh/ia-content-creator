@@ -31,6 +31,9 @@ jobs:
 
       - name: Build Project
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
 
       - name: Deploy to Vercel Preview
         run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
