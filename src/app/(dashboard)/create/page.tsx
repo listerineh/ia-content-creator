@@ -235,13 +235,6 @@ export default function CreatePage() {
                 selectedFormats={selectedFormats}
                 onSelectionChange={setSelectedFormats}
               />
-
-              {selectedFormats.length > 0 && (
-                <p className="text-sm text-zinc-500">
-                  {selectedFormats.length} formato{selectedFormats.length > 1 ? 's' : ''}{' '}
-                  seleccionado{selectedFormats.length > 1 ? 's' : ''}
-                </p>
-              )}
             </div>
           )}
 
@@ -262,26 +255,26 @@ export default function CreatePage() {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-4">
           <div>
             {currentStepIndex > 0 && (
-              <Button variant="ghost" onClick={handleBack}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
+              <Button variant="outline" size="lg" onClick={handleBack}>
+                <ArrowLeft className="h-4 w-4" />
                 Atrás
               </Button>
             )}
           </div>
 
-          <Button onClick={handleNext} disabled={!canProceed()}>
+          <Button size="lg" onClick={handleNext} disabled={!canProceed()}>
             {currentStep === 'intent' ? (
               <>
                 Generar clips
-                <Sparkles className="ml-2 h-4 w-4" />
+                <Sparkles className="h-4 w-4" />
               </>
             ) : (
               <>
                 Continuar
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="h-4 w-4" />
               </>
             )}
           </Button>
