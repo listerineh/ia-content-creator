@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -8,15 +8,14 @@ import {
   Clock,
   Star,
   RefreshCw,
-  Play,
   Sparkles,
   CheckCircle2,
   Video,
   Zap,
   TrendingUp,
   Download,
-  Copy,
-  Check,
+  Archive,
+  Play,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,20 +35,6 @@ interface StoredClip {
   reason: string;
 }
 
-// Extract YouTube video ID from URL
-function getYouTubeVideoId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /youtube\.com\/shorts\/([^&\n?#]+)/,
-  ];
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match) return match[1];
-  }
-  return null;
-}
-
-// Format icons by platform
 const FORMAT_ICONS: Record<string, { icon: string; color: string; bg: string }> = {
   tiktok: { icon: '♪', color: 'text-pink-400', bg: 'bg-pink-500/10' },
   reels: { icon: '◎', color: 'text-fuchsia-400', bg: 'bg-fuchsia-500/10' },
@@ -60,24 +45,17 @@ const FORMAT_ICONS: Record<string, { icon: string; color: string; bg: string }> 
 
 export function ResultsView() {
   const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [clips] = useState<StoredClip[]>(() => {
     if (typeof window === 'undefined') return [];
     const stored = localStorage.getItem('openstage-clips');
     return stored ? JSON.parse(stored) : [];
   });
   const [selectedClipIndex, setSelectedClipIndex] = useState(0);
-  const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
-  const [openedClips, setOpenedClips] = useState<Set<string>>(new Set());
+  const [downloadedClips, setDownloadedClips] = useState<Set<string>>(new Set());
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
 
   const selectedClip = clips[selectedClipIndex] || null;
-
-  // Get YouTube embed URL with start time
-  const embedUrl = useMemo(() => {
-    if (!selectedClip) return null;
-    const videoId = getYouTubeVideoId(selectedClip.url);
-    if (!videoId) return null;
-    return `https://www.youtube.com/embed/${videoId}?start=${Math.floor(selectedClip.startTime)}&autoplay=0&rel=0&modestbranding=1`;
-  }, [selectedClip]);
 
   useEffect(() => {
     if (clips.length === 0) {
@@ -85,42 +63,36 @@ export function ResultsView() {
     }
   }, [clips.length, router]);
 
-  const handleOpenInYouTube = (clip: StoredClip) => {
-    const videoId = getYouTubeVideoId(clip.url);
-    if (videoId) {
-      const url = `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(clip.startTime)}s`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setOpenedClips(prev => new Set(prev).add(clip.id));
-    }
+  const handleDownloadClip = (clip: StoredClip) => {
+    // Create download link
+    const a = document.createElement('a');
+    a.href = clip.url;
+    a.download = `${clip.name}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setDownloadedClips(prev => new Set(prev).add(clip.id));
   };
 
-  const handleCopyDownloadCommand = (clip: StoredClip) => {
-    const videoId = getYouTubeVideoId(clip.url);
-    if (videoId) {
-      // Generate yt-dlp command for downloading specific segment
-      const command = `yt-dlp -f "bestvideo[height<=1080]+bestaudio/best" --download-sections "*${formatTime(clip.startTime)}-${formatTime(clip.endTime)}" -o "${clip.name}.%(ext)s" "https://www.youtube.com/watch?v=${videoId}"`;
-      navigator.clipboard.writeText(command);
-      setCopiedCommand(clip.id);
-      setTimeout(() => setCopiedCommand(null), 2000);
+  const handleDownloadAll = async () => {
+    if (clips.length === 0) return;
+    setIsDownloadingAll(true);
+
+    for (const clip of clips) {
+      handleDownloadClip(clip);
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
-  };
 
-  const handleCopyAllCommands = () => {
-    const commands = clips
-      .map(clip => {
-        const videoId = getYouTubeVideoId(clip.url);
-        if (!videoId) return '';
-        return `yt-dlp -f "bestvideo[height<=1080]+bestaudio/best" --download-sections "*${formatTime(clip.startTime)}-${formatTime(clip.endTime)}" -o "${clip.name}.%(ext)s" "https://www.youtube.com/watch?v=${videoId}"`;
-      })
-      .filter(Boolean)
-      .join('\n');
-
-    navigator.clipboard.writeText(commands);
-    setCopiedCommand('all');
-    setTimeout(() => setCopiedCommand(null), 2000);
+    setIsDownloadingAll(false);
   };
 
   const handleClearAndRestart = () => {
+    // Revoke all blob URLs
+    clips.forEach(clip => {
+      if (clip.url.startsWith('blob:')) {
+        URL.revokeObjectURL(clip.url);
+      }
+    });
     localStorage.removeItem('openstage-clips');
     localStorage.removeItem('openstage-wizard-state');
     router.push('/create');
@@ -181,7 +153,7 @@ export function ResultsView() {
           <p className="mt-2 flex items-center gap-2 text-zinc-400">
             <CheckCircle2 className="h-4 w-4 text-green-400" />
             {clips.length} clip{clips.length !== 1 ? 's' : ''} listo
-            {clips.length !== 1 ? 's' : ''} para usar
+            {clips.length !== 1 ? 's' : ''} para descargar
           </p>
         </div>
 
@@ -194,23 +166,19 @@ export function ResultsView() {
             Nuevo video
           </button>
           <button
-            onClick={handleCopyAllCommands}
-            className={cn(
-              'flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all',
-              copiedCommand === 'all'
-                ? 'bg-green-600 text-white'
-                : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40'
-            )}
+            onClick={handleDownloadAll}
+            disabled={isDownloadingAll}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-violet-500/25 transition-all hover:shadow-violet-500/40 disabled:opacity-50"
           >
-            {copiedCommand === 'all' ? (
+            {isDownloadingAll ? (
               <>
-                <Check className="h-4 w-4" />
-                Copiado!
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Descargando...
               </>
             ) : (
               <>
-                <Download className="h-4 w-4" />
-                Copiar comandos
+                <Archive className="h-4 w-4" />
+                Descargar todos
               </>
             )}
           </button>
@@ -218,17 +186,18 @@ export function ResultsView() {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-5">
-        {/* Video preview - larger */}
+        {/* Video preview */}
         <div className="lg:col-span-3">
           <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/80 shadow-2xl">
-            {selectedClip && embedUrl ? (
+            {selectedClip ? (
               <div className="relative aspect-video bg-black">
-                <iframe
+                <video
+                  ref={videoRef}
                   key={selectedClip.id}
-                  src={embedUrl}
-                  className="h-full w-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
+                  src={selectedClip.url}
+                  className="h-full w-full object-contain"
+                  controls
+                  playsInline
                 />
               </div>
             ) : (
@@ -286,50 +255,27 @@ export function ResultsView() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => handleOpenInYouTube(selectedClip)}
-                      className={cn(
-                        'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
-                        openedClips.has(selectedClip.id)
-                          ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                          : 'bg-red-600 text-white hover:bg-red-500'
-                      )}
-                    >
-                      {openedClips.has(selectedClip.id) ? (
-                        <>
-                          <CheckCircle2 className="h-4 w-4" />
-                          Abierto
-                        </>
-                      ) : (
-                        <>
-                          <Play className="h-4 w-4" />
-                          Ver en YouTube
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleCopyDownloadCommand(selectedClip)}
-                      className={cn(
-                        'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
-                        copiedCommand === selectedClip.id
-                          ? 'bg-green-600 text-white'
-                          : 'bg-zinc-700 text-white hover:bg-zinc-600'
-                      )}
-                    >
-                      {copiedCommand === selectedClip.id ? (
-                        <>
-                          <Check className="h-4 w-4" />
-                          Copiado!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4" />
-                          Copiar comando
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => handleDownloadClip(selectedClip)}
+                    className={cn(
+                      'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
+                      downloadedClips.has(selectedClip.id)
+                        ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                        : 'bg-violet-600 text-white hover:bg-violet-500'
+                    )}
+                  >
+                    {downloadedClips.has(selectedClip.id) ? (
+                      <>
+                        <CheckCircle2 className="h-4 w-4" />
+                        Descargado
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4" />
+                        Descargar
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             )}
@@ -349,6 +295,7 @@ export function ResultsView() {
             <div className="space-y-3">
               {clips.map((clip, index) => {
                 const isSelected = index === selectedClipIndex;
+                const isDownloaded = downloadedClips.has(clip.id);
 
                 return (
                   <button
@@ -362,7 +309,6 @@ export function ResultsView() {
                     )}
                   >
                     <div className="flex items-start gap-4">
-                      {/* Platform icon */}
                       <div
                         className={cn(
                           'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-xl transition-all',
@@ -375,7 +321,6 @@ export function ResultsView() {
                         {FORMAT_ICONS[clip.format.id]?.icon || '▶'}
                       </div>
 
-                      {/* Info */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <p
@@ -386,7 +331,7 @@ export function ResultsView() {
                           >
                             {clip.name}
                           </p>
-                          {openedClips.has(clip.id) && (
+                          {isDownloaded && (
                             <CheckCircle2 className="h-4 w-4 shrink-0 text-green-400" />
                           )}
                         </div>
@@ -400,7 +345,6 @@ export function ResultsView() {
                         </div>
                       </div>
 
-                      {/* Score */}
                       <div
                         className={cn(
                           'flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold',
@@ -413,23 +357,22 @@ export function ResultsView() {
                       </div>
                     </div>
 
-                    {/* Reason preview */}
                     <p className="mt-3 line-clamp-1 text-xs text-zinc-500">{clip.reason}</p>
                   </button>
                 );
               })}
             </div>
 
-            {/* Info card */}
-            <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+            {/* Success message */}
+            <div className="mt-6 rounded-xl border border-green-500/20 bg-green-500/5 p-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
-                  <Sparkles className="h-4 w-4 text-amber-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/10">
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-zinc-300">Próximamente</p>
+                  <p className="text-sm font-medium text-green-400">Clips listos</p>
                   <p className="mt-1 text-xs text-zinc-500">
-                    Descarga directa de clips procesados con subtítulos y formato optimizado.
+                    Tus clips han sido procesados y están listos para descargar.
                   </p>
                 </div>
               </div>

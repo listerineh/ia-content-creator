@@ -4,81 +4,37 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface GenerationProgress {
-  stage:
-    | 'loading'
-    | 'extracting'
-    | 'analyzing'
-    | 'transcribing'
-    | 'generating'
-    | 'subtitles'
-    | 'done'
-    | 'error';
-  progress: number;
-  message: string;
-  currentClip?: number;
-  totalClips?: number;
-}
-
-interface GeneratedClip {
-  id: string;
-  name: string;
-  format: { id: string; name: string; aspectRatio: string };
-  startTime: number;
-  endTime: number;
-  duration: number;
-  url: string;
-  score: number;
-  reason: string;
-}
-
-interface ProcessingConfig {
-  videoUrl: string;
-  formats: string[];
-  intent: string;
-  subtitles: {
-    enabled: boolean;
-    style: string;
-    position: string;
-    alignment: string;
-    language: string;
-  };
-}
+import {
+  processVideo,
+  type ProcessingProgress,
+  type GeneratedClip,
+  type ProcessingConfig,
+} from '@/lib/video/video-processor-client';
 
 const STORAGE_KEY = 'openstage-wizard-state';
 
 interface ProcessingState {
   status: 'idle' | 'processing' | 'done' | 'error';
-  progress: GenerationProgress | null;
+  progress: ProcessingProgress | null;
   clips: GeneratedClip[];
   error: string | null;
 }
 
-const STAGE_LABELS: Record<GenerationProgress['stage'], string> = {
+type ProgressStage = ProcessingProgress['stage'];
+
+const STAGE_LABELS: Record<ProgressStage, string> = {
   loading: 'Cargando procesador de video',
-  extracting: 'Extrayendo audio',
+  downloading: 'Descargando video',
   analyzing: 'Analizando momentos clave',
-  transcribing: 'Transcribiendo audio',
   generating: 'Generando clips',
-  subtitles: 'Agregando subtítulos',
   done: 'Completado',
   error: 'Error',
 };
 
-const STAGE_ORDER: GenerationProgress['stage'][] = [
-  'loading',
-  'extracting',
-  'analyzing',
-  'transcribing',
-  'generating',
-  'subtitles',
-  'done',
-];
+const STAGE_ORDER: ProgressStage[] = ['loading', 'downloading', 'analyzing', 'generating', 'done'];
 
 export function ProcessingView() {
   const router = useRouter();
-  const workerRef = useRef<Worker | null>(null);
   const [state, setState] = useState<ProcessingState>({
     status: 'idle',
     progress: null,
@@ -127,76 +83,49 @@ export function ProcessingView() {
 
     setState(prev => ({ ...prev, status: 'processing' }));
 
-    // Create Web Worker for processing
-    const worker = new Worker('/workers/video-processor.js');
-    workerRef.current = worker;
+    try {
+      // Process video using FFmpeg client
+      const clips = await processVideo(config, progress => {
+        setState(prev => ({
+          ...prev,
+          progress,
+        }));
+      });
 
-    worker.onmessage = (event: MessageEvent) => {
-      const { type, payload } = event.data;
+      setState(prev => ({
+        ...prev,
+        status: 'done',
+        clips,
+      }));
 
-      switch (type) {
-        case 'PROGRESS':
-          setState(prev => ({
-            ...prev,
-            progress: payload as GenerationProgress,
-          }));
-          break;
+      // Store clips info for results page (without blob, just URL)
+      localStorage.setItem(
+        'openstage-clips',
+        JSON.stringify(
+          clips.map(c => ({
+            id: c.id,
+            name: c.name,
+            format: c.format,
+            startTime: c.startTime,
+            endTime: c.endTime,
+            duration: c.duration,
+            url: c.url,
+            score: c.score,
+            reason: c.reason,
+          }))
+        )
+      );
 
-        case 'PROCESSING_COMPLETE': {
-          const clips = payload.clips as GeneratedClip[];
-          setState(prev => ({
-            ...prev,
-            status: 'done',
-            clips,
-          }));
-
-          // Store clips info for results page
-          localStorage.setItem(
-            'openstage-clips',
-            JSON.stringify(
-              clips.map((c: GeneratedClip) => ({
-                id: c.id,
-                name: c.name,
-                format: c.format,
-                startTime: c.startTime,
-                endTime: c.endTime,
-                duration: c.duration,
-                url: c.url,
-                score: c.score,
-                reason: c.reason,
-              }))
-            )
-          );
-
-          setTimeout(() => {
-            router.push('/results');
-          }, 1500);
-          break;
-        }
-
-        case 'ERROR':
-          setState(prev => ({
-            ...prev,
-            status: 'error',
-            error: payload.error || 'Error desconocido',
-          }));
-          break;
-      }
-    };
-
-    worker.onerror = (error: ErrorEvent) => {
+      setTimeout(() => {
+        router.push('/results');
+      }, 1500);
+    } catch (error) {
       setState(prev => ({
         ...prev,
         status: 'error',
-        error: error.message || 'Error en el worker',
+        error: error instanceof Error ? error.message : 'Error desconocido',
       }));
-    };
-
-    // Start processing
-    worker.postMessage({
-      type: 'PROCESS_VIDEO',
-      payload: config,
-    });
+    }
   }, [router]);
 
   // Start processing on mount
