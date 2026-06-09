@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { User, Session, SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 
 interface AuthState {
@@ -17,9 +17,18 @@ export function useAuth() {
     loading: true,
   });
 
-  const supabase = createClient();
+  const supabaseRef = useRef<SupabaseClient | null>(null);
+
+  const getSupabase = useCallback(() => {
+    if (!supabaseRef.current) {
+      supabaseRef.current = createClient();
+    }
+    return supabaseRef.current;
+  }, []);
 
   useEffect(() => {
+    const supabase = getSupabase();
+
     const getSession = async () => {
       const {
         data: { session },
@@ -45,21 +54,23 @@ export function useAuth() {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [getSupabase]);
 
   const signInWithEmail = useCallback(
     async (email: string, password: string) => {
+      const supabase = getSupabase();
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       return { data, error };
     },
-    [supabase.auth]
+    [getSupabase]
   );
 
   const signUpWithEmail = useCallback(
     async (email: string, password: string, metadata?: { full_name?: string }) => {
+      const supabase = getSupabase();
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -70,10 +81,11 @@ export function useAuth() {
       });
       return { data, error };
     },
-    [supabase.auth]
+    [getSupabase]
   );
 
   const signInWithGoogle = useCallback(async () => {
+    const supabase = getSupabase();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -81,12 +93,13 @@ export function useAuth() {
       },
     });
     return { data, error };
-  }, [supabase.auth]);
+  }, [getSupabase]);
 
   const signOut = useCallback(async () => {
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signOut();
     return { error };
-  }, [supabase.auth]);
+  }, [getSupabase]);
 
   return {
     user: state.user,
