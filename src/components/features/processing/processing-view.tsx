@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,21 +28,20 @@ interface GeneratedClip {
   startTime: number;
   endTime: number;
   duration: number;
-  blob: Blob;
   url: string;
   score: number;
   reason: string;
 }
 
-interface GenerationConfig {
+interface ProcessingConfig {
   videoUrl: string;
   formats: string[];
-  intent: 'viral' | 'songs' | 'highlights' | 'funny';
+  intent: string;
   subtitles: {
     enabled: boolean;
-    style: 'minimal' | 'bold' | 'karaoke' | 'outline';
-    position: 'top' | 'center' | 'bottom';
-    alignment: 'left' | 'center' | 'right';
+    style: string;
+    position: string;
+    alignment: string;
     language: string;
   };
 }
@@ -79,6 +78,7 @@ const STAGE_ORDER: GenerationProgress['stage'][] = [
 
 export function ProcessingView() {
   const router = useRouter();
+  const workerRef = useRef<Worker | null>(null);
   const [state, setState] = useState<ProcessingState>({
     status: 'idle',
     progress: null,
@@ -112,7 +112,7 @@ export function ProcessingView() {
       return;
     }
 
-    const config: GenerationConfig = {
+    const config: ProcessingConfig = {
       videoUrl: wizardState.videoUrl,
       formats: wizardState.selectedFormats,
       intent: wizardState.selectedIntent,
@@ -127,85 +127,86 @@ export function ProcessingView() {
 
     setState(prev => ({ ...prev, status: 'processing' }));
 
-    try {
-      // TODO: Implement actual video processing
-      // For now, simulate processing to test the UI
-      const stages: GenerationProgress['stage'][] = [
-        'loading',
-        'extracting',
-        'analyzing',
-        'transcribing',
-        'generating',
-        'subtitles',
-      ];
+    // Create Web Worker for processing
+    const worker = new Worker('/workers/video-processor.js', { type: 'module' });
+    workerRef.current = worker;
 
-      for (let i = 0; i < stages.length; i++) {
-        setState(prev => ({
-          ...prev,
-          progress: {
-            stage: stages[i],
-            progress: ((i + 1) / stages.length) * 100,
-            message: `${STAGE_LABELS[stages[i]]}...`,
-          },
-        }));
-        await new Promise(resolve => setTimeout(resolve, 1000));
+    worker.onmessage = (event: MessageEvent) => {
+      const { type, payload } = event.data;
+
+      switch (type) {
+        case 'PROGRESS':
+          setState(prev => ({
+            ...prev,
+            progress: payload as GenerationProgress,
+          }));
+          break;
+
+        case 'PROCESSING_COMPLETE': {
+          const clips = payload.clips as GeneratedClip[];
+          setState(prev => ({
+            ...prev,
+            status: 'done',
+            clips,
+          }));
+
+          // Store clips info for results page
+          localStorage.setItem(
+            'openstage-clips',
+            JSON.stringify(
+              clips.map((c: GeneratedClip) => ({
+                id: c.id,
+                name: c.name,
+                format: c.format,
+                startTime: c.startTime,
+                endTime: c.endTime,
+                duration: c.duration,
+                url: c.url,
+                score: c.score,
+                reason: c.reason,
+              }))
+            )
+          );
+
+          setTimeout(() => {
+            router.push('/results');
+          }, 1500);
+          break;
+        }
+
+        case 'ERROR':
+          setState(prev => ({
+            ...prev,
+            status: 'error',
+            error: payload.error || 'Error desconocido',
+          }));
+          break;
       }
+    };
 
-      // Simulate generated clips
-      const clips: GeneratedClip[] = config.formats.map((formatId, index) => ({
-        id: `clip-${Date.now()}-${index}`,
-        name: `Clip ${index + 1} - ${formatId}`,
-        format: { id: formatId, name: formatId, aspectRatio: '9:16' },
-        startTime: 0,
-        endTime: 30,
-        duration: 30,
-        blob: new Blob(),
-        url: '',
-        score: 0.85,
-        reason: 'Momento destacado detectado',
-      }));
-
-      setState(prev => ({
-        ...prev,
-        status: 'done',
-        clips,
-      }));
-
-      // Store clips info for results page
-      localStorage.setItem(
-        'openstage-clips',
-        JSON.stringify(
-          clips.map((c: GeneratedClip) => ({
-            id: c.id,
-            name: c.name,
-            format: c.format,
-            startTime: c.startTime,
-            endTime: c.endTime,
-            duration: c.duration,
-            url: c.url,
-            score: c.score,
-            reason: c.reason,
-          }))
-        )
-      );
-
-      setTimeout(() => {
-        router.push('/results');
-      }, 1500);
-    } catch (error) {
+    worker.onerror = (error: ErrorEvent) => {
       setState(prev => ({
         ...prev,
         status: 'error',
-        error: error instanceof Error ? error.message : 'Error desconocido',
+        error: error.message || 'Error en el worker',
       }));
-    }
+    };
+
+    // Start processing
+    worker.postMessage({
+      type: 'PROCESS_VIDEO',
+      payload: config,
+    });
   }, [router]);
 
+  // Start processing on mount
+  const hasStartedRef = useRef(false);
   useEffect(() => {
-    if (state.status === 'idle') {
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true;
       startProcessing();
     }
-  }, [state.status, startProcessing]);
+  }, [startProcessing]);
 
   const currentStageIndex = state.progress ? STAGE_ORDER.indexOf(state.progress.stage) : -1;
 
