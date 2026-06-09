@@ -33,7 +33,7 @@ OpenStage es una plataforma all-in-one diseñada para bandas y músicos que quie
 ### Requisitos
 
 - Node.js 18+
-- npm 9+
+- pnpm 10+
 
 ### Instalación
 
@@ -43,13 +43,13 @@ git clone https://github.com/listerineh/ia-content-creator.git
 cd ia-content-creator
 
 # Instalar dependencias
-npm install
+pnpm install
 
 # Configurar variables de entorno
 cp .env.example .env.local
 
 # Iniciar servidor de desarrollo
-npm run dev
+pnpm dev
 ```
 
 Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
@@ -76,15 +76,15 @@ src/
 
 ## 🛠️ Scripts Disponibles
 
-| Comando                | Descripción                   |
-| ---------------------- | ----------------------------- |
-| `npm run dev`          | Inicia servidor de desarrollo |
-| `npm run build`        | Construye para producción     |
-| `npm run start`        | Inicia servidor de producción |
-| `npm run lint`         | Ejecuta ESLint                |
-| `npm run lint:fix`     | Corrige errores de ESLint     |
-| `npm run format`       | Formatea código con Prettier  |
-| `npm run format:check` | Verifica formato              |
+| Comando             | Descripción                   |
+| ------------------- | ----------------------------- |
+| `pnpm dev`          | Inicia servidor de desarrollo |
+| `pnpm build`        | Construye para producción     |
+| `pnpm start`        | Inicia servidor de producción |
+| `pnpm lint`         | Ejecuta ESLint                |
+| `pnpm lint:fix`     | Corrige errores de ESLint     |
+| `pnpm format`       | Formatea código con Prettier  |
+| `pnpm format:check` | Verifica formato              |
 
 ## 🤝 Contribuir
 
