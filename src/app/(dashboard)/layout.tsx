@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -13,8 +14,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect('/login');
   }
 
-  const firstName = user.user_metadata?.full_name?.split(' ')[0] || 'Usuario';
-  const initials = firstName.charAt(0).toUpperCase();
+  const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario';
+  const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+  const initials = fullName.charAt(0).toUpperCase();
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-950">
@@ -50,17 +52,27 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {/* User Menu */}
           <div className="group relative">
             <button className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-zinc-800/50">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-sm font-medium text-white">
-                {initials}
-              </div>
-              <span className="hidden text-sm text-zinc-300 sm:block">{firstName}</span>
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={fullName}
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-sm font-medium text-white">
+                  {initials}
+                </div>
+              )}
+              <span className="hidden text-sm text-zinc-300 sm:block">{fullName}</span>
               <ChevronDown className="h-4 w-4 text-zinc-500" />
             </button>
 
             {/* Dropdown */}
             <div className="invisible absolute right-0 top-full mt-2 w-56 rounded-xl border border-zinc-800 bg-zinc-900 p-2 opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100">
               <div className="border-b border-zinc-800 px-3 py-2">
-                <p className="text-sm font-medium text-white">{firstName}</p>
+                <p className="text-sm font-medium text-white">{fullName}</p>
                 <p className="text-xs text-zinc-500">{user.email}</p>
               </div>
               <div className="mt-2 space-y-1">
