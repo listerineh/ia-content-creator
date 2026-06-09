@@ -16,5 +16,9 @@ const ResultsView = dynamic(
 );
 
 export default function ResultsPage() {
-  return <ResultsView />;
+  return (
+    <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+      <ResultsView />
+    </div>
+  );
 }

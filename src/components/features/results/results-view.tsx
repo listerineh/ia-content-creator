@@ -10,11 +10,13 @@ import {
   RefreshCw,
   Play,
   Sparkles,
-  ExternalLink,
   CheckCircle2,
   Video,
   Zap,
   TrendingUp,
+  Download,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -64,8 +66,8 @@ export function ResultsView() {
     return stored ? JSON.parse(stored) : [];
   });
   const [selectedClipIndex, setSelectedClipIndex] = useState(0);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadedClips, setDownloadedClips] = useState<Set<string>>(new Set());
+  const [copiedCommand, setCopiedCommand] = useState<string | null>(null);
+  const [openedClips, setOpenedClips] = useState<Set<string>>(new Set());
 
   const selectedClip = clips[selectedClipIndex] || null;
 
@@ -83,29 +85,39 @@ export function ResultsView() {
     }
   }, [clips.length, router]);
 
-  const handleDownloadClip = (clip: StoredClip) => {
-    // Open YouTube video in new tab (since we can't download directly)
+  const handleOpenInYouTube = (clip: StoredClip) => {
     const videoId = getYouTubeVideoId(clip.url);
     if (videoId) {
-      window.open(
-        `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(clip.startTime)}`,
-        '_blank'
-      );
-      setDownloadedClips(prev => new Set(prev).add(clip.id));
+      const url = `https://www.youtube.com/watch?v=${videoId}&t=${Math.floor(clip.startTime)}s`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setOpenedClips(prev => new Set(prev).add(clip.id));
     }
   };
 
-  const handleDownloadAll = async () => {
-    if (clips.length === 0) return;
-    setIsDownloading(true);
-
-    // Open all clips in new tabs
-    for (const clip of clips) {
-      handleDownloadClip(clip);
-      await new Promise(resolve => setTimeout(resolve, 300));
+  const handleCopyDownloadCommand = (clip: StoredClip) => {
+    const videoId = getYouTubeVideoId(clip.url);
+    if (videoId) {
+      // Generate yt-dlp command for downloading specific segment
+      const command = `yt-dlp -f "bestvideo[height<=1080]+bestaudio/best" --download-sections "*${formatTime(clip.startTime)}-${formatTime(clip.endTime)}" -o "${clip.name}.%(ext)s" "https://www.youtube.com/watch?v=${videoId}"`;
+      navigator.clipboard.writeText(command);
+      setCopiedCommand(clip.id);
+      setTimeout(() => setCopiedCommand(null), 2000);
     }
+  };
 
-    setIsDownloading(false);
+  const handleCopyAllCommands = () => {
+    const commands = clips
+      .map(clip => {
+        const videoId = getYouTubeVideoId(clip.url);
+        if (!videoId) return '';
+        return `yt-dlp -f "bestvideo[height<=1080]+bestaudio/best" --download-sections "*${formatTime(clip.startTime)}-${formatTime(clip.endTime)}" -o "${clip.name}.%(ext)s" "https://www.youtube.com/watch?v=${videoId}"`;
+      })
+      .filter(Boolean)
+      .join('\n');
+
+    navigator.clipboard.writeText(commands);
+    setCopiedCommand('all');
+    setTimeout(() => setCopiedCommand(null), 2000);
   };
 
   const handleClearAndRestart = () => {
@@ -182,19 +194,23 @@ export function ResultsView() {
             Nuevo video
           </button>
           <button
-            onClick={handleDownloadAll}
-            disabled={isDownloading}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-violet-500/25 transition-all hover:shadow-violet-500/40 disabled:opacity-50"
+            onClick={handleCopyAllCommands}
+            className={cn(
+              'flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all',
+              copiedCommand === 'all'
+                ? 'bg-green-600 text-white'
+                : 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40'
+            )}
           >
-            {isDownloading ? (
+            {copiedCommand === 'all' ? (
               <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Abriendo...
+                <Check className="h-4 w-4" />
+                Copiado!
               </>
             ) : (
               <>
-                <ExternalLink className="h-4 w-4" />
-                Abrir todos
+                <Download className="h-4 w-4" />
+                Copiar comandos
               </>
             )}
           </button>
@@ -270,27 +286,50 @@ export function ResultsView() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => handleDownloadClip(selectedClip)}
-                    className={cn(
-                      'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
-                      downloadedClips.has(selectedClip.id)
-                        ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                        : 'bg-violet-600 text-white hover:bg-violet-500'
-                    )}
-                  >
-                    {downloadedClips.has(selectedClip.id) ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4" />
-                        Abierto
-                      </>
-                    ) : (
-                      <>
-                        <ExternalLink className="h-4 w-4" />
-                        Abrir en YouTube
-                      </>
-                    )}
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => handleOpenInYouTube(selectedClip)}
+                      className={cn(
+                        'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
+                        openedClips.has(selectedClip.id)
+                          ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                          : 'bg-red-600 text-white hover:bg-red-500'
+                      )}
+                    >
+                      {openedClips.has(selectedClip.id) ? (
+                        <>
+                          <CheckCircle2 className="h-4 w-4" />
+                          Abierto
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-4 w-4" />
+                          Ver en YouTube
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleCopyDownloadCommand(selectedClip)}
+                      className={cn(
+                        'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
+                        copiedCommand === selectedClip.id
+                          ? 'bg-green-600 text-white'
+                          : 'bg-zinc-700 text-white hover:bg-zinc-600'
+                      )}
+                    >
+                      {copiedCommand === selectedClip.id ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          Copiado!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-4 w-4" />
+                          Copiar comando
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -310,7 +349,6 @@ export function ResultsView() {
             <div className="space-y-3">
               {clips.map((clip, index) => {
                 const isSelected = index === selectedClipIndex;
-                const isDownloaded = downloadedClips.has(clip.id);
 
                 return (
                   <button
@@ -348,7 +386,7 @@ export function ResultsView() {
                           >
                             {clip.name}
                           </p>
-                          {isDownloaded && (
+                          {openedClips.has(clip.id) && (
                             <CheckCircle2 className="h-4 w-4 shrink-0 text-green-400" />
                           )}
                         </div>
