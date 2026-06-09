@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { LogoIcon } from '@/components/ui/logo';
 import { Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -57,28 +58,21 @@ export default function LoginPage() {
       {/* Content */}
       <div className="relative z-10 w-full max-w-sm">
         {/* Logo */}
-        <div className="mb-10 text-center">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600 mb-4">
-            <svg
-              className="h-6 w-6 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-              />
-            </svg>
+        <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="mb-4 inline-block animate-in zoom-in duration-700">
+            <LogoIcon size={56} className="drop-shadow-[0_0_15px_rgba(124,58,237,0.5)]" />
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">OpenStage</h1>
-          <p className="mt-2 text-sm text-zinc-500">Inicia sesión para continuar</p>
+          <h1 className="text-2xl font-bold tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150">
+            <span className="text-white">Open</span>
+            <span className="text-violet-400">Stage</span>
+          </h1>
+          <p className="mt-2 text-sm text-zinc-500 animate-in fade-in duration-500 delay-300">
+            Inicia sesión para continuar
+          </p>
         </div>
 
         {/* Form card */}
-        <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/50 p-8 backdrop-blur-sm">
+        <div className="rounded-2xl border border-zinc-800/50 bg-zinc-900/50 p-8 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
           <form onSubmit={handleLogin} className="space-y-5">
             {error && (
               <div className="animate-in fade-in slide-in-from-top-2 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">
