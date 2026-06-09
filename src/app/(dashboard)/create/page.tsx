@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { VideoUrlInput } from '@/components/features/video-upload';
 import {
   FormatSelector,
@@ -19,6 +19,7 @@ import {
   Sparkles,
   Type,
   Check,
+  RotateCcw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,25 @@ interface VideoInfo {
   contentLength?: number;
 }
 
+interface WizardState {
+  currentStep: Step;
+  videoUrl: string | null;
+  videoInfo: VideoInfo | null;
+  selectedFormats: string[];
+  selectedIntent: string | null;
+  subtitleSettings: SubtitleSettings;
+}
+
+const STORAGE_KEY = 'openstage-wizard-state';
+
+const DEFAULT_SUBTITLE_SETTINGS: SubtitleSettings = {
+  enabled: true,
+  style: 'bold',
+  position: 'bottom',
+  alignment: 'center',
+  language: 'auto',
+};
+
 const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'video', label: 'Video', icon: Film },
   { id: 'formats', label: 'Formatos', icon: Layers },
@@ -38,25 +58,55 @@ const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'subtitles', label: 'Subtítulos', icon: Type },
 ];
 
+function usePersistedState<T>(
+  key: string,
+  defaultValue: T
+): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [state, setState] = useState<T>(() => {
+    if (typeof window === 'undefined') return defaultValue;
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return defaultValue;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(key, JSON.stringify(state));
+    } catch {
+      // ignore
+    }
+  }, [key, state]);
+
+  return [state, setState];
+}
+
 export default function CreatePage() {
-  const [currentStep, setCurrentStep] = useState<Step>('video');
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
+  const [wizardState, setWizardState] = usePersistedState<WizardState>(STORAGE_KEY, {
+    currentStep: 'video',
+    videoUrl: null,
+    videoInfo: null,
+    selectedFormats: [],
+    selectedIntent: 'viral',
+    subtitleSettings: DEFAULT_SUBTITLE_SETTINGS,
+  });
+
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
-  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  const [selectedIntent, setSelectedIntent] = useState<string | null>('viral');
-  const [subtitleSettings, setSubtitleSettings] = useState<SubtitleSettings>({
-    enabled: true,
-    style: 'bold',
-    position: 'bottom',
-    alignment: 'center',
-    language: 'auto',
-  });
+
+  const { currentStep, videoUrl, videoInfo, selectedFormats, selectedIntent, subtitleSettings } =
+    wizardState;
+
+  const updateWizard = (updates: Partial<WizardState>) => {
+    setWizardState(prev => ({ ...prev, ...updates }));
+  };
 
   const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
 
-  const verifyVideo = useCallback(async (url: string) => {
+  const verifyVideo = async (url: string) => {
     setIsVerifying(true);
     setVerifyError(null);
 
@@ -70,8 +120,7 @@ export default function CreatePage() {
       const data = await response.json();
 
       if (data.accessible) {
-        setVideoInfo(data);
-        setVideoUrl(url);
+        updateWizard({ videoInfo: data, videoUrl: url });
       } else {
         setVerifyError(data.error || 'No se pudo acceder al video');
       }
@@ -80,7 +129,7 @@ export default function CreatePage() {
     } finally {
       setIsVerifying(false);
     }
-  }, []);
+  };
 
   const handleUrlSubmit = (url: string) => {
     verifyVideo(url);
@@ -88,11 +137,11 @@ export default function CreatePage() {
 
   const handleNext = () => {
     if (currentStep === 'video' && videoInfo) {
-      setCurrentStep('formats');
+      updateWizard({ currentStep: 'formats' });
     } else if (currentStep === 'formats' && selectedFormats.length > 0) {
-      setCurrentStep('intent');
+      updateWizard({ currentStep: 'intent' });
     } else if (currentStep === 'intent' && selectedIntent) {
-      setCurrentStep('subtitles');
+      updateWizard({ currentStep: 'subtitles' });
     } else if (currentStep === 'subtitles') {
       // Aquí iría la lógica de procesamiento
       console.log('Procesando...', {
@@ -106,17 +155,28 @@ export default function CreatePage() {
 
   const handleBack = () => {
     if (currentStep === 'formats') {
-      setCurrentStep('video');
+      updateWizard({ currentStep: 'video' });
     } else if (currentStep === 'intent') {
-      setCurrentStep('formats');
+      updateWizard({ currentStep: 'formats' });
     } else if (currentStep === 'subtitles') {
-      setCurrentStep('intent');
+      updateWizard({ currentStep: 'intent' });
     }
   };
 
   const handleReset = () => {
-    setVideoUrl(null);
-    setVideoInfo(null);
+    updateWizard({ videoUrl: null, videoInfo: null });
+    setVerifyError(null);
+  };
+
+  const handleClearAll = () => {
+    setWizardState({
+      currentStep: 'video',
+      videoUrl: null,
+      videoInfo: null,
+      selectedFormats: [],
+      selectedIntent: 'viral',
+      subtitleSettings: DEFAULT_SUBTITLE_SETTINGS,
+    });
     setVerifyError(null);
   };
 
@@ -128,15 +188,28 @@ export default function CreatePage() {
     return false;
   };
 
+  const hasProgress = videoUrl || selectedFormats.length > 0 || currentStep !== 'video';
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-10 md:px-8 lg:px-12">
       <div className="space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Crear clips</h1>
-          <p className="mt-2 text-sm text-zinc-500">
-            Configura tu video para generar clips optimizados
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-white">Crear clips</h1>
+            <p className="mt-2 text-sm text-zinc-500">
+              Configura tu video para generar clips optimizados
+            </p>
+          </div>
+          {hasProgress && (
+            <button
+              onClick={handleClearAll}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-500 transition-colors hover:bg-zinc-800/50 hover:text-white"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reiniciar
+            </button>
+          )}
         </div>
 
         {/* Steps indicator */}
@@ -255,7 +328,7 @@ export default function CreatePage() {
 
               <FormatSelector
                 selectedFormats={selectedFormats}
-                onSelectionChange={setSelectedFormats}
+                onSelectionChange={formats => updateWizard({ selectedFormats: formats })}
               />
             </div>
           )}
@@ -270,7 +343,7 @@ export default function CreatePage() {
 
               <IntentSelector
                 selectedIntent={selectedIntent}
-                onSelectionChange={setSelectedIntent}
+                onSelectionChange={intent => updateWizard({ selectedIntent: intent })}
               />
             </div>
           )}
@@ -285,7 +358,10 @@ export default function CreatePage() {
                 </p>
               </div>
 
-              <SubtitleConfig settings={subtitleSettings} onChange={setSubtitleSettings} />
+              <SubtitleConfig
+                settings={subtitleSettings}
+                onChange={settings => updateWizard({ subtitleSettings: settings })}
+              />
             </div>
           )}
         </div>
