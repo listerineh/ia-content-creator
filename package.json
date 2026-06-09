@@ -12,7 +12,11 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:migrate": "supabase db push",
+    "db:reset": "supabase db reset",
+    "db:diff": "supabase db diff",
+    "db:types": "supabase gen types typescript --local > src/types/database.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -25,6 +29,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",
@@ -46,6 +52,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
+    "supabase": "^2.105.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
