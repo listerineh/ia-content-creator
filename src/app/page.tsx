@@ -81,7 +81,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-6">
             <a
-              href="https://github.com/listerineh/ia-content-creator"
+              href="https://github.com/listerineh/open-stage"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden text-sm font-medium text-zinc-400 transition-colors hover:text-white sm:block"
@@ -285,7 +285,7 @@ export default function Home() {
                   <ArrowRight className="h-5 w-5" />
                 </Link>
                 <a
-                  href="https://github.com/listerineh/ia-content-creator"
+                  href="https://github.com/listerineh/open-stage"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800/50 px-8 py-4 text-base font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-800 hover:text-white"
@@ -324,7 +324,7 @@ export default function Home() {
             {/* Links */}
             <div className="flex items-center gap-6 text-sm text-zinc-500">
               <a
-                href="https://github.com/listerineh/ia-content-creator"
+                href="https://github.com/listerineh/open-stage"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-colors hover:text-white"

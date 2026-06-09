@@ -114,7 +114,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {/* Links */}
             <div className="flex items-center gap-4 text-sm text-zinc-500">
               <a
-                href="https://github.com/listerineh/ia-content-creator"
+                href="https://github.com/listerineh/open-stage"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-colors hover:text-white"

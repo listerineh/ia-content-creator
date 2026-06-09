@@ -41,8 +41,8 @@ OpenStage es una plataforma all-in-one diseñada para bandas y músicos que quie
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/listerineh/ia-content-creator.git
-cd ia-content-creator
+git clone https://github.com/listerineh/open-stage.git
+cd open-stage
 
 # Instalar dependencias
 pnpm install
