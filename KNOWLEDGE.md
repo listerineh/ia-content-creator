@@ -82,6 +82,30 @@ Seguimos SemVer: `vMAJOR.MINOR.PATCH`
 - ESLint + Prettier + Husky para calidad de código
 - lint-staged para pre-commit hooks
 
+### [2026-06-09] Supabase SSR y Build en CI
+
+**Problema:** El build fallaba en CI porque las variables de entorno de Supabase no estaban disponibles durante el pre-render de páginas estáticas.
+
+**Solución:**
+
+- Lazy initialization del cliente Supabase (crear dentro de `useEffect`, no en el render)
+- Usar `useRef` para mantener una única instancia del cliente
+- Middleware defensivo que hace skip si no hay env vars
+- Función `validateEnv()` separada para validación explícita en runtime
+
+**Archivos clave:**
+
+- `src/contexts/auth-context.tsx` - AuthProvider con lazy init
+- `src/hooks/use-auth.ts` - Hook con lazy init
+- `src/lib/supabase/middleware.ts` - Skip si no hay config
+- `src/lib/env.ts` - Validación separada
+
+### [2026-06-09] Vercel + GitHub Actions
+
+**Problema:** Workflows de deploy duplicaban el trabajo de Vercel.
+
+**Solución:** Eliminar workflows de deploy, dejar solo CI (lint + build). Vercel maneja deploys automáticamente al estar conectado a GitHub.
+
 ---
 
 ## Limitaciones Conocidas

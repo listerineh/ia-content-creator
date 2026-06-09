@@ -76,15 +76,18 @@ src/
 
 ## 🛠️ Scripts Disponibles
 
-| Comando             | Descripción                   |
-| ------------------- | ----------------------------- |
-| `pnpm dev`          | Inicia servidor de desarrollo |
-| `pnpm build`        | Construye para producción     |
-| `pnpm start`        | Inicia servidor de producción |
-| `pnpm lint`         | Ejecuta ESLint                |
-| `pnpm lint:fix`     | Corrige errores de ESLint     |
-| `pnpm format`       | Formatea código con Prettier  |
-| `pnpm format:check` | Verifica formato              |
+| Comando             | Descripción                      |
+| ------------------- | -------------------------------- |
+| `pnpm dev`          | Inicia servidor de desarrollo    |
+| `pnpm build`        | Construye para producción        |
+| `pnpm start`        | Inicia servidor de producción    |
+| `pnpm lint`         | Ejecuta ESLint                   |
+| `pnpm lint:fix`     | Corrige errores de ESLint        |
+| `pnpm format`       | Formatea código con Prettier     |
+| `pnpm format:check` | Verifica formato                 |
+| `pnpm db:migrate`   | Aplica migraciones a Supabase    |
+| `pnpm db:reset`     | Resetea la base de datos         |
+| `pnpm db:types`     | Genera tipos TypeScript de la DB |
 
 ## 🤝 Contribuir
 
