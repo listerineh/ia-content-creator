@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎸 OpenStage
 
-## Getting Started
+**Plataforma open source para que músicos generen y gestionen contenido para redes sociales.**
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+---
+
+## 🎯 ¿Qué es OpenStage?
+
+OpenStage es una plataforma all-in-one diseñada para bandas y músicos que quieren:
+
+- **Generar clips** optimizados automáticamente desde videos largos (shows, ensayos, sesiones)
+- **Añadir subtítulos** y formatear para cada red social (TikTok, Instagram, YouTube)
+- **Centralizar métricas** de todas las plataformas (Spotify prioritario)
+- **Gestionar equipos** (bandas) con roles y permisos
+- **Programar publicaciones** en múltiples redes sociales
+
+## ✨ Características Principales
+
+- 🎬 **Generación inteligente de clips** - Detecta momentos clave, canciones completas, highlights
+- 📝 **Subtítulos automáticos** - Transcripción con Whisper, estilos personalizables
+- 📊 **Dashboard unificado** - Métricas de Spotify, YouTube, TikTok, Instagram en un solo lugar
+- 👥 **Gestión de bandas** - Invita miembros, asigna roles, colabora
+- 📁 **Almacén de contenido** - Organiza tus clips en carpetas, historial completo
+- 🚀 **Publicación directa** - Sube a redes sociales sin salir de la plataforma
+
+## 🚀 Inicio Rápido
+
+### Requisitos
+
+- Node.js 18+
+- npm 9+
+
+### Instalación
 
 ```bash
+# Clonar el repositorio
+git clone https://github.com/listerineh/ia-content-creator.git
+cd ia-content-creator
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env.local
+
+# Iniciar servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Estructura del Proyecto
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── (auth)/            # Rutas de autenticación
+│   ├── (dashboard)/       # Rutas protegidas
+│   └── api/               # API Routes
+├── components/
+│   ├── ui/                # Componentes shadcn/ui
+│   └── features/          # Componentes por feature
+├── lib/
+│   ├── supabase/          # Cliente y tipos de Supabase
+│   ├── video/             # Procesamiento de video
+│   └── ai/                # Integraciones de IA
+├── hooks/                 # Custom React hooks
+├── stores/                # Zustand stores
+└── types/                 # TypeScript types
+```
 
-## Learn More
+## 🛠️ Scripts Disponibles
 
-To learn more about Next.js, take a look at the following resources:
+| Comando                | Descripción                   |
+| ---------------------- | ----------------------------- |
+| `npm run dev`          | Inicia servidor de desarrollo |
+| `npm run build`        | Construye para producción     |
+| `npm run start`        | Inicia servidor de producción |
+| `npm run lint`         | Ejecuta ESLint                |
+| `npm run lint:fix`     | Corrige errores de ESLint     |
+| `npm run format`       | Formatea código con Prettier  |
+| `npm run format:check` | Verifica formato              |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contribuir
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+¡Las contribuciones son bienvenidas! Por favor lee [CONTRIBUTING.md](docs/CONTRIBUTING.md) para detalles sobre el proceso.
 
-## Deploy on Vercel
+### Flujo de Git
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `main` - Producción estable
+- `develop` - Integración y staging
+- `feature/*` - Nuevas funcionalidades
+- `fix/*` - Corrección de bugs
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Convención de Commits
+
+```
+tipo(alcance): descripción breve
+
+Ejemplos:
+feat(auth): agregar login con Google
+fix(video): corregir error en upload
+docs(readme): actualizar instrucciones
+```
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+
+## 🙏 Agradecimientos
+
+- [Next.js](https://nextjs.org/) - Framework React
+- [Supabase](https://supabase.com/) - Backend as a Service
+- [shadcn/ui](https://ui.shadcn.com/) - Componentes UI
+- [Whisper](https://github.com/openai/whisper) - Transcripción de audio
+
+---
+
+**Hecho con ❤️ para músicos, por músicos.**
