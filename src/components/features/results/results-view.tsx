@@ -60,7 +60,7 @@ export function ResultsView() {
 
   useEffect(() => {
     if (clips.length === 0) {
-      router.push('/create');
+      router.push('/tools/clip-generator');
     }
   }, [clips.length, router]);
 
@@ -121,7 +121,7 @@ export function ResultsView() {
     });
     localStorage.removeItem('openstage-clips');
     localStorage.removeItem('openstage-wizard-state');
-    router.push('/create');
+    router.push('/tools/clip-generator');
   };
 
   const formatTime = (seconds: number) => {
@@ -152,7 +152,7 @@ export function ResultsView() {
           <h2 className="text-xl font-semibold text-white">No hay clips</h2>
           <p className="mt-2 text-zinc-400">No se encontraron clips generados.</p>
           <Link
-            href="/create"
+            href="/tools/clip-generator"
             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-violet-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-violet-500"
           >
             <Sparkles className="h-4 w-4" />
@@ -169,7 +169,7 @@ export function ResultsView() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link
-            href="/create"
+            href="/tools/clip-generator"
             className="mb-3 inline-flex items-center gap-1.5 text-sm text-zinc-400 transition-colors hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { Sparkles, LayoutDashboard, Plus, ChevronDown, LogOut, User } from 'lucide-react';
+import { Sparkles, LayoutDashboard, ChevronDown, LogOut, User } from 'lucide-react';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -39,13 +39,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             >
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
-            </Link>
-            <Link
-              href="/create"
-              className="flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-500"
-            >
-              <Plus className="h-4 w-4" />
-              Crear
             </Link>
           </nav>
 
@@ -103,34 +96,34 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Footer */}
       <footer className="border-t border-zinc-800/50 bg-zinc-950">
-        <div className="mx-auto max-w-5xl px-6 py-8 md:px-8 lg:px-12">
-          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-            {/* Logo & Description */}
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600/20">
-                <Sparkles className="h-4 w-4 text-violet-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-white">OpenStage</p>
-                <p className="text-xs text-zinc-500">Clips virales para músicos</p>
-              </div>
-            </div>
+        <div className="mx-auto max-w-5xl px-6 py-6 md:px-8 lg:px-12">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            {/* Made with love */}
+            <p className="flex items-center gap-1.5 text-sm text-zinc-500">
+              Hecho con ❤️ para músicos por{' '}
+              <a
+                href="https://listerineh.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-violet-400 transition-colors hover:text-violet-300"
+              >
+                listerineh
+              </a>
+            </p>
 
             {/* Links */}
-            <div className="flex items-center gap-6 text-sm">
-              <Link href="/help" className="text-zinc-500 transition-colors hover:text-white">
-                Ayuda
-              </Link>
-              <Link href="/privacy" className="text-zinc-500 transition-colors hover:text-white">
-                Privacidad
-              </Link>
-              <Link href="/terms" className="text-zinc-500 transition-colors hover:text-white">
-                Términos
-              </Link>
+            <div className="flex items-center gap-4 text-sm text-zinc-500">
+              <a
+                href="https://github.com/listerineh/open-stage"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:text-white"
+              >
+                GitHub
+              </a>
+              <span className="text-zinc-700">•</span>
+              <span>MIT License</span>
             </div>
-
-            {/* Copyright */}
-            <p className="text-xs text-zinc-600">© {new Date().getFullYear()} OpenStage</p>
           </div>
         </div>
       </footer>
