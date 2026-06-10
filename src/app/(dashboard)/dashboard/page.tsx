@@ -1,61 +1,74 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Sparkles, TrendingUp, Users, Zap } from 'lucide-react';
+import { TrendingUp, Users, Zap } from 'lucide-react';
+import { Logo } from '@/components/ui/logo';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
   description: 'Panel de control de OpenStage para gestionar tu banda y contenido.',
 };
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const fullName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
+  const firstName = fullName.split(' ')[0];
+
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pt-16 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
+    <div className="mx-auto max-w-4xl px-4 py-6 pt-22 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
       {/* Page Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">
-            Bienvenido a OpenStage
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            Tu plataforma todo-en-uno para crear contenido viral
-          </p>
+      <div>
+        {/* Logo solo en mobile */}
+        <div className="mb-6 flex items-center gap-3 lg:hidden">
+          <Logo size="lg" />
         </div>
+
+        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Bienvenido, {firstName}
+        </h1>
+        <p className="mt-2 text-base text-zinc-400 sm:text-lg">
+          Tu plataforma todo-en-uno para gestionar contenido y redes sociales de tu banda
+        </p>
       </div>
 
       {/* Quick Stats */}
-      <section className="mt-10">
-        <h2 className="text-lg font-medium text-white">Resumen</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+      <section className="mt-8 sm:mt-10">
+        <h2 className="text-xl font-medium text-white sm:text-lg">Resumen</h2>
+        <div className="mt-6 grid gap-5 sm:mt-4 sm:grid-cols-3 sm:gap-4">
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
-                <Zap className="h-5 w-5 text-violet-400" />
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 sm:h-10 sm:w-10 sm:rounded-lg">
+                <Zap className="h-7 w-7 text-violet-400 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <p className="text-2xl font-semibold text-white">0</p>
-                <p className="text-xs text-zinc-500">Clips generados</p>
+                <p className="text-3xl font-semibold text-white sm:text-2xl">0</p>
+                <p className="mt-1 text-sm text-zinc-500 sm:mt-0 sm:text-xs">Clips generados</p>
               </div>
             </div>
           </div>
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                <TrendingUp className="h-5 w-5 text-emerald-400" />
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 sm:h-10 sm:w-10 sm:rounded-lg">
+                <TrendingUp className="h-7 w-7 text-emerald-400 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <p className="text-2xl font-semibold text-white">-</p>
-                <p className="text-xs text-zinc-500">Alcance total</p>
+                <p className="text-3xl font-semibold text-white sm:text-2xl">-</p>
+                <p className="mt-1 text-sm text-zinc-500 sm:mt-0 sm:text-xs">Alcance total</p>
               </div>
             </div>
           </div>
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-                <Users className="h-5 w-5 text-blue-400" />
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 sm:h-10 sm:w-10 sm:rounded-lg">
+                <Users className="h-7 w-7 text-blue-400 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <p className="text-2xl font-semibold text-white">-</p>
-                <p className="text-xs text-zinc-500">Seguidores</p>
+                <p className="text-3xl font-semibold text-white sm:text-2xl">-</p>
+                <p className="mt-1 text-sm text-zinc-500 sm:mt-0 sm:text-xs">Seguidores</p>
               </div>
             </div>
           </div>

@@ -328,10 +328,7 @@ export function Sidebar({ user }: SidebarProps) {
   return (
     <>
       {/* Mobile top nav with hamburger */}
-      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-4 backdrop-blur-xl lg:hidden">
-        <Link href="/dashboard">
-          <Logo size="sm" />
-        </Link>
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-end border-b border-zinc-800/50 bg-zinc-950/80 px-4 backdrop-blur-xl lg:hidden">
         <button
           onClick={() => setIsOpen(true)}
           className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-2 backdrop-blur-sm transition-colors hover:bg-zinc-800"

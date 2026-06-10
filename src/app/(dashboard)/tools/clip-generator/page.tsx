@@ -21,11 +21,8 @@ import {
   Type,
   Check,
   RotateCcw,
-  Music,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useBandContext } from '@/contexts/band-context';
-import Image from 'next/image';
 
 type Step = 'video' | 'formats' | 'intent' | 'subtitles';
 
@@ -73,7 +70,6 @@ const DEFAULT_WIZARD_STATE: WizardState = {
 
 export default function ClipGeneratorPage() {
   const router = useRouter();
-  const { currentBand } = useBandContext();
   const [isHydrated, setIsHydrated] = useState(false);
   const [wizardState, setWizardState] = useState<WizardState>(DEFAULT_WIZARD_STATE);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -193,38 +189,19 @@ export default function ClipGeneratorPage() {
     isHydrated && (videoUrl || selectedFormats.length > 0 || currentStep !== 'video');
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pt-16 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
+    <div className="mx-auto max-w-4xl px-4 py-6 pt-20 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
       <div className="space-y-8">
         {/* Header */}
         <div className="space-y-4">
           {/* Title + Reset */}
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            <div className="flex-1">
+              <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                 Generador de Clips
               </h1>
-              <p className="mt-1 text-sm text-zinc-500">
-                {currentBand ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="hidden sm:inline">Creando para</span>
-                    <span className="inline-flex items-center gap-1 font-medium text-white">
-                      {currentBand.logo_url ? (
-                        <Image
-                          src={currentBand.logo_url}
-                          alt={currentBand.name}
-                          width={14}
-                          height={14}
-                          className="h-3.5 w-3.5 rounded object-cover"
-                        />
-                      ) : (
-                        <Music className="h-3 w-3 text-violet-400" />
-                      )}
-                      {currentBand.name}
-                    </span>
-                  </span>
-                ) : (
-                  'Crea clips virales desde tus videos'
-                )}
+              <p className="mt-2 text-sm text-zinc-400 sm:text-base">
+                Transforma tus videos en clips virales optimizados para TikTok, Reels, YouTube
+                Shorts y más. Soporta múltiples formatos y configuraciones personalizadas.
               </p>
             </div>
             {hasProgress && (
@@ -240,8 +217,8 @@ export default function ClipGeneratorPage() {
         </div>
 
         {/* Steps indicator */}
-        <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-          <div className="flex min-w-max items-center sm:min-w-0">
+        <div className="overflow-x-auto">
+          <div className="flex min-w-max items-center justify-center gap-2 pb-2 sm:min-w-0 sm:justify-start sm:gap-0 sm:pb-0">
             {STEPS.map((step, index) => {
               const Icon = step.icon;
               const isCompleted = index < currentStepIndex;
@@ -249,7 +226,7 @@ export default function ClipGeneratorPage() {
               const isLast = index === STEPS.length - 1;
 
               return (
-                <div key={step.id} className={cn('flex items-center', !isLast && 'flex-1')}>
+                <div key={step.id} className={cn('flex items-center', !isLast && 'sm:flex-1')}>
                   <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-3">
                     <div
                       className={cn(
@@ -285,7 +262,7 @@ export default function ClipGeneratorPage() {
                   {!isLast && (
                     <div
                       className={cn(
-                        'mx-2 h-px flex-1 sm:mx-4',
+                        'mx-2 h-px w-8 shrink-0 sm:mx-4 sm:w-auto sm:flex-1',
                         index < currentStepIndex ? 'bg-emerald-500' : 'bg-zinc-800'
                       )}
                     />
@@ -297,7 +274,7 @@ export default function ClipGeneratorPage() {
         </div>
 
         {/* Step content */}
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:rounded-2xl sm:p-6 md:p-8">
+        <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:rounded-2xl sm:p-6 md:p-8">
           {currentStep === 'video' && (
             <div className="space-y-6">
               <div>
@@ -327,14 +304,16 @@ export default function ClipGeneratorPage() {
                   )}
                 </div>
               ) : (
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10">
+                <div className="overflow-hidden rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10">
                       <CheckCircle className="h-6 w-6 text-emerald-400" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-white">Video verificado</p>
-                      <p className="mt-0.5 truncate text-sm text-zinc-500">{videoUrl}</p>
+                      <p className="mt-0.5 break-all text-xs text-zinc-500 sm:text-sm">
+                        {videoUrl}
+                      </p>
                     </div>
                   </div>
                   <button
