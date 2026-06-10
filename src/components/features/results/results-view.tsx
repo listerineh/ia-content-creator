@@ -19,8 +19,6 @@ import {
   Play,
   HardDrive,
   Loader2,
-  Settings,
-  CloudOff,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useBandContext } from '@/contexts/band-context';
@@ -251,6 +249,15 @@ export function ResultsView() {
                 {currentBand.name}
               </span>
             )}
+            {currentBand && !canSaveToDrive && (
+              <a
+                href={`/bands/${currentBand.slug}/settings`}
+                className="inline-flex items-center gap-1.5 text-xs text-zinc-500 transition-colors hover:text-violet-400"
+              >
+                <HardDrive className="h-3.5 w-3.5" />
+                Conectar Drive
+              </a>
+            )}
           </div>
           {/* Drive status message */}
           {canSaveToDrive && (
@@ -266,24 +273,6 @@ export function ResultsView() {
                   Guardado en tu carpeta de Drive
                 </span>
               ) : null}
-            </div>
-          )}
-          {currentBand && !canSaveToDrive && (
-            <div className="mt-3 flex items-center gap-3 rounded-lg border border-zinc-700 bg-zinc-800/50 px-4 py-3">
-              <CloudOff className="h-5 w-5 text-zinc-500" />
-              <div className="flex-1">
-                <p className="text-sm text-zinc-300">Google Drive no conectado</p>
-                <p className="text-xs text-zinc-500">
-                  Conecta Drive para guardar clips automáticamente
-                </p>
-              </div>
-              <a
-                href={`/bands/${currentBand.slug}/settings#drive`}
-                className="flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-500"
-              >
-                <Settings className="h-4 w-4" />
-                Conectar
-              </a>
             </div>
           )}
         </div>
