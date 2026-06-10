@@ -33,7 +33,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6 md:px-8 lg:px-12">
+      <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12">
         {/* Logo */}
         <div className="flex items-center gap-4">
           <Link href="/dashboard">

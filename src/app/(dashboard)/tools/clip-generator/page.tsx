@@ -195,7 +195,7 @@ export default function ClipGeneratorPage() {
     isHydrated && (videoUrl || selectedFormats.length > 0 || currentStep !== 'video');
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 md:px-8 lg:px-12">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10 md:px-8 lg:px-12">
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

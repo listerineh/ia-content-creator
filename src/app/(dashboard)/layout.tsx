@@ -33,7 +33,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Footer */}
       <footer className="border-t border-zinc-800/50 bg-zinc-950">
-        <div className="mx-auto max-w-5xl px-6 py-6 md:px-8 lg:px-12">
+        <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 md:px-8 lg:px-12">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             {/* Made with love */}
             <p className="flex items-center gap-1.5 text-sm text-zinc-500">
