@@ -61,7 +61,11 @@ export function ResultsView() {
   const [selectedClipIndex, setSelectedClipIndex] = useState(0);
   const [downloadedClips, setDownloadedClips] = useState<Set<string>>(new Set());
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
-  const [savedToDrive, setSavedToDrive] = useState<Set<string>>(new Set());
+  const [savedToDrive, setSavedToDrive] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set();
+    const stored = localStorage.getItem('openstage-saved-to-drive');
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  });
   const [savingAllToDrive, setSavingAllToDrive] = useState(false);
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
 
@@ -93,6 +97,9 @@ export function ResultsView() {
         setSavingAllToDrive(true);
 
         for (const clip of clips) {
+          // Skip if already saved to Drive
+          if (savedToDrive.has(clip.id)) continue;
+
           try {
             // Verify blob URL is still valid
             if (!clip.url.startsWith('blob:')) continue;
@@ -115,7 +122,11 @@ export function ResultsView() {
             });
 
             if (uploadResponse.ok) {
-              setSavedToDrive(prev => new Set(prev).add(clip.id));
+              setSavedToDrive(prev => {
+                const newSet = new Set(prev).add(clip.id);
+                localStorage.setItem('openstage-saved-to-drive', JSON.stringify([...newSet]));
+                return newSet;
+              });
             } else {
               const errorData = await uploadResponse.json();
               throw new Error(errorData.error || 'Error al subir');

@@ -137,9 +137,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Generate better file name: {banda} - {formato} - {timestamp}
+    const { data: bandInfo } = await supabase
+      .from('bands')
+      .select('name')
+      .eq('id', bandId)
+      .single();
+
+    const bandName = bandInfo?.name || 'Clip';
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[T:]/g, '-');
+    const fileName = `${bandName} - ${formatFolderName} - ${timestamp}.mp4`;
+
     // Upload file to Google Drive (in format subfolder)
     const metadata = {
-      name: clipName || file.name,
+      name: fileName,
       parents: [targetFolderId],
     };
 
