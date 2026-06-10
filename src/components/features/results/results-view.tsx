@@ -63,7 +63,6 @@ export function ResultsView() {
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [savedToDrive, setSavedToDrive] = useState<Set<string>>(new Set());
   const [savingAllToDrive, setSavingAllToDrive] = useState(false);
-  const [autoSaveComplete, setAutoSaveComplete] = useState(false);
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
 
   const selectedClip = clips[selectedClipIndex] || null;
@@ -92,7 +91,6 @@ export function ResultsView() {
       // Auto-save all clips
       const saveAll = async () => {
         setSavingAllToDrive(true);
-        let savedCount = 0;
 
         for (const clip of clips) {
           try {
@@ -118,7 +116,6 @@ export function ResultsView() {
 
             if (uploadResponse.ok) {
               setSavedToDrive(prev => new Set(prev).add(clip.id));
-              savedCount++;
             } else {
               const errorData = await uploadResponse.json();
               throw new Error(errorData.error || 'Error al subir');
@@ -129,9 +126,6 @@ export function ResultsView() {
           }
         }
         setSavingAllToDrive(false);
-        if (savedCount > 0) {
-          setAutoSaveComplete(true);
-        }
       };
       saveAll();
     }
@@ -281,27 +275,6 @@ export function ResultsView() {
               </a>
             )}
           </div>
-          {/* Drive status message */}
-          {canSaveToDrive && (
-            <div className="mt-3 flex items-center gap-2 text-sm">
-              {savingAllToDrive ? (
-                <span className="flex items-center gap-2 text-amber-400">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Guardando automáticamente en Drive...
-                </span>
-              ) : autoSaveError ? (
-                <span className="flex items-center gap-2 text-red-400">
-                  <HardDrive className="h-4 w-4" />
-                  {autoSaveError}
-                </span>
-              ) : autoSaveComplete ? (
-                <span className="flex items-center gap-2 text-emerald-400">
-                  <HardDrive className="h-4 w-4" />
-                  Guardado en tu carpeta de Drive
-                </span>
-              ) : null}
-            </div>
-          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -402,27 +375,50 @@ export function ResultsView() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => handleDownloadClip(selectedClip)}
-                    className={cn(
-                      'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
-                      downloadedClips.has(selectedClip.id)
-                        ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                        : 'bg-violet-600 text-white hover:bg-violet-500'
-                    )}
-                  >
-                    {downloadedClips.has(selectedClip.id) ? (
+                  <div className="flex items-center gap-3">
+                    {/* Drive status */}
+                    {canSaveToDrive && (
                       <>
-                        <CheckCircle2 className="h-4 w-4" />
-                        Descargado
-                      </>
-                    ) : (
-                      <>
-                        <Download className="h-4 w-4" />
-                        Descargar
+                        {savingAllToDrive ? (
+                          <span className="flex items-center gap-2 text-sm text-amber-400">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Guardando...
+                          </span>
+                        ) : autoSaveError ? (
+                          <span className="flex items-center gap-2 text-sm text-red-400">
+                            <HardDrive className="h-4 w-4" />
+                            Error
+                          </span>
+                        ) : savedToDrive.has(selectedClip.id) ? (
+                          <span className="flex items-center gap-2 text-sm text-emerald-400">
+                            <HardDrive className="h-4 w-4" />
+                            En Drive
+                          </span>
+                        ) : null}
                       </>
                     )}
-                  </button>
+                    <button
+                      onClick={() => handleDownloadClip(selectedClip)}
+                      className={cn(
+                        'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
+                        downloadedClips.has(selectedClip.id)
+                          ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                          : 'bg-violet-600 text-white hover:bg-violet-500'
+                      )}
+                    >
+                      {downloadedClips.has(selectedClip.id) ? (
+                        <>
+                          <CheckCircle2 className="h-4 w-4" />
+                          Descargado
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4" />
+                          Descargar
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
