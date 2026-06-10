@@ -207,37 +207,35 @@ export default function ClipGeneratorPage() {
               <ArrowLeft className="h-3.5 w-3.5" />
               Volver al dashboard
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
-                <Video className="h-5 w-5 text-violet-400" />
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
+                <Video className="h-6 w-6 text-violet-400" />
               </div>
               <div>
                 <h1 className="text-2xl font-semibold tracking-tight text-white">
                   Generador de Clips
                 </h1>
-                <p className="text-sm text-zinc-500">
-                  {currentBand ? (
-                    <span className="flex items-center gap-1.5">
-                      Creando para{' '}
-                      <span className="inline-flex items-center gap-1 rounded bg-zinc-800 px-1.5 py-0.5 font-medium text-white">
-                        {currentBand.logo_url ? (
-                          <Image
-                            src={currentBand.logo_url}
-                            alt={currentBand.name}
-                            width={14}
-                            height={14}
-                            className="rounded"
-                          />
-                        ) : (
-                          <Music className="h-3 w-3 text-violet-400" />
-                        )}
-                        {currentBand.name}
-                      </span>
+                {currentBand ? (
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-sm text-zinc-500">Creando para</span>
+                    <span className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-sm font-medium text-white">
+                      {currentBand.logo_url ? (
+                        <Image
+                          src={currentBand.logo_url}
+                          alt={currentBand.name}
+                          width={20}
+                          height={20}
+                          className="rounded"
+                        />
+                      ) : (
+                        <Music className="h-4 w-4 text-violet-400" />
+                      )}
+                      {currentBand.name}
                     </span>
-                  ) : (
-                    'Crea clips virales desde tus videos'
-                  )}
-                </p>
+                  </div>
+                ) : (
+                  <p className="mt-1 text-sm text-zinc-500">Crea clips virales desde tus videos</p>
+                )}
               </div>
             </div>
           </div>
