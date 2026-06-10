@@ -81,17 +81,35 @@ export default function BandDetailPage() {
 
       setBand(bandData);
 
-      // Fetch members with profiles
-      const { data: membersData } = await supabase
-        .from('band_members')
-        .select('*, profiles(id, full_name, email, avatar_url)')
-        .eq('band_id', bandData.id)
-        .order('joined_at', { ascending: true });
+      // Fetch members using RPC function (bypasses RLS)
+      const { data: membersData } = await supabase.rpc('get_band_members', {
+        p_band_id: bandData.id,
+      });
 
-      setMembers((membersData as MemberWithProfile[]) || []);
+      // Fetch profiles for each member
+      if (membersData && membersData.length > 0) {
+        const userIds = membersData.map((m: BandMember) => m.user_id);
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name, email, avatar_url')
+          .in('id', userIds);
+
+        const membersWithProfiles = membersData.map((m: BandMember) => ({
+          ...m,
+          profiles: profilesData?.find(p => p.id === m.user_id) || {
+            id: m.user_id,
+            full_name: null,
+            email: null,
+            avatar_url: null,
+          },
+        }));
+        setMembers(membersWithProfiles as MemberWithProfile[]);
+      } else {
+        setMembers([]);
+      }
 
       // Get current user's role
-      const currentMember = membersData?.find(m => m.user_id === user.id);
+      const currentMember = membersData?.find((m: BandMember) => m.user_id === user.id);
       setUserRole(currentMember?.role || null);
 
       setLoading(false);
