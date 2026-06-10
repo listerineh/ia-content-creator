@@ -340,10 +340,14 @@ export default function BandDetailPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-white">
-                      {member.profiles.full_name || 'Sin nombre'}
+                      {member.profiles.full_name ||
+                        member.profiles.email?.split('@')[0] ||
+                        'Sin nombre'}
                       {isCurrentUser && <span className="ml-2 text-xs text-zinc-500">(tú)</span>}
                     </p>
-                    <p className="truncate text-xs text-zinc-500">{member.profiles.email}</p>
+                    {member.profiles.email && (
+                      <p className="truncate text-xs text-zinc-500">{member.profiles.email}</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-3 sm:justify-end">
