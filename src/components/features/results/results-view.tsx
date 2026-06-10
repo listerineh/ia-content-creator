@@ -257,7 +257,7 @@ export function ResultsView() {
                     alt={currentBand.name}
                     width={20}
                     height={20}
-                    className="rounded"
+                    className="h-5 w-5 rounded object-cover"
                   />
                 ) : (
                   <Music className="h-4 w-4 text-violet-400" />
