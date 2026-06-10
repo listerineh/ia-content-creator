@@ -64,6 +64,7 @@ export function ResultsView() {
   const [savedToDrive, setSavedToDrive] = useState<Set<string>>(new Set());
   const [savingAllToDrive, setSavingAllToDrive] = useState(false);
   const [autoSaveComplete, setAutoSaveComplete] = useState(false);
+  const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
 
   const selectedClip = clips[selectedClipIndex] || null;
   const canSaveToDrive = currentBand?.drive_folder_id;
@@ -118,9 +119,13 @@ export function ResultsView() {
             if (uploadResponse.ok) {
               setSavedToDrive(prev => new Set(prev).add(clip.id));
               savedCount++;
+            } else {
+              const errorData = await uploadResponse.json();
+              throw new Error(errorData.error || 'Error al subir');
             }
           } catch (error) {
             console.error('Auto-save error:', error);
+            setAutoSaveError(error instanceof Error ? error.message : 'Error al guardar en Drive');
           }
         }
         setSavingAllToDrive(false);
@@ -283,6 +288,11 @@ export function ResultsView() {
                 <span className="flex items-center gap-2 text-amber-400">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Guardando automáticamente en Drive...
+                </span>
+              ) : autoSaveError ? (
+                <span className="flex items-center gap-2 text-red-400">
+                  <HardDrive className="h-4 w-4" />
+                  {autoSaveError}
                 </span>
               ) : autoSaveComplete ? (
                 <span className="flex items-center gap-2 text-emerald-400">

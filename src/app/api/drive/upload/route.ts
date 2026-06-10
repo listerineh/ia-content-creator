@@ -86,10 +86,61 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upload file to Google Drive
+    // Format folder names
+    const FORMAT_FOLDER_NAMES: Record<string, string> = {
+      tiktok: 'TikTok',
+      reels: 'Reels',
+      shorts: 'YouTube Shorts',
+      instagram: 'Instagram',
+      youtube: 'YouTube',
+    };
+
+    const formatFolderName = FORMAT_FOLDER_NAMES[format] || format || 'Other';
+
+    // Find or create format subfolder
+    let targetFolderId = band.drive_folder_id;
+
+    // Search for existing format folder
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q='${band.drive_folder_id}'+in+parents+and+name='${formatFolderName}'+and+mimeType='application/vnd.google-apps.folder'+and+trashed=false&fields=files(id,name)`,
+      {
+        headers: {
+          Authorization: `Bearer ${currentAccessToken}`,
+        },
+      }
+    );
+
+    if (searchResponse.ok) {
+      const searchResult = await searchResponse.json();
+      if (searchResult.files && searchResult.files.length > 0) {
+        // Use existing folder
+        targetFolderId = searchResult.files[0].id;
+      } else {
+        // Create new format folder
+        const createFolderResponse = await fetch('https://www.googleapis.com/drive/v3/files', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${currentAccessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formatFolderName,
+            mimeType: 'application/vnd.google-apps.folder',
+            parents: [band.drive_folder_id],
+          }),
+        });
+
+        if (createFolderResponse.ok) {
+          const newFolder = await createFolderResponse.json();
+          targetFolderId = newFolder.id;
+        }
+      }
+    }
+
+    // Upload file to Google Drive (in format subfolder)
     const metadata = {
       name: clipName || file.name,
-      parents: [band.drive_folder_id],
+      parents: [targetFolderId],
     };
 
     // Create multipart upload
