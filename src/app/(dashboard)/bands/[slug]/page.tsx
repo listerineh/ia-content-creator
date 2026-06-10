@@ -178,24 +178,26 @@ export default function BandDetailPage() {
       </Link>
 
       {/* Band header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-violet-500/10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 sm:h-20 sm:w-20 sm:rounded-2xl">
             {band.logo_url ? (
               <Image
                 src={band.logo_url}
                 alt={band.name}
                 width={80}
                 height={80}
-                className="h-full w-full rounded-2xl object-cover"
+                className="h-full w-full rounded-xl object-cover sm:rounded-2xl"
               />
             ) : (
-              <Music className="h-10 w-10 text-violet-400" />
+              <Music className="h-7 w-7 text-violet-400 sm:h-10 sm:w-10" />
             )}
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-white">{band.name}</h1>
-            <div className="mt-1 flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              {band.name}
+            </h1>
+            <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-3">
               {band.genre && (
                 <span className="rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs text-zinc-400">
                   {band.genre}
@@ -213,13 +215,13 @@ export default function BandDetailPage() {
                 ) : (
                   <>
                     <Copy className="h-3 w-3" />
-                    {band.slug}
+                    <span className="truncate max-w-[120px] sm:max-w-none">{band.slug}</span>
                   </>
                 )}
               </button>
             </div>
             {band.description && (
-              <p className="mt-3 max-w-lg text-sm text-zinc-400">{band.description}</p>
+              <p className="mt-2 text-sm text-zinc-400 sm:mt-3">{band.description}</p>
             )}
           </div>
         </div>
@@ -228,22 +230,24 @@ export default function BandDetailPage() {
           {band.drive_folder_id && (
             <Link href={`/bands/${band.slug}/clips`}>
               <Button
+                size="sm"
                 variant="outline"
                 className="border-zinc-700 bg-transparent hover:bg-zinc-800"
               >
-                <Video className="mr-2 h-4 w-4" />
-                Clips
+                <Video className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Clips</span>
               </Button>
             </Link>
           )}
           {isAdmin && (
             <Link href={`/bands/${band.slug}/settings`}>
               <Button
+                size="sm"
                 variant="outline"
                 className="border-zinc-700 bg-transparent hover:bg-zinc-800"
               >
-                <Settings className="mr-2 h-4 w-4" />
-                Configuración
+                <Settings className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Configuración</span>
               </Button>
             </Link>
           )}
@@ -252,7 +256,7 @@ export default function BandDetailPage() {
 
       {/* Members section */}
       <section className="mt-10">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-zinc-500" />
             <h2 className="text-lg font-medium text-white">Miembros</h2>
@@ -268,8 +272,8 @@ export default function BandDetailPage() {
                 onClick={handleLeaveBand}
                 className="border-zinc-700 bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-red-400"
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Salir
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Salir</span>
               </Button>
             )}
             {isAdmin && (
@@ -293,10 +297,10 @@ export default function BandDetailPage() {
             return (
               <div
                 key={member.id}
-                className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
+                className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-800">
                     {member.profiles.avatar_url ? (
                       <Image
                         src={member.profiles.avatar_url}
@@ -311,20 +315,20 @@ export default function BandDetailPage() {
                       </span>
                     )}
                   </div>
-                  <div>
-                    <p className="font-medium text-white">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-white">
                       {member.profiles.full_name || 'Sin nombre'}
                       {isCurrentUser && <span className="ml-2 text-xs text-zinc-500">(tú)</span>}
                     </p>
-                    <p className="text-xs text-zinc-500">{member.profiles.email}</p>
+                    <p className="truncate text-xs text-zinc-500">{member.profiles.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3 sm:justify-end">
                   <div className="flex items-center gap-1.5">
                     <RoleIcon className={cn('h-4 w-4', roleConfig.color)} />
                     <span className={cn('text-sm', roleConfig.color)}>{roleConfig.label}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-zinc-600">
+                  <div className="hidden items-center gap-1 text-xs text-zinc-600 sm:flex">
                     <Calendar className="h-3 w-3" />
                     {new Date(member.joined_at).toLocaleDateString()}
                   </div>

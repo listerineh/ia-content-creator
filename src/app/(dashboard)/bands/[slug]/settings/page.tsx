@@ -182,7 +182,7 @@ export default function BandSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 md:px-8 lg:px-12">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10 md:px-8 lg:px-12">
       {/* Back link */}
       <Link
         href={`/bands/${band.slug}`}
@@ -192,14 +192,14 @@ export default function BandSettingsPage() {
         Volver a {band.name}
       </Link>
 
-      <h1 className="text-2xl font-semibold tracking-tight text-white">Configuración</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">Configuración</h1>
       <p className="mt-1 text-sm text-zinc-500">Administra la configuración de tu banda</p>
 
       {/* General settings */}
       <section className="mt-8">
         <h2 className="text-lg font-medium text-white">General</h2>
         <form onSubmit={handleSave} className="mt-4 space-y-4">
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 space-y-4">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-4 sm:p-6">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-zinc-400">Logo de la banda</label>
               <LogoUpload
@@ -293,7 +293,7 @@ export default function BandSettingsPage() {
 
       {/* Invitations */}
       <section id="invitations" className="mt-10">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-medium text-white">Códigos de invitación</h2>
           <Button
             size="sm"
@@ -319,10 +319,10 @@ export default function BandSettingsPage() {
             invitations.map(invitation => (
               <div
                 key={invitation.id}
-                className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/50 p-4"
+                className="flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4"
               >
                 <div className="flex items-center gap-3">
-                  <code className="rounded bg-zinc-800 px-3 py-1.5 font-mono text-sm text-white">
+                  <code className="rounded bg-zinc-800 px-2 py-1 font-mono text-xs text-white sm:px-3 sm:py-1.5 sm:text-sm">
                     {invitation.code}
                   </code>
                   <button
@@ -336,7 +336,7 @@ export default function BandSettingsPage() {
                     )}
                   </button>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between gap-4 sm:justify-end">
                   <span className="text-xs text-zinc-500">
                     Usos: {invitation.uses}
                     {invitation.max_uses && `/${invitation.max_uses}`}
@@ -357,7 +357,7 @@ export default function BandSettingsPage() {
       {/* Danger zone */}
       <section className="mt-10">
         <h2 className="text-lg font-medium text-red-400">Zona de peligro</h2>
-        <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 p-6">
+        <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 p-4 sm:p-6">
           <h3 className="font-medium text-white">Eliminar banda</h3>
           <p className="mt-1 text-sm text-zinc-400">
             Esta acción eliminará permanentemente la banda y todo su contenido.
