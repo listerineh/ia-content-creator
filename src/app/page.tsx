@@ -97,13 +97,13 @@ export default function Home() {
             </a>
             <Link
               href="/login"
-              className="text-xs font-medium text-zinc-400 transition-colors hover:text-white sm:text-sm"
+              className="text-sm font-medium text-zinc-400 transition-colors hover:text-white"
             >
               Iniciar sesión
             </Link>
             <Link
               href="/signup"
-              className="whitespace-nowrap rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-500 sm:px-4 sm:py-2 sm:text-sm"
+              className="hidden rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-500 sm:block"
             >
               Comenzar gratis
             </Link>
