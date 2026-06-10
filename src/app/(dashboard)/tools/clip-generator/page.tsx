@@ -198,43 +198,46 @@ export default function ClipGeneratorPage() {
     <div className="mx-auto max-w-4xl px-6 py-10 md:px-8 lg:px-12">
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <Link
               href="/dashboard"
               className="mb-2 inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-white"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Volver al dashboard
+              <span className="hidden sm:inline">Volver al dashboard</span>
+              <span className="sm:hidden">Volver</span>
             </Link>
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/10">
-                <Video className="h-6 w-6 text-violet-400" />
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 sm:h-12 sm:w-12">
+                <Video className="h-5 w-5 text-violet-400 sm:h-6 sm:w-6" />
               </div>
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight text-white">
+                <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
                   Generador de Clips
                 </h1>
                 {currentBand ? (
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <span className="text-sm text-zinc-500">Creando para</span>
-                    <span className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-1.5 text-sm font-medium text-white">
+                  <div className="mt-1 flex items-center gap-2 sm:mt-1.5">
+                    <span className="hidden text-sm text-zinc-500 sm:inline">Creando para</span>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-2 py-1 text-xs font-medium text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-sm">
                       {currentBand.logo_url ? (
                         <Image
                           src={currentBand.logo_url}
                           alt={currentBand.name}
                           width={20}
                           height={20}
-                          className="h-5 w-5 rounded object-cover"
+                          className="h-4 w-4 rounded object-cover sm:h-5 sm:w-5"
                         />
                       ) : (
-                        <Music className="h-4 w-4 text-violet-400" />
+                        <Music className="h-3.5 w-3.5 text-violet-400 sm:h-4 sm:w-4" />
                       )}
                       {currentBand.name}
                     </span>
                   </div>
                 ) : (
-                  <p className="mt-1 text-sm text-zinc-500">Crea clips virales desde tus videos</p>
+                  <p className="mt-1 text-xs text-zinc-500 sm:text-sm">
+                    Crea clips virales desde tus videos
+                  </p>
                 )}
               </div>
             </div>
@@ -242,10 +245,10 @@ export default function ClipGeneratorPage() {
           {hasProgress && (
             <button
               onClick={handleClearAll}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-500 transition-colors hover:bg-zinc-800/50 hover:text-white"
+              className="flex items-center gap-2 self-start rounded-lg px-3 py-2 text-sm text-zinc-500 transition-colors hover:bg-zinc-800/50 hover:text-white"
             >
               <RotateCcw className="h-4 w-4" />
-              Reiniciar
+              <span className="hidden sm:inline">Reiniciar</span>
             </button>
           )}
         </div>
@@ -258,11 +261,11 @@ export default function ClipGeneratorPage() {
             const isCurrent = step.id === currentStep;
 
             return (
-              <div key={step.id} className="flex items-center">
-                <div className="flex items-center gap-3">
+              <div key={step.id} className="flex flex-1 items-center">
+                <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-3">
                   <div
                     className={cn(
-                      'flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all',
+                      'flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all sm:h-10 sm:w-10',
                       isCompleted
                         ? 'border-emerald-500 bg-emerald-500'
                         : isCurrent
@@ -271,16 +274,19 @@ export default function ClipGeneratorPage() {
                     )}
                   >
                     {isCompleted ? (
-                      <Check className="h-5 w-5 text-white" />
+                      <Check className="h-4 w-4 text-white sm:h-5 sm:w-5" />
                     ) : (
                       <Icon
-                        className={cn('h-5 w-5', isCurrent ? 'text-violet-400' : 'text-zinc-500')}
+                        className={cn(
+                          'h-4 w-4 sm:h-5 sm:w-5',
+                          isCurrent ? 'text-violet-400' : 'text-zinc-500'
+                        )}
                       />
                     )}
                   </div>
                   <span
                     className={cn(
-                      'text-sm font-medium',
+                      'text-xs font-medium sm:text-sm',
                       isCurrent ? 'text-white' : isCompleted ? 'text-zinc-400' : 'text-zinc-600'
                     )}
                   >
@@ -291,7 +297,7 @@ export default function ClipGeneratorPage() {
                 {index < STEPS.length - 1 && (
                   <div
                     className={cn(
-                      'mx-4 h-px w-16 sm:w-24',
+                      'mx-2 h-px flex-1 sm:mx-4',
                       index < currentStepIndex ? 'bg-emerald-500' : 'bg-zinc-800'
                     )}
                   />
@@ -302,7 +308,7 @@ export default function ClipGeneratorPage() {
         </div>
 
         {/* Step content */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 sm:p-8">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:rounded-2xl sm:p-6 md:p-8">
           {currentStep === 'video' && (
             <div className="space-y-6">
               <div>
@@ -401,25 +407,31 @@ export default function ClipGeneratorPage() {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between pt-4">
+        <div className="flex items-center justify-between gap-4 pt-4">
           <div>
             {currentStepIndex > 0 && (
-              <Button variant="outline" size="lg" onClick={handleBack}>
+              <Button variant="outline" size="default" className="sm:size-lg" onClick={handleBack}>
                 <ArrowLeft className="h-4 w-4" />
-                Atrás
+                <span className="hidden sm:inline">Atrás</span>
               </Button>
             )}
           </div>
 
-          <Button size="lg" onClick={handleNext} disabled={!canProceed()}>
+          <Button
+            size="default"
+            className="sm:size-lg"
+            onClick={handleNext}
+            disabled={!canProceed()}
+          >
             {currentStep === 'subtitles' ? (
               <>
-                Generar clips
+                <span className="hidden sm:inline">Generar clips</span>
+                <span className="sm:hidden">Generar</span>
                 <Sparkles className="h-4 w-4" />
               </>
             ) : (
               <>
-                Continuar
+                <span className="hidden sm:inline">Continuar</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
