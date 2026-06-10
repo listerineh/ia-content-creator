@@ -36,7 +36,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <footer className="mt-auto border-t border-zinc-800/50">
           <div className="px-4 py-4 sm:px-6 md:px-8 lg:px-12">
             <div className="flex flex-col items-center justify-center gap-2 text-center sm:flex-row sm:justify-between">
-              <p className="text-xs text-zinc-600">© 2025 OpenStage · Hecho con ❤️ para músicos</p>
+              <p className="text-xs text-zinc-600">© 2026 OpenStage · Hecho con ❤️ para músicos</p>
               <div className="flex items-center gap-3 text-xs text-zinc-600">
                 <a
                   href="https://github.com/listerineh/open-stage"
