@@ -7,6 +7,10 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Video,
+  Scissors,
+  BarChart3,
+  Share2,
+  Calendar,
   FolderOpen,
   Settings,
   LogOut,
@@ -40,8 +44,36 @@ const NAV_ITEMS = [
     icon: Video,
   },
   {
-    label: 'Mis Clips',
-    href: '/clips',
+    label: 'Editor de Clips',
+    href: '/tools/clip-editor',
+    icon: Scissors,
+    disabled: true,
+    badge: 'Pronto',
+  },
+  {
+    label: 'Analytics',
+    href: '/tools/analytics',
+    icon: BarChart3,
+    disabled: true,
+    badge: 'Pronto',
+  },
+  {
+    label: 'Social Publisher',
+    href: '/tools/social-publisher',
+    icon: Share2,
+    disabled: true,
+    badge: 'Pronto',
+  },
+  {
+    label: 'Calendario',
+    href: '/tools/content-calendar',
+    icon: Calendar,
+    disabled: true,
+    badge: 'Pronto',
+  },
+  {
+    label: 'Biblioteca',
+    href: '/tools/content-library',
     icon: FolderOpen,
     disabled: true,
     badge: 'Pronto',
@@ -91,9 +123,13 @@ export function Sidebar({ user }: SidebarProps) {
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-zinc-800 px-4">
-        <Link href="/dashboard" onClick={() => setIsOpen(false)}>
-          <Logo size="sm" />
+      <div className="flex h-25 items-center justify-between border-b border-zinc-800 px-4">
+        <Link
+          href="/dashboard"
+          onClick={() => setIsOpen(false)}
+          className="flex items-center gap-3"
+        >
+          <Logo size="lg" />
         </Link>
         <button
           onClick={() => setIsOpen(false)}
@@ -254,8 +290,19 @@ export function Sidebar({ user }: SidebarProps) {
           );
         })}
 
+        {/* Logout */}
+        <form action="/auth/signout" method="post" className="mt-1">
+          <button
+            type="submit"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
+          >
+            <LogOut className="h-5 w-5" />
+            Cerrar sesión
+          </button>
+        </form>
+
         {/* User */}
-        <div className="mt-4 flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+        <div className="mt-3 flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
           {user.avatarUrl ? (
             <Image
               src={user.avatarUrl}
@@ -274,31 +321,25 @@ export function Sidebar({ user }: SidebarProps) {
             <p className="truncate text-xs text-zinc-500">{user.email}</p>
           </div>
         </div>
-
-        {/* Logout */}
-        <form action="/auth/signout" method="post" className="mt-2">
-          <button
-            type="submit"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
-          >
-            <LogOut className="h-5 w-5" />
-            Cerrar sesión
-          </button>
-        </form>
       </div>
     </div>
   );
 
   return (
     <>
-      {/* Mobile hamburger button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed left-4 top-4 z-40 rounded-lg border border-zinc-800 bg-zinc-900/90 p-2.5 backdrop-blur-sm transition-colors hover:bg-zinc-800 lg:hidden"
-        aria-label="Abrir menú"
-      >
-        <Menu className="h-5 w-5 text-zinc-400" />
-      </button>
+      {/* Mobile top nav with hamburger */}
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-4 backdrop-blur-xl lg:hidden">
+        <Link href="/dashboard">
+          <Logo size="sm" />
+        </Link>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="rounded-lg border border-zinc-800 bg-zinc-900/90 p-2 backdrop-blur-sm transition-colors hover:bg-zinc-800"
+          aria-label="Abrir menú"
+        >
+          <Menu className="h-5 w-5 text-zinc-400" />
+        </button>
+      </div>
 
       {/* Mobile overlay */}
       {isOpen && (
@@ -311,8 +352,8 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-zinc-950 transition-transform duration-300 ease-in-out lg:translate-x-0',
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          'fixed inset-y-0 right-0 z-50 w-64 border-l border-zinc-800 bg-zinc-950 shadow-2xl transition-transform duration-300 ease-in-out lg:left-0 lg:right-auto lg:border-l-0 lg:border-r lg:shadow-none lg:translate-x-0',
+          isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
         )}
       >
         {sidebarContent}
