@@ -84,9 +84,9 @@ export default function Home() {
 
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8 md:px-8 lg:px-12">
         {/* Header */}
-        <header className="flex items-center justify-between">
+        <header className="flex items-center justify-between gap-4">
           <Logo size="md" />
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-6">
             <a
               href="https://github.com/listerineh/open-stage"
               target="_blank"
@@ -97,13 +97,13 @@ export default function Home() {
             </a>
             <Link
               href="/login"
-              className="text-sm font-medium text-zinc-400 transition-colors hover:text-white"
+              className="text-xs font-medium text-zinc-400 transition-colors hover:text-white sm:text-sm"
             >
               Iniciar sesión
             </Link>
             <Link
               href="/signup"
-              className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-violet-500"
+              className="whitespace-nowrap rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-500 sm:px-4 sm:py-2 sm:text-sm"
             >
               Comenzar gratis
             </Link>
