@@ -36,10 +36,9 @@ CREATE TABLE IF NOT EXISTS clips (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create index for faster queries
+-- Create index for faster queries (only if column exists)
 CREATE INDEX IF NOT EXISTS idx_clips_band_id ON clips(band_id);
-CREATE INDEX IF NOT EXISTS idx_clips_created_by ON clips(created_by);
-CREATE INDEX IF NOT EXISTS idx_clips_created_at ON clips(created_at DESC);
+-- Note: idx_clips_created_by and idx_clips_created_at created in fix migration
 
 -- Enable RLS
 ALTER TABLE clips ENABLE ROW LEVEL SECURITY;

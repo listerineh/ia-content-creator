@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   HardDrive,
   FolderOpen,
@@ -10,6 +10,7 @@ import {
   Plus,
   ChevronRight,
   ArrowLeft,
+  Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Band } from '@/types/database';
@@ -38,11 +39,36 @@ export function DriveConnect({ band, onUpdate }: DriveConnectProps) {
   const [savingFolder, setSavingFolder] = useState(false);
   const [creatingFolder, setCreatingFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
-  const [initialized, setInitialized] = useState(false);
+
+  // Check URL params on initial render to determine if we should show folder picker
+  const shouldShowPickerFromUrl =
+    typeof window !== 'undefined' &&
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('drive') === 'connected' && params.get('step') === 'select_folder';
+    })();
+
+  // Initialize showFolderPicker based on URL
+  const [showFolderPickerInitialized] = useState(() => {
+    if (shouldShowPickerFromUrl) {
+      // Clean URL
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          window.history.replaceState({}, '', window.location.pathname);
+        }, 100);
+      }
+      return true;
+    }
+    return false;
+  });
+
+  // Use the initialized value or the state
+  const actualShowFolderPicker = showFolderPickerInitialized || showFolderPicker;
 
   const isConnected = !!band.drive_folder_id;
+  const hasLoadedRef = useRef(false);
 
-  const loadFolders = async (parentId: string) => {
+  const loadFolders = useCallback(async (parentId: string) => {
     setLoadingFolders(true);
     try {
       const response = await fetch(`/api/drive/folders?parentId=${parentId}`);
@@ -54,24 +80,18 @@ export function DriveConnect({ band, onUpdate }: DriveConnectProps) {
       console.error('Error loading folders:', error);
     }
     setLoadingFolders(false);
-  };
+  }, []);
 
-  // Check URL params and load folders if needed
-  const initFromUrl = () => {
-    if (initialized) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('drive') === 'connected' && params.get('step') === 'select_folder') {
-      setShowFolderPicker(true);
-      loadFolders('root');
-      window.history.replaceState({}, '', window.location.pathname);
+  // Load folders on mount if showing picker
+  useEffect(() => {
+    if (actualShowFolderPicker && !hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      // Use requestAnimationFrame to defer the state update
+      requestAnimationFrame(() => {
+        loadFolders('root');
+      });
     }
-    setInitialized(true);
-  };
-
-  // Call on first render
-  if (typeof window !== 'undefined' && !initialized) {
-    initFromUrl();
-  }
+  }, [actualShowFolderPicker, loadFolders]);
 
   const handleConnect = () => {
     setIsConnecting(true);
@@ -275,6 +295,17 @@ export function DriveConnect({ band, onUpdate }: DriveConnectProps) {
               </div>
             ))
           )}
+        </div>
+
+        {/* Info about folder visibility */}
+        <div className="mb-4 rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+          <div className="flex gap-2">
+            <Info className="h-4 w-4 shrink-0 text-blue-400 mt-0.5" />
+            <p className="text-xs text-blue-300">
+              Solo se muestran carpetas creadas por OpenStage. Te recomendamos crear una carpeta
+              nueva para organizar tus clips.
+            </p>
+          </div>
         </div>
 
         {/* Create new folder */}

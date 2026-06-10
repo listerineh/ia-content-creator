@@ -182,7 +182,7 @@ export default function BandSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-10 md:px-8 lg:px-12">
+    <div className="mx-auto max-w-4xl px-6 py-10 md:px-8 lg:px-12">
       {/* Back link */}
       <Link
         href={`/bands/${band.slug}`}

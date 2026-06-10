@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       },
       body: new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_DRIVE_CLIENT_ID!,
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID!,
         client_secret: process.env.GOOGLE_DRIVE_CLIENT_SECRET!,
         redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google-drive`,
         grant_type: 'authorization_code',
