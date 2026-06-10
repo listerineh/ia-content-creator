@@ -83,7 +83,7 @@ export function VideoUrlInput({ onUrlSubmit, disabled = false }: VideoUrlInputPr
               placeholder="https://drive.google.com/file/d/..."
               disabled={disabled || isValidating}
               className={cn(
-                'w-full rounded-lg border bg-zinc-900 py-3.5 pl-11 pr-4 text-white placeholder-zinc-600',
+                'w-full overflow-hidden text-ellipsis rounded-lg border bg-zinc-900 py-3.5 pl-11 pr-4 text-sm text-white placeholder-zinc-600 sm:text-base',
                 'transition-all duration-200',
                 'focus:outline-none focus:ring-2 focus:ring-violet-500/20',
                 error ? 'border-red-500/50' : 'border-zinc-800 focus:border-violet-500/50'
