@@ -79,14 +79,28 @@ export function ResultsView() {
 
   useEffect(() => {
     if (canSaveToDrive && clips.length > 0 && !autoSaveRef.current) {
+      // Check if blob URLs are still valid before attempting save
+      const firstClipUrl = clips[0]?.url;
+      if (!firstClipUrl || !firstClipUrl.startsWith('blob:')) {
+        // Blob URLs expired, skip auto-save
+        return;
+      }
+
       autoSaveRef.current = true;
 
       // Auto-save all clips
       const saveAll = async () => {
         setSavingAllToDrive(true);
+        let savedCount = 0;
+
         for (const clip of clips) {
           try {
+            // Verify blob URL is still valid
+            if (!clip.url.startsWith('blob:')) continue;
+
             const response = await fetch(clip.url);
+            if (!response.ok) continue;
+
             const blob = await response.blob();
             const formData = new FormData();
             formData.append('file', blob, `${clip.name}.mp4`);
@@ -103,13 +117,16 @@ export function ResultsView() {
 
             if (uploadResponse.ok) {
               setSavedToDrive(prev => new Set(prev).add(clip.id));
+              savedCount++;
             }
           } catch (error) {
             console.error('Auto-save error:', error);
           }
         }
         setSavingAllToDrive(false);
-        setAutoSaveComplete(true);
+        if (savedCount > 0) {
+          setAutoSaveComplete(true);
+        }
       };
       saveAll();
     }
