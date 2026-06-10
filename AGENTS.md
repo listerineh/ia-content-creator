@@ -40,4 +40,13 @@ git tag -a vX.X.X -m "descripción"
 git push origin vX.X.X
 ```
 
+## Versiones
+
+**SIEMPRE actualizar `package.json` con la versión del tag antes de crear el release.**
+
+```bash
+# Antes de crear el tag, actualizar version en package.json
+# "version": "X.X.X"
+```
+
 <!-- END:gitflow-rules -->
