@@ -4,12 +4,14 @@ import { useState, useRef, useEffect } from 'react';
 import { Zap, Volume2, TrendingUp, CheckCircle2, Play, Pause, X } from 'lucide-react';
 import { type AudioMoment, formatTimestamp, getMomentDescription } from '@/lib/audio';
 import { cn } from '@/lib/utils';
+import { AudioTimeline } from './audio-timeline';
 
 interface AudioMomentsCategorizedProps {
   moments: AudioMoment[];
   selectedMoments: number[];
   onToggleMoment: (index: number) => void;
   videoUrl: string;
+  duration: number;
   className?: string;
 }
 
@@ -20,6 +22,7 @@ export function AudioMomentsCategorized({
   selectedMoments,
   onToggleMoment,
   videoUrl,
+  duration,
   className,
 }: AudioMomentsCategorizedProps) {
   const [activeCategory, setActiveCategory] = useState<Category>('all');
@@ -51,27 +54,37 @@ export function AudioMomentsCategorized({
     };
   }, [videoUrl, audioElement]);
 
-  const playPreview = (moment: AudioMoment, index: number) => {
-    if (!audioRef.current) return;
+  const playPreview = async (moment: AudioMoment, index: number) => {
+    if (!audioRef.current) {
+      console.error('Audio element not initialized');
+      return;
+    }
 
     if (playingIndex === index) {
       // Stop playing
       audioRef.current.pause();
       setPlayingIndex(null);
     } else {
-      // Start playing from moment timestamp (3 seconds before to 3 seconds after)
-      const startTime = Math.max(0, moment.timestamp - 1.5);
-      audioRef.current.currentTime = startTime;
-      audioRef.current.play();
-      setPlayingIndex(index);
+      try {
+        // Start playing from moment timestamp (3 seconds before to 3 seconds after)
+        const startTime = Math.max(0, moment.timestamp - 1.5);
+        audioRef.current.currentTime = startTime;
 
-      // Stop after 3 seconds
-      setTimeout(() => {
-        if (audioRef.current) {
-          audioRef.current.pause();
-          setPlayingIndex(null);
-        }
-      }, 3000);
+        // Wait for audio to be ready
+        await audioRef.current.play();
+        setPlayingIndex(index);
+
+        // Stop after 3 seconds
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+            setPlayingIndex(null);
+          }
+        }, 3000);
+      } catch (error) {
+        console.error('Error playing audio preview:', error);
+        setPlayingIndex(null);
+      }
     }
   };
 
@@ -85,6 +98,8 @@ export function AudioMomentsCategorized({
   const filteredMoments = moments.filter(m =>
     activeCategory === 'all' ? true : m.type === activeCategory
   );
+
+  const filteredIndices = filteredMoments.map(m => moments.indexOf(m));
 
   const getMomentColor = (type: AudioMoment['type']) => {
     switch (type) {
@@ -129,6 +144,14 @@ export function AudioMomentsCategorized({
 
   return (
     <div className={cn('space-y-4', className)}>
+      {/* Timeline */}
+      <AudioTimeline
+        moments={filteredMoments}
+        selectedMoments={selectedMoments.filter((i: number) => filteredIndices.includes(i))}
+        duration={duration}
+        onToggleMoment={onToggleMoment}
+      />
+
       {/* Category tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
         {categories.map(category => {

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
-import { AudioMomentsCategorized, AudioTimeline } from '@/components/features/audio-moments';
+import { AudioMomentsCategorized } from '@/components/features/audio-moments';
 import { type AudioMoment } from '@/lib/audio';
 
 type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles';
@@ -387,30 +387,18 @@ export default function ClipGeneratorPage() {
                   </p>
                 </div>
               ) : audioMoments && audioMoments.length > 0 ? (
-                <div className="space-y-6">
-                  <AudioTimeline
-                    moments={audioMoments}
-                    selectedMoments={selectedMomentIndices}
-                    duration={audioResult?.duration || 0}
-                    onToggleMoment={index => {
-                      const newSelected = selectedMomentIndices.includes(index)
-                        ? selectedMomentIndices.filter(i => i !== index)
-                        : [...selectedMomentIndices, index];
-                      updateWizard({ selectedMomentIndices: newSelected });
-                    }}
-                  />
-                  <AudioMomentsCategorized
-                    moments={audioMoments}
-                    selectedMoments={selectedMomentIndices}
-                    videoUrl={videoUrl || ''}
-                    onToggleMoment={(index: number) => {
-                      const newSelected = selectedMomentIndices.includes(index)
-                        ? selectedMomentIndices.filter((i: number) => i !== index)
-                        : [...selectedMomentIndices, index];
-                      updateWizard({ selectedMomentIndices: newSelected });
-                    }}
-                  />
-                </div>
+                <AudioMomentsCategorized
+                  moments={audioMoments}
+                  selectedMoments={selectedMomentIndices}
+                  videoUrl={videoUrl || ''}
+                  duration={audioResult?.duration || 0}
+                  onToggleMoment={(index: number) => {
+                    const newSelected = selectedMomentIndices.includes(index)
+                      ? selectedMomentIndices.filter((i: number) => i !== index)
+                      : [...selectedMomentIndices, index];
+                    updateWizard({ selectedMomentIndices: newSelected });
+                  }}
+                />
               ) : (
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
                   <Zap className="mx-auto h-12 w-12 text-zinc-600" />
