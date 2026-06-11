@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Zap, Volume2, TrendingUp, Clock, CheckCircle2 } from 'lucide-react';
+import { Zap, Volume2, TrendingUp, Clock, CheckCircle2, Play, Pause } from 'lucide-react';
 import { type AudioMoment, formatTimestamp, getMomentDescription } from '@/lib/audio';
 import { cn } from '@/lib/utils';
 

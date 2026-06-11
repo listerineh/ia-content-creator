@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
-import { AudioMomentsList, AudioTimeline } from '@/components/features/audio-moments';
+import { AudioMomentsCategorized, AudioTimeline } from '@/components/features/audio-moments';
 import { type AudioMoment } from '@/lib/audio';
 
 type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles';
@@ -399,12 +399,13 @@ export default function ClipGeneratorPage() {
                       updateWizard({ selectedMomentIndices: newSelected });
                     }}
                   />
-                  <AudioMomentsList
+                  <AudioMomentsCategorized
                     moments={audioMoments}
                     selectedMoments={selectedMomentIndices}
-                    onToggleMoment={index => {
+                    videoUrl={videoUrl || ''}
+                    onToggleMoment={(index: number) => {
                       const newSelected = selectedMomentIndices.includes(index)
-                        ? selectedMomentIndices.filter(i => i !== index)
+                        ? selectedMomentIndices.filter((i: number) => i !== index)
                         : [...selectedMomentIndices, index];
                       updateWizard({ selectedMomentIndices: newSelected });
                     }}

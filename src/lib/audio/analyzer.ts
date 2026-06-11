@@ -27,9 +27,9 @@ interface AnalysisOptions {
 }
 
 const DEFAULT_OPTIONS: Required<AnalysisOptions> = {
-  peakThreshold: 0.7,
-  silenceThreshold: 0.1,
-  transitionThreshold: 0.3,
+  peakThreshold: 0.75, // Increased to get only strong peaks
+  silenceThreshold: 0.08, // Decreased to get only deep silences
+  transitionThreshold: 0.4, // Increased to get only significant transitions
   windowSize: 2048,
   hopSize: 512,
 };
@@ -193,20 +193,26 @@ function detectMoments(
     }
   }
 
-  // Sort by timestamp and remove duplicates within 1 second
+  // Sort by timestamp and remove duplicates within 2 seconds
   const sortedMoments = moments.sort((a, b) => a.timestamp - b.timestamp);
   const filteredMoments: AudioMoment[] = [];
 
   for (const moment of sortedMoments) {
     const isDuplicate = filteredMoments.some(
-      m => Math.abs(m.timestamp - moment.timestamp) < 1 && m.type === moment.type
+      m => Math.abs(m.timestamp - moment.timestamp) < 2 && m.type === moment.type
     );
     if (!isDuplicate) {
       filteredMoments.push(moment);
     }
   }
 
-  return filteredMoments;
+  // Keep only top moments by confidence (max 20 total)
+  const topMoments = filteredMoments
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 20)
+    .sort((a, b) => a.timestamp - b.timestamp);
+
+  return topMoments;
 }
 
 /**
