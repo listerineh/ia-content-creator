@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Zap, Volume2, TrendingUp, CheckCircle2, Play, Pause, X } from 'lucide-react';
+import { Zap, Volume2, TrendingUp, CheckCircle2, Play, Pause, X, Loader2 } from 'lucide-react';
 import { type AudioMoment, formatTimestamp, getMomentDescription } from '@/lib/audio';
 import { cn } from '@/lib/utils';
 import { AudioTimeline } from './audio-timeline';
@@ -27,6 +27,7 @@ export function AudioMomentsCategorized({
 }: AudioMomentsCategorizedProps) {
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize audio element
@@ -62,14 +63,20 @@ export function AudioMomentsCategorized({
     if (playingIndex === index) {
       // If clicking the same moment, just stop
       setPlayingIndex(null);
+      setLoadingIndex(null);
       return;
     }
 
     try {
+      // Show loading state
+      setLoadingIndex(index);
+      setPlayingIndex(null);
+
       // Extract fileId from URL
       const fileIdMatch = videoUrl.match(/\/d\/([^/]+)/);
       if (!fileIdMatch) {
         console.error('Could not extract fileId from URL');
+        setLoadingIndex(null);
         return;
       }
       const fileId = fileIdMatch[1];
@@ -79,7 +86,6 @@ export function AudioMomentsCategorized({
 
       // Update ref immediately
       audioRef.current = audio;
-      setPlayingIndex(index);
 
       console.log(`Loading preview at ${formatTimestamp(moment.timestamp)}...`);
 
@@ -98,6 +104,10 @@ export function AudioMomentsCategorized({
       // Now play the audio
       await audio.play();
 
+      // Update state: loading done, now playing
+      setLoadingIndex(null);
+      setPlayingIndex(index);
+
       // Stop after 3 seconds
       const timeout = setTimeout(() => {
         audio.pause();
@@ -111,6 +121,7 @@ export function AudioMomentsCategorized({
       };
     } catch (error) {
       console.error('Error playing audio preview:', error);
+      setLoadingIndex(null);
       setPlayingIndex(null);
     }
   };
@@ -219,6 +230,7 @@ export function AudioMomentsCategorized({
             const Icon = getMomentIcon(moment.type);
             const isSelected = selectedMoments.includes(originalIndex);
             const isPlaying = playingIndex === originalIndex;
+            const isLoading = loadingIndex === originalIndex;
             const colorClasses = getMomentColor(moment.type);
 
             return (
@@ -262,15 +274,24 @@ export function AudioMomentsCategorized({
                             e.stopPropagation();
                             playPreview(moment, originalIndex);
                           }}
+                          disabled={isLoading}
                           className={cn(
                             'flex h-8 w-8 items-center justify-center rounded-lg border transition-all',
-                            isPlaying
+                            isLoading
                               ? 'border-violet-500/50 bg-violet-500/20 text-violet-400'
-                              : 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white'
+                              : isPlaying
+                                ? 'border-violet-500/50 bg-violet-500/20 text-violet-400'
+                                : 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-white'
                           )}
-                          title="Preview audio"
+                          title={isLoading ? 'Cargando...' : 'Preview audio'}
                         >
-                          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                          {isLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : isPlaying ? (
+                            <Pause className="h-4 w-4" />
+                          ) : (
+                            <Play className="h-4 w-4" />
+                          )}
                         </button>
 
                         {/* Confidence badge */}
