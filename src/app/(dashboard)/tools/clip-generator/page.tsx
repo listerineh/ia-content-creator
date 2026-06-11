@@ -21,10 +21,14 @@ import {
   Type,
   Check,
   RotateCcw,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
+import { AudioMomentsList, AudioTimeline } from '@/components/features/audio-moments';
+import { type AudioMoment } from '@/lib/audio';
 
-type Step = 'video' | 'formats' | 'intent' | 'subtitles';
+type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles';
 
 interface VideoInfo {
   accessible: boolean;
@@ -37,6 +41,8 @@ interface WizardState {
   currentStep: Step;
   videoUrl: string | null;
   videoInfo: VideoInfo | null;
+  audioMoments: AudioMoment[];
+  selectedMomentIndices: number[];
   selectedFormats: string[];
   selectedIntent: string | null;
   subtitleSettings: SubtitleSettings;
@@ -54,6 +60,7 @@ const DEFAULT_SUBTITLE_SETTINGS: SubtitleSettings = {
 
 const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'video', label: 'Video', icon: Film },
+  { id: 'moments', label: 'Momentos', icon: Zap },
   { id: 'formats', label: 'Formatos', icon: Layers },
   { id: 'intent', label: 'Intención', icon: Sparkles },
   { id: 'subtitles', label: 'Subtítulos', icon: Type },
@@ -63,6 +70,8 @@ const DEFAULT_WIZARD_STATE: WizardState = {
   currentStep: 'video',
   videoUrl: null,
   videoInfo: null,
+  audioMoments: [],
+  selectedMomentIndices: [],
   selectedFormats: [],
   selectedIntent: 'viral',
   subtitleSettings: DEFAULT_SUBTITLE_SETTINGS,
@@ -74,6 +83,7 @@ export default function ClipGeneratorPage() {
   const [wizardState, setWizardState] = useState<WizardState>(DEFAULT_WIZARD_STATE);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
+  const { analyze, result: audioResult, isAnalyzing } = useAudioAnalysis();
 
   useEffect(() => {
     try {
@@ -100,12 +110,34 @@ export default function ClipGeneratorPage() {
     }
   }, [isHydrated, wizardState]);
 
-  const { currentStep, videoUrl, videoInfo, selectedFormats, selectedIntent, subtitleSettings } =
-    wizardState;
+  const {
+    currentStep,
+    videoUrl,
+    videoInfo,
+    audioMoments,
+    selectedMomentIndices,
+    selectedFormats,
+    selectedIntent,
+    subtitleSettings,
+  } = wizardState;
 
   const updateWizard = (updates: Partial<WizardState>) => {
     setWizardState(prev => ({ ...prev, ...updates }));
   };
+
+  // Analyze audio when entering moments step
+  useEffect(() => {
+    if (currentStep === 'moments' && videoUrl && audioMoments.length === 0 && !isAnalyzing) {
+      analyze(videoUrl).then(() => {
+        if (audioResult) {
+          updateWizard({
+            audioMoments: audioResult.moments,
+            selectedMomentIndices: audioResult.moments.map((_, i) => i), // Select all by default
+          });
+        }
+      });
+    }
+  }, [currentStep, videoUrl, audioMoments.length, isAnalyzing, analyze, audioResult]);
 
   const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
 
@@ -140,6 +172,8 @@ export default function ClipGeneratorPage() {
 
   const handleNext = () => {
     if (currentStep === 'video' && videoInfo) {
+      updateWizard({ currentStep: 'moments' });
+    } else if (currentStep === 'moments') {
       updateWizard({ currentStep: 'formats' });
     } else if (currentStep === 'formats' && selectedFormats.length > 0) {
       updateWizard({ currentStep: 'intent' });
@@ -151,8 +185,10 @@ export default function ClipGeneratorPage() {
   };
 
   const handleBack = () => {
-    if (currentStep === 'formats') {
+    if (currentStep === 'moments') {
       updateWizard({ currentStep: 'video' });
+    } else if (currentStep === 'formats') {
+      updateWizard({ currentStep: 'moments' });
     } else if (currentStep === 'intent') {
       updateWizard({ currentStep: 'formats' });
     } else if (currentStep === 'subtitles') {
@@ -166,19 +202,13 @@ export default function ClipGeneratorPage() {
   };
 
   const handleClearAll = () => {
-    setWizardState({
-      currentStep: 'video',
-      videoUrl: null,
-      videoInfo: null,
-      selectedFormats: [],
-      selectedIntent: 'viral',
-      subtitleSettings: DEFAULT_SUBTITLE_SETTINGS,
-    });
+    setWizardState(DEFAULT_WIZARD_STATE);
     setVerifyError(null);
   };
 
   const canProceed = () => {
     if (currentStep === 'video') return !!videoInfo;
+    if (currentStep === 'moments') return true;
     if (currentStep === 'formats') return selectedFormats.length > 0;
     if (currentStep === 'intent') return !!selectedIntent;
     if (currentStep === 'subtitles') return true;
@@ -322,6 +352,59 @@ export default function ClipGeneratorPage() {
                   >
                     Cambiar video
                   </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentStep === 'moments' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-medium text-white">Momentos detectados</h2>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Analizamos tu video y detectamos estos momentos interesantes
+                </p>
+              </div>
+
+              {isAnalyzing ? (
+                <div className="flex flex-col items-center justify-center gap-4 py-12">
+                  <Loader2 className="h-12 w-12 animate-spin text-violet-400" />
+                  <p className="text-sm text-zinc-400">Analizando audio del video...</p>
+                  <p className="text-xs text-zinc-600">Esto puede tomar unos segundos</p>
+                </div>
+              ) : audioMoments.length > 0 ? (
+                <div className="space-y-6">
+                  <AudioTimeline
+                    moments={audioMoments}
+                    selectedMoments={selectedMomentIndices}
+                    duration={audioResult?.duration || 0}
+                    onToggleMoment={index => {
+                      const newSelected = selectedMomentIndices.includes(index)
+                        ? selectedMomentIndices.filter(i => i !== index)
+                        : [...selectedMomentIndices, index];
+                      updateWizard({ selectedMomentIndices: newSelected });
+                    }}
+                  />
+                  <AudioMomentsList
+                    moments={audioMoments}
+                    selectedMoments={selectedMomentIndices}
+                    onToggleMoment={index => {
+                      const newSelected = selectedMomentIndices.includes(index)
+                        ? selectedMomentIndices.filter(i => i !== index)
+                        : [...selectedMomentIndices, index];
+                      updateWizard({ selectedMomentIndices: newSelected });
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
+                  <Zap className="mx-auto h-12 w-12 text-zinc-600" />
+                  <p className="mt-4 text-sm text-zinc-500">
+                    No se detectaron momentos interesantes
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-600">
+                    Puedes continuar sin seleccionar momentos específicos
+                  </p>
                 </div>
               )}
             </div>
