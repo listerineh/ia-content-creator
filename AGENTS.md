@@ -50,3 +50,35 @@ git push origin vX.X.X
 ```
 
 <!-- END:gitflow-rules -->
+
+<!-- BEGIN:tasks-tracking-rules -->
+
+# Task Tracking Rules
+
+**SIEMPRE revisar y actualizar `TASKS.md` con cada cambio significativo.**
+
+## Flujo obligatorio:
+
+1. **Antes de hacer cambios**: Revisar `TASKS.md` para entender el contexto y estado actual
+2. **Durante el desarrollo**: Mantener sincronizado el progreso en `TASKS.md`
+3. **Después de completar**: Actualizar `TASKS.md` con lo realizado y próximos pasos
+
+## Qué actualizar:
+
+- Estado de tareas (TODO → IN PROGRESS → DONE)
+- Archivos modificados y cambios realizados
+- Problemas encontrados y soluciones aplicadas
+- Próximos pasos o tareas pendientes
+- Decisiones técnicas importantes
+
+## Ejemplo:
+
+```markdown
+## [DONE] Implementar análisis de audio
+
+- Archivos: `src/lib/audio/analyzer.ts`, `src/hooks/use-audio-analysis.ts`
+- Cambios: Detección de momentos peak/silence/transition
+- Próximo: Mejorar UI de selección de momentos
+```
+
+<!-- END:tasks-tracking-rules -->
