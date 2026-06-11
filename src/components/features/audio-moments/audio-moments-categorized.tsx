@@ -236,20 +236,32 @@ export function AudioMomentsCategorized({
       </div>
 
       {/* Info banner */}
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
-        <div className="flex items-start gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/10">
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+      <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 sm:p-4">
+        <div className="flex items-start gap-2 sm:gap-3">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 sm:h-8 sm:w-8">
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400 sm:h-4 sm:w-4" />
           </div>
           <div className="flex-1 text-xs text-zinc-400">
-            <p className="font-medium text-zinc-300">
-              Los 10 mejores momentos están preseleccionados
-            </p>
-            <p className="mt-1">
-              <span className="font-medium text-amber-400">Top:</span> Mayor confianza •
-              <span className="ml-2 font-medium text-violet-400">Energía:</span> Intensidad del
-              audio •<span className="ml-2">▶️ Preview:</span> Escucha 3 segundos
-            </p>
+            <p className="font-medium text-zinc-300">Top 10 preseleccionados</p>
+            <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:gap-0">
+              <span className="flex items-center gap-1">
+                <span className="font-medium text-amber-400">Top:</span>
+                <span className="hidden sm:inline">Mayor confianza</span>
+                <span className="sm:hidden">Confianza</span>
+              </span>
+              <span className="hidden sm:inline"> • </span>
+              <span className="flex items-center gap-1 sm:ml-2">
+                <span className="font-medium text-violet-400">Energía:</span>
+                <span className="hidden sm:inline">Intensidad del audio</span>
+                <span className="sm:hidden">Intensidad</span>
+              </span>
+              <span className="hidden sm:inline"> • </span>
+              <span className="flex items-center gap-1 sm:ml-2">
+                <span>▶️ Preview:</span>
+                <span className="hidden sm:inline">Escucha 3 segundos</span>
+                <span className="sm:hidden">3 seg</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
