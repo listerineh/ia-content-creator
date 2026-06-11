@@ -54,36 +54,56 @@ export function AudioMomentsCategorized({
   }, [videoUrl]);
 
   const playPreview = async (moment: AudioMoment, index: number) => {
-    if (!audioRef.current) {
-      console.error('Audio element not initialized');
-      return;
+    // Stop any currently playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
     }
 
     if (playingIndex === index) {
-      // Stop playing
-      audioRef.current.pause();
+      // If clicking the same moment, just stop
       setPlayingIndex(null);
-    } else {
-      try {
-        // Start playing from moment timestamp (3 seconds before to 3 seconds after)
-        const startTime = Math.max(0, moment.timestamp - 1.5);
-        audioRef.current.currentTime = startTime;
+      return;
+    }
 
-        // Wait for audio to be ready
-        await audioRef.current.play();
-        setPlayingIndex(index);
-
-        // Stop after 3 seconds
-        setTimeout(() => {
-          if (audioRef.current) {
-            audioRef.current.pause();
-            setPlayingIndex(null);
-          }
-        }, 3000);
-      } catch (error) {
-        console.error('Error playing audio preview:', error);
-        setPlayingIndex(null);
+    try {
+      // Extract fileId from URL
+      const fileIdMatch = videoUrl.match(/\/d\/([^/]+)/);
+      if (!fileIdMatch) {
+        console.error('Could not extract fileId from URL');
+        return;
       }
+      const fileId = fileIdMatch[1];
+
+      // Create a new audio element for this preview
+      const audio = new Audio(`/api/download-video?fileId=${fileId}`);
+
+      // Set the start time
+      const startTime = Math.max(0, moment.timestamp - 1.5);
+      audio.currentTime = startTime;
+
+      // Update ref
+      audioRef.current = audio;
+
+      console.log(`Playing preview at ${formatTimestamp(moment.timestamp)} (${startTime}s)`);
+
+      // Wait for audio to be ready and play
+      await audio.play();
+      setPlayingIndex(index);
+
+      // Stop after 3 seconds
+      const timeout = setTimeout(() => {
+        audio.pause();
+        setPlayingIndex(null);
+      }, 3000);
+
+      // Cleanup when audio ends
+      audio.onended = () => {
+        clearTimeout(timeout);
+        setPlayingIndex(null);
+      };
+    } catch (error) {
+      console.error('Error playing audio preview:', error);
+      setPlayingIndex(null);
     }
   };
 
