@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
-import { AudioMomentsMobile } from '@/components/features/audio-moments';
+import { AudioMomentsMobileV2 } from '@/components/features/audio-moments';
 import { type AudioMoment } from '@/lib/audio';
 
 type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles';
@@ -238,8 +238,8 @@ export default function ClipGeneratorPage() {
     isHydrated && (videoUrl || selectedFormats.length > 0 || currentStep !== 'video');
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pt-20 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
-      <div className="space-y-8">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pt-20 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
+      <div className="w-full space-y-8">
         {/* Header */}
         <div className="space-y-4">
           {/* Title + Reset */}
@@ -266,7 +266,7 @@ export default function ClipGeneratorPage() {
         </div>
 
         {/* Steps indicator */}
-        <div className="overflow-x-auto">
+        <div className="w-full overflow-x-auto">
           <div className="flex min-w-max items-center justify-center gap-2 pb-2 sm:min-w-0 sm:justify-start sm:gap-0 sm:pb-0">
             {STEPS.map((step, index) => {
               const Icon = step.icon;
@@ -323,7 +323,7 @@ export default function ClipGeneratorPage() {
         </div>
 
         {/* Step content */}
-        <div className="w-full overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 p-3 sm:rounded-2xl sm:p-6 md:p-8">
+        <div className="w-full overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-6 md:p-8">
           {currentStep === 'video' && (
             <div className="space-y-6">
               <div>
@@ -394,7 +394,7 @@ export default function ClipGeneratorPage() {
                   </p>
                 </div>
               ) : audioMoments && audioMoments.length > 0 ? (
-                <AudioMomentsMobile
+                <AudioMomentsMobileV2
                   moments={audioMoments}
                   selectedMoments={selectedMomentIndices}
                   videoUrl={videoUrl || ''}
