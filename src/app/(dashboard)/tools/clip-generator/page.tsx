@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
-import { AudioMomentsCategorized } from '@/components/features/audio-moments';
+import { AudioMomentsMobile } from '@/components/features/audio-moments';
 import { type AudioMoment } from '@/lib/audio';
 
 type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles';
@@ -394,7 +394,7 @@ export default function ClipGeneratorPage() {
                   </p>
                 </div>
               ) : audioMoments && audioMoments.length > 0 ? (
-                <AudioMomentsCategorized
+                <AudioMomentsMobile
                   moments={audioMoments}
                   selectedMoments={selectedMomentIndices}
                   videoUrl={videoUrl || ''}
