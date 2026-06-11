@@ -1,7 +1,17 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Zap, Volume2, TrendingUp, CheckCircle2, Play, Pause, X, Loader2 } from 'lucide-react';
+import {
+  Zap,
+  Volume2,
+  TrendingUp,
+  CheckCircle2,
+  Play,
+  Pause,
+  X,
+  Loader2,
+  Star,
+} from 'lucide-react';
 import { type AudioMoment, formatTimestamp, getMomentDescription } from '@/lib/audio';
 import { cn } from '@/lib/utils';
 import { AudioTimeline } from './audio-timeline';
@@ -139,6 +149,13 @@ export function AudioMomentsCategorized({
 
   const filteredIndices = filteredMoments.map(m => moments.indexOf(m));
 
+  // Calculate top 10 moments by confidence
+  const topMomentIndices = moments
+    .map((moment, index) => ({ moment, index }))
+    .sort((a, b) => b.moment.confidence - a.moment.confidence)
+    .slice(0, 10)
+    .map(item => item.index);
+
   const getMomentColor = (type: AudioMoment['type']) => {
     switch (type) {
       case 'peak':
@@ -231,6 +248,7 @@ export function AudioMomentsCategorized({
             const isSelected = selectedMoments.includes(originalIndex);
             const isPlaying = playingIndex === originalIndex;
             const isLoading = loadingIndex === originalIndex;
+            const isTopMoment = topMomentIndices.includes(originalIndex);
             const colorClasses = getMomentColor(moment.type);
 
             return (
@@ -258,9 +276,17 @@ export function AudioMomentsCategorized({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-white">
-                          {getMomentDescription(moment)}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-white">
+                            {getMomentDescription(moment)}
+                          </p>
+                          {isTopMoment && (
+                            <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400">
+                              <Star className="h-3 w-3 fill-amber-400" />
+                              Top
+                            </span>
+                          )}
+                        </div>
                         <p className="mt-0.5 text-xs text-zinc-500">
                           {formatTimestamp(moment.timestamp)}
                         </p>

@@ -143,9 +143,16 @@ export default function ClipGeneratorPage() {
     if (audioResult && currentStep === 'moments' && (!audioMoments || audioMoments.length === 0)) {
       // Use startTransition to avoid cascading renders
       startTransition(() => {
+        // Select only top 10 moments by confidence
+        const topMoments = audioResult.moments
+          .map((moment, index) => ({ moment, index }))
+          .sort((a, b) => b.moment.confidence - a.moment.confidence)
+          .slice(0, 10)
+          .map(item => item.index);
+
         updateWizard({
           audioMoments: audioResult.moments,
-          selectedMomentIndices: audioResult.moments.map((_, i) => i), // Select all by default
+          selectedMomentIndices: topMoments,
         });
       });
     }
