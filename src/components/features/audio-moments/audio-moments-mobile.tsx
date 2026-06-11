@@ -87,7 +87,7 @@ export function AudioMomentsMobile({
       const timeout = setTimeout(() => {
         audio.pause();
         setPlayingIndex(null);
-      }, 3000);
+      }, 4000);
 
       audio.onended = () => {
         clearTimeout(timeout);
