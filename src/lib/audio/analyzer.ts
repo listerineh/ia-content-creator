@@ -44,8 +44,18 @@ export async function analyzeAudio(
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
   try {
-    // Fetch video and extract audio
-    const response = await fetch(videoUrl);
+    // Extract Google Drive file ID from URL
+    const fileIdMatch = videoUrl.match(/\/d\/([^/]+)/);
+    if (!fileIdMatch) {
+      throw new Error('Invalid Google Drive URL');
+    }
+    const fileId = fileIdMatch[1];
+
+    // Download video through our API endpoint
+    const response = await fetch(`/api/download-video?fileId=${fileId}`);
+    if (!response.ok) {
+      throw new Error('Failed to download video');
+    }
     const arrayBuffer = await response.arrayBuffer();
 
     // Create audio context

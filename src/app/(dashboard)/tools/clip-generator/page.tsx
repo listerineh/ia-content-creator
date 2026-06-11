@@ -24,7 +24,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-// import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
+import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
 import { AudioMomentsList, AudioTimeline } from '@/components/features/audio-moments';
 import { type AudioMoment } from '@/lib/audio';
 
@@ -83,8 +83,7 @@ export default function ClipGeneratorPage() {
   const [wizardState, setWizardState] = useState<WizardState>(DEFAULT_WIZARD_STATE);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
-  // Audio analysis hook - disabled for now due to CORS restrictions with Google Drive
-  // const { analyze, result: audioResult, isAnalyzing } = useAudioAnalysis();
+  const { analyze, result: audioResult, isAnalyzing } = useAudioAnalysis();
 
   useEffect(() => {
     try {
@@ -127,9 +126,30 @@ export default function ClipGeneratorPage() {
   }, []);
 
   // Analyze audio when entering moments step
-  // NOTE: Disabled for now - Google Drive URLs have CORS restrictions
-  // Will need to download/proxy the video first or implement server-side analysis
-  // TODO: Implement server-side audio analysis or video proxy
+  useEffect(() => {
+    if (
+      currentStep === 'moments' &&
+      videoUrl &&
+      (!audioMoments || audioMoments.length === 0) &&
+      !isAnalyzing
+    ) {
+      analyze(videoUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, videoUrl]);
+
+  // Update wizard state when audio analysis completes
+  useEffect(() => {
+    if (audioResult && currentStep === 'moments' && (!audioMoments || audioMoments.length === 0)) {
+      // Use startTransition to avoid cascading renders
+      startTransition(() => {
+        updateWizard({
+          audioMoments: audioResult.moments,
+          selectedMomentIndices: audioResult.moments.map((_, i) => i), // Select all by default
+        });
+      });
+    }
+  }, [audioResult, currentStep, audioMoments, updateWizard]);
 
   const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
 
@@ -352,18 +372,26 @@ export default function ClipGeneratorPage() {
           {currentStep === 'moments' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-lg font-medium text-white">Detección de momentos</h2>
+                <h2 className="text-lg font-medium text-white">Momentos detectados</h2>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Análisis inteligente de momentos virales (próximamente)
+                  Analizamos tu video y detectamos estos momentos interesantes
                 </p>
               </div>
 
-              {audioMoments && audioMoments.length > 0 ? (
+              {isAnalyzing ? (
+                <div className="flex flex-col items-center justify-center gap-4 py-12">
+                  <Loader2 className="h-12 w-12 animate-spin text-violet-400" />
+                  <p className="text-sm text-zinc-400">Analizando audio del video...</p>
+                  <p className="text-xs text-zinc-600">
+                    Descargando y procesando, esto puede tomar unos segundos
+                  </p>
+                </div>
+              ) : audioMoments && audioMoments.length > 0 ? (
                 <div className="space-y-6">
                   <AudioTimeline
                     moments={audioMoments}
                     selectedMoments={selectedMomentIndices}
-                    duration={0}
+                    duration={audioResult?.duration || 0}
                     onToggleMoment={index => {
                       const newSelected = selectedMomentIndices.includes(index)
                         ? selectedMomentIndices.filter(i => i !== index)
@@ -385,14 +413,11 @@ export default function ClipGeneratorPage() {
               ) : (
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
                   <Zap className="mx-auto h-12 w-12 text-zinc-600" />
-                  <p className="mt-4 text-sm text-zinc-500">Análisis de momentos en desarrollo</p>
-                  <p className="mt-1 text-xs text-zinc-600">
-                    Esta funcionalidad estará disponible próximamente. Por ahora, puedes continuar
-                    con la configuración manual de tus clips.
+                  <p className="mt-4 text-sm text-zinc-500">
+                    No se detectaron momentos interesantes
                   </p>
-                  <p className="mt-2 text-xs text-zinc-700">
-                    Próximamente: detección automática de picos de energía, silencios dramáticos y
-                    transiciones.
+                  <p className="mt-1 text-xs text-zinc-600">
+                    Puedes continuar sin seleccionar momentos específicos
                   </p>
                 </div>
               )}
