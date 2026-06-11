@@ -153,9 +153,9 @@ export function AudioMomentsMobile({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-4">
       {/* Timeline - Más alto */}
-      <div className="space-y-2">
+      <div className="w-full space-y-2">
         <div className="flex items-center justify-between text-xs text-zinc-500">
           <span>0:00</span>
           <span>Timeline</span>
@@ -171,7 +171,7 @@ export function AudioMomentsMobile({
           </div>
 
           {/* Moments */}
-          {filteredMoments.map((moment, idx) => {
+          {filteredMoments.map(moment => {
             const originalIndex = moments.indexOf(moment);
             const position = (moment.timestamp / duration) * 100;
             const isSelected = selectedMoments.includes(originalIndex);
@@ -262,8 +262,8 @@ export function AudioMomentsMobile({
       </div>
 
       {/* Moments list */}
-      <div className="space-y-2">
-        {filteredMoments.map((moment, idx) => {
+      <div className="w-full space-y-2">
+        {filteredMoments.map(moment => {
           const originalIndex = moments.indexOf(moment);
           const Icon = getMomentIcon(moment.type);
           const isSelected = selectedMoments.includes(originalIndex);
@@ -275,13 +275,13 @@ export function AudioMomentsMobile({
             <div
               key={originalIndex}
               className={cn(
-                'rounded-lg border p-3 transition-all sm:p-4',
+                'w-full rounded-lg border p-3 transition-all sm:p-4',
                 isSelected
                   ? 'border-violet-500/50 bg-violet-500/10'
                   : 'border-zinc-800 bg-zinc-900/50'
               )}
             >
-              <div className="flex min-w-0 gap-2 sm:gap-3">
+              <div className="flex w-full min-w-0 gap-2 sm:gap-3">
                 {/* Icon */}
                 <div
                   className={cn(
@@ -295,11 +295,11 @@ export function AudioMomentsMobile({
                 </div>
 
                 {/* Content */}
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 overflow-hidden">
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 overflow-hidden">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-xs font-medium text-white sm:text-sm">
+                        <p className="truncate text-xs font-medium text-white sm:text-sm">
                           {getMomentDescription(moment)}
                         </p>
                         {isTopMoment && (
@@ -352,14 +352,14 @@ export function AudioMomentsMobile({
                   </div>
 
                   {/* Energy bar */}
-                  <div className="mt-3">
+                  <div className="mt-3 w-full">
                     <div className="mb-1 flex items-center justify-between">
                       <span className="text-xs text-zinc-600">Energía</span>
                       <span className="text-xs text-zinc-500">
                         {Math.round(moment.energy * 100)}%
                       </span>
                     </div>
-                    <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
+                    <div className="h-1 w-full overflow-hidden rounded-full bg-zinc-800">
                       <div
                         className={cn(
                           'h-full transition-all',

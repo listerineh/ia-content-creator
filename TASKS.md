@@ -300,24 +300,6 @@
 - [x] Timeline más alto y visible (h-16 móvil, h-20 desktop)
 - [ ] Tag: v0.5.0
 
-**Archivos modificados:**
-- `src/lib/audio/analyzer.ts` - Ajuste de thresholds y filtrado top 20
-- `src/app/api/download-video/route.ts` - Endpoint para proxy de descarga
-- `src/components/features/audio-moments/audio-moments-mobile.tsx` - Nuevo componente mobile-first
-- `src/app/(dashboard)/tools/clip-generator/page.tsx` - Integración y selección top 10
-- `AGENTS.md` - Reglas de tracking de tareas
-
-**Decisiones técnicas:**
-- Usar API endpoint para descargar video (evitar CORS)
-- Crear nuevo elemento de audio por cada preview (evitar conflictos)
-- Esperar metadata antes de reproducir (evitar AbortError)
-- Diseño mobile-first con progressive enhancement
-- Timeline más alto para mejor UX en móvil
-
-**Próximos pasos:**
-- Integrar transcripción con Whisper
-- Análisis con IA (Gemini/DeepSeek)
-
 ---
 
 ## FASE 6: Tool - Analytics Dashboard
