@@ -235,6 +235,25 @@ export function AudioMomentsCategorized({
         })}
       </div>
 
+      {/* Info banner */}
+      <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+        <div className="flex items-start gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-500/10">
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+          </div>
+          <div className="flex-1 text-xs text-zinc-400">
+            <p className="font-medium text-zinc-300">
+              Los 10 mejores momentos están preseleccionados
+            </p>
+            <p className="mt-1">
+              <span className="font-medium text-amber-400">Top:</span> Mayor confianza •
+              <span className="ml-2 font-medium text-violet-400">Energía:</span> Intensidad del
+              audio •<span className="ml-2">▶️ Preview:</span> Escucha 3 segundos
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Moments list */}
       <div className="space-y-2">
         {filteredMoments.length === 0 ? (
@@ -346,14 +365,22 @@ export function AudioMomentsCategorized({
                     </div>
 
                     {/* Energy bar */}
-                    <div className="mt-3 h-1 overflow-hidden rounded-full bg-zinc-800">
-                      <div
-                        className={cn(
-                          'h-full transition-all',
-                          isSelected ? 'bg-violet-500' : 'bg-zinc-600'
-                        )}
-                        style={{ width: `${moment.energy * 100}%` }}
-                      />
+                    <div className="mt-3">
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-xs text-zinc-600">Energía</span>
+                        <span className="text-xs text-zinc-500">
+                          {Math.round(moment.energy * 100)}%
+                        </span>
+                      </div>
+                      <div className="h-1 overflow-hidden rounded-full bg-zinc-800">
+                        <div
+                          className={cn(
+                            'h-full transition-all',
+                            isSelected ? 'bg-violet-500' : 'bg-zinc-600'
+                          )}
+                          style={{ width: `${moment.energy * 100}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
