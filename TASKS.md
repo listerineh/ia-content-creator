@@ -323,6 +323,17 @@
 - [ ] Implementar detección de momentos divertidos (risas, fails, reacciones)
 - [ ] Implementar detección de canciones completas (silencios largos entre canciones)
 - [ ] UI para marcar inicio/fin de canciones manualmente
+
+### 5.8 Bugfixes y Mejoras UX ✅ COMPLETADO
+
+- [x] Fix: Preview de audio reproducía siempre el primer momento
+  - Archivos: `src/components/features/audio-moments/audio-moments-mobile-v2.tsx`
+  - Solución: Limpiar audio anterior y usar timestamp correcto de cada momento
+- [x] Remover límite artificial de 20 momentos en analyzer
+  - Archivos: `src/lib/audio/analyzer.ts`
+- [x] Remover preselección automática de top 3 momentos
+  - Archivos: `src/app/(dashboard)/tools/clip-generator/page.tsx`
+- [x] Remover estrellas de "top 10" en UI de momentos
 - [ ] Tag: v0.5.0
 
 ---
