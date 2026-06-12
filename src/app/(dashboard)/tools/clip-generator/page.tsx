@@ -25,10 +25,13 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
+import { useClipGenerator } from '@/hooks/use-clip-generator';
 import { AudioMomentsMobileV2 } from '@/components/features/audio-moments';
+import { ClipProgressList } from '@/components/features/clip-generator';
 import { type AudioMoment } from '@/lib/audio';
+import { Download, Clapperboard } from 'lucide-react';
 
-type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles';
+type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles' | 'generate';
 
 interface VideoInfo {
   accessible: boolean;
@@ -64,6 +67,7 @@ const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'formats', label: 'Formatos', icon: Layers },
   { id: 'intent', label: 'Intención', icon: Sparkles },
   { id: 'subtitles', label: 'Subtítulos', icon: Type },
+  { id: 'generate', label: 'Generar', icon: Clapperboard },
 ];
 
 const DEFAULT_WIZARD_STATE: WizardState = {
@@ -84,6 +88,7 @@ export default function ClipGeneratorPage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const { analyze, result: audioResult, isAnalyzing } = useAudioAnalysis();
+  const clipGenerator = useClipGenerator();
 
   useEffect(() => {
     try {
@@ -231,7 +236,19 @@ export default function ClipGeneratorPage() {
     if (currentStep === 'formats') return selectedFormats.length > 0;
     if (currentStep === 'intent') return !!selectedIntent;
     if (currentStep === 'subtitles') return true;
+    if (currentStep === 'generate') return clipGenerator.clips.length > 0;
     return false;
+  };
+
+  const handleStartGeneration = () => {
+    if (!videoUrl || !audioResult) return;
+    clipGenerator.generate(
+      videoUrl,
+      audioMoments,
+      selectedMomentIndices,
+      audioResult.duration,
+      selectedFormats[0] || 'tiktok'
+    );
   };
 
   const hasProgress =
@@ -465,6 +482,66 @@ export default function ClipGeneratorPage() {
               />
             </div>
           )}
+
+          {currentStep === 'generate' && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-medium text-white">Generando clips</h2>
+                <p className="mt-1 text-sm text-zinc-500">
+                  {clipGenerator.isGenerating
+                    ? `Procesando ${clipGenerator.currentClip} de ${clipGenerator.totalClips} clips...`
+                    : clipGenerator.clips.length > 0
+                      ? `${clipGenerator.clips.length} clips generados`
+                      : `Se generarán ${selectedMomentIndices.length} clips`}
+                </p>
+              </div>
+
+              {!clipGenerator.isGenerating && clipGenerator.clips.length === 0 && (
+                <div className="flex flex-col items-center gap-4 py-8">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-violet-500/10">
+                    <Clapperboard className="h-8 w-8 text-violet-400" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-zinc-400">
+                      {selectedMomentIndices.length} momentos seleccionados
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      La duración de cada clip se calculará automáticamente
+                    </p>
+                  </div>
+                  <Button onClick={handleStartGeneration} size="lg">
+                    <Sparkles className="h-4 w-4" />
+                    Iniciar generación
+                  </Button>
+                </div>
+              )}
+
+              {(clipGenerator.isGenerating || clipGenerator.clips.length > 0) && (
+                <ClipProgressList
+                  progress={clipGenerator.progress}
+                  clips={clipGenerator.clips}
+                  onDownload={clipGenerator.downloadClip}
+                />
+              )}
+
+              {clipGenerator.error && (
+                <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
+                  <p className="text-sm text-red-400">{clipGenerator.error}</p>
+                </div>
+              )}
+
+              {clipGenerator.clips.length > 1 && !clipGenerator.isGenerating && (
+                <Button
+                  onClick={clipGenerator.downloadAllClips}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar todos los clips
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -478,25 +555,43 @@ export default function ClipGeneratorPage() {
             )}
           </div>
 
-          <Button
-            size="default"
-            className="sm:size-lg"
-            onClick={handleNext}
-            disabled={!canProceed()}
-          >
-            {currentStep === 'subtitles' ? (
-              <>
-                <span className="hidden sm:inline">Generar clips</span>
-                <span className="sm:hidden">Generar</span>
-                <Sparkles className="h-4 w-4" />
-              </>
-            ) : (
-              <>
-                <span className="hidden sm:inline">Continuar</span>
-                <ArrowRight className="h-4 w-4" />
-              </>
+          {currentStep !== 'generate' && (
+            <Button
+              size="default"
+              className="sm:size-lg"
+              onClick={handleNext}
+              disabled={!canProceed()}
+            >
+              {currentStep === 'subtitles' ? (
+                <>
+                  <span className="hidden sm:inline">Siguiente</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  <span className="hidden sm:inline">Continuar</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          )}
+
+          {currentStep === 'generate' &&
+            clipGenerator.clips.length > 0 &&
+            !clipGenerator.isGenerating && (
+              <Button
+                size="default"
+                className="sm:size-lg"
+                onClick={() => {
+                  clipGenerator.reset();
+                  handleClearAll();
+                }}
+              >
+                <CheckCircle className="h-4 w-4" />
+                <span className="hidden sm:inline">Finalizar</span>
+                <span className="sm:hidden">Listo</span>
+              </Button>
             )}
-          </Button>
         </div>
       </div>
     </div>

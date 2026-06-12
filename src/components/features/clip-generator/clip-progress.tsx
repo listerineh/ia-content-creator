@@ -1,0 +1,170 @@
+'use client';
+
+import { Loader2, CheckCircle2, XCircle, Download, Play, Pause } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { type ClipProgress, type ClipResult } from '@/lib/clip-generator/types';
+import { formatTimestamp } from '@/lib/audio';
+import { cn } from '@/lib/utils';
+
+interface ClipProgressListProps {
+  progress: ClipProgress[];
+  clips: ClipResult[];
+  onDownload: (clip: ClipResult) => void;
+}
+
+export function ClipProgressList({ progress, clips, onDownload }: ClipProgressListProps) {
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
+
+  const getClipForMoment = (momentIndex: number) => {
+    return clips.find(c => c.momentIndex === momentIndex);
+  };
+
+  const togglePlay = (clipId: string) => {
+    const video = videoRefs.current.get(clipId);
+    if (!video) return;
+
+    if (playingId === clipId) {
+      video.pause();
+      setPlayingId(null);
+    } else {
+      videoRefs.current.forEach((v, id) => {
+        if (id !== clipId) v.pause();
+      });
+      video.play();
+      setPlayingId(clipId);
+    }
+  };
+
+  const getStageIcon = (stage: ClipProgress['stage']) => {
+    switch (stage) {
+      case 'queued':
+        return <div className="h-4 w-4 rounded-full bg-zinc-600" />;
+      case 'downloading':
+      case 'processing':
+      case 'encoding':
+        return <Loader2 className="h-4 w-4 animate-spin text-violet-400" />;
+      case 'done':
+        return <CheckCircle2 className="h-4 w-4 text-emerald-400" />;
+      case 'error':
+        return <XCircle className="h-4 w-4 text-red-400" />;
+    }
+  };
+
+  const getStageLabel = (stage: ClipProgress['stage']) => {
+    switch (stage) {
+      case 'queued':
+        return 'En cola';
+      case 'downloading':
+        return 'Descargando';
+      case 'processing':
+        return 'Procesando';
+      case 'encoding':
+        return 'Codificando';
+      case 'done':
+        return 'Completado';
+      case 'error':
+        return 'Error';
+    }
+  };
+
+  return (
+    <div className="flex w-full flex-col gap-3">
+      {progress.map(p => {
+        const clip = getClipForMoment(p.momentIndex);
+        const isComplete = p.stage === 'done' && clip;
+
+        return (
+          <div
+            key={p.momentIndex}
+            className={cn(
+              'flex w-full flex-col gap-3 rounded-lg border p-3',
+              p.stage === 'error'
+                ? 'border-red-500/30 bg-red-500/5'
+                : p.stage === 'done'
+                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  : 'border-zinc-800 bg-zinc-900/30'
+            )}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {getStageIcon(p.stage)}
+                <span className="text-sm font-medium text-white">Clip {p.momentIndex + 1}</span>
+                {clip && (
+                  <span className="text-xs text-zinc-500">
+                    {formatTimestamp(clip.timestamp)} • {clip.duration}s
+                  </span>
+                )}
+              </div>
+              <span
+                className={cn(
+                  'text-xs font-medium',
+                  p.stage === 'error'
+                    ? 'text-red-400'
+                    : p.stage === 'done'
+                      ? 'text-emerald-400'
+                      : 'text-zinc-400'
+                )}
+              >
+                {getStageLabel(p.stage)}
+              </span>
+            </div>
+
+            {/* Progress bar */}
+            {p.stage !== 'done' && p.stage !== 'error' && (
+              <div className="flex flex-col gap-1">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+                  <div
+                    className="h-full bg-violet-500 transition-all duration-300"
+                    style={{ width: `${p.progress}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-zinc-500">{p.message}</span>
+              </div>
+            )}
+
+            {/* Video preview */}
+            {isComplete && clip && (
+              <div className="flex flex-col gap-2">
+                <div className="relative aspect-9/16 max-h-48 w-full overflow-hidden rounded-lg bg-black">
+                  <video
+                    ref={el => {
+                      if (el) videoRefs.current.set(clip.id, el);
+                    }}
+                    src={clip.url}
+                    className="h-full w-full object-contain"
+                    onEnded={() => setPlayingId(null)}
+                    playsInline
+                  />
+                  <button
+                    onClick={() => togglePlay(clip.id)}
+                    className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity hover:opacity-100"
+                  >
+                    {playingId === clip.id ? (
+                      <Pause className="h-10 w-10 text-white" />
+                    ) : (
+                      <Play className="h-10 w-10 text-white" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Actions */}
+                <button
+                  onClick={() => onDownload(clip)}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-500/20 py-2 text-sm font-medium text-violet-400 transition-colors hover:bg-violet-500/30"
+                >
+                  <Download className="h-4 w-4" />
+                  Descargar
+                </button>
+              </div>
+            )}
+
+            {/* Error message */}
+            {p.stage === 'error' && <p className="text-xs text-red-400">{p.message}</p>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
