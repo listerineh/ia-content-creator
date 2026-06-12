@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Mail, Calendar, Shield, LogOut, Loader2, ArrowLeft } from 'lucide-react';
+import { Mail, Calendar, Shield, LogOut, Loader2, ArrowLeft, RotateCcw, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { resetAllTours, clearTourCache } from '@/lib/tour';
 
 interface UserProfile {
   id: string;
@@ -19,6 +20,8 @@ interface UserProfile {
 export default function SettingsPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resettingTours, setResettingTours] = useState(false);
+  const [toursReset, setToursReset] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -158,6 +161,50 @@ export default function SettingsPage() {
                 <p className="text-sm text-zinc-500">Miembro desde</p>
                 <p className="text-sm font-medium text-white">{formatDate(profile.createdAt)}</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Preferences */}
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50">
+          <div className="border-b border-zinc-800 px-6 py-4">
+            <h3 className="font-medium text-white">Preferencias</h3>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-white">Tutoriales guiados</p>
+                <p className="text-sm text-zinc-500">
+                  Reinicia los tutoriales para volver a verlos en cada sección
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  setResettingTours(true);
+                  await resetAllTours();
+                  clearTourCache();
+                  setToursReset(true);
+                  setResettingTours(false);
+                  setTimeout(() => setToursReset(false), 3000);
+                }}
+                disabled={resettingTours}
+                className="border-zinc-700 hover:bg-zinc-800"
+              >
+                {resettingTours ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : toursReset ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-400" />
+                    <span className="text-green-400">Reiniciados</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="h-4 w-4" />
+                    Reiniciar tutoriales
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </div>

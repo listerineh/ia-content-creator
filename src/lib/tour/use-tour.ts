@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import Shepherd from 'shepherd.js';
 import type { Tour } from 'shepherd.js';
+import { createClient } from '@/lib/supabase/client';
 
 export interface TourStep {
   id: string;
@@ -27,56 +28,86 @@ interface UseTourOptions {
   onCancel?: () => void;
 }
 
-const TOUR_STORAGE_KEY = 'openstage_completed_tours';
+// Cache for completed tours to avoid repeated DB calls
+let completedToursCache: string[] | null = null;
 
-function getCompletedTours(): string[] {
-  if (typeof window === 'undefined') return [];
+async function fetchCompletedTours(): Promise<string[]> {
+  if (completedToursCache !== null) return completedToursCache;
+
   try {
-    const stored = localStorage.getItem(TOUR_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data } = await supabase
+      .from('profiles')
+      .select('completed_tours')
+      .eq('id', user.id)
+      .single();
+
+    completedToursCache = data?.completed_tours ?? [];
+    return completedToursCache ?? [];
   } catch {
     return [];
   }
 }
 
-function markTourComplete(tourId: string): void {
-  if (typeof window === 'undefined') return;
+async function markTourComplete(tourId: string): Promise<void> {
   try {
-    const completed = getCompletedTours();
-    if (!completed.includes(tourId)) {
-      completed.push(tourId);
-      localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify(completed));
-    }
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const completed = await fetchCompletedTours();
+    if (completed.includes(tourId)) return;
+
+    const newCompleted = [...completed, tourId];
+
+    await supabase.from('profiles').update({ completed_tours: newCompleted }).eq('id', user.id);
+
+    completedToursCache = newCompleted;
   } catch {
-    // Ignore storage errors
+    // Ignore errors
   }
 }
 
-export function isTourCompleted(tourId: string): boolean {
-  return getCompletedTours().includes(tourId);
-}
-
-export function resetTour(tourId: string): void {
-  if (typeof window === 'undefined') return;
+export async function resetAllTours(): Promise<void> {
   try {
-    const completed = getCompletedTours().filter(id => id !== tourId);
-    localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify(completed));
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    await supabase.from('profiles').update({ completed_tours: [] }).eq('id', user.id);
+
+    completedToursCache = [];
   } catch {
-    // Ignore storage errors
+    // Ignore errors
   }
 }
 
-export function resetAllTours(): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.removeItem(TOUR_STORAGE_KEY);
-  } catch {
-    // Ignore storage errors
-  }
+// Clear cache on logout or when needed
+export function clearTourCache(): void {
+  completedToursCache = null;
 }
 
 export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions) {
   const tourRef = useRef<Tour | null>(null);
+  const [isCompleted, setIsCompleted] = useState(true); // Default to true to prevent flash
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check if tour is completed on mount
+  useEffect(() => {
+    fetchCompletedTours().then(completed => {
+      setIsCompleted(completed.includes(tourId));
+      setIsLoading(false);
+    });
+  }, [tourId]);
 
   const createTour = useCallback(() => {
     if (tourRef.current) {
@@ -126,7 +157,7 @@ export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions)
         defaultButtons.push({
           text: 'Finalizar',
           action: () => {
-            markTourComplete(tourId);
+            markTourComplete(tourId).then(() => setIsCompleted(true));
             tour.complete();
             onComplete?.();
           },
@@ -170,7 +201,7 @@ export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions)
                     ? tour.back
                     : btn.action === 'complete'
                       ? () => {
-                          markTourComplete(tourId);
+                          markTourComplete(tourId).then(() => setIsCompleted(true));
                           tour.complete();
                           onComplete?.();
                         }
@@ -196,9 +227,12 @@ export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions)
   }, [tourId, steps, onComplete, onCancel]);
 
   const startTour = useCallback(
-    (force = false) => {
-      if (!force && isTourCompleted(tourId)) {
-        return;
+    async (force = false) => {
+      if (!force) {
+        const completed = await fetchCompletedTours();
+        if (completed.includes(tourId)) {
+          return;
+        }
       }
 
       const tour = createTour();
@@ -229,7 +263,7 @@ export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions)
   return {
     startTour,
     stopTour,
-    isCompleted: isTourCompleted(tourId),
-    resetTour: () => resetTour(tourId),
+    isCompleted,
+    isLoading,
   };
 }
