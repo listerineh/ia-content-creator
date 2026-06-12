@@ -344,9 +344,49 @@ export default function ClipGeneratorPage() {
           </div>
         </div>
 
-        {/* Steps indicator */}
-        <div className="w-full overflow-x-auto">
-          <div className="flex min-w-max items-center justify-center gap-2 pb-2 sm:min-w-0 sm:justify-start sm:gap-0 sm:pb-0">
+        {/* Steps indicator - Mobile: dots + current label, Desktop: full stepper */}
+        <div className="w-full">
+          {/* Mobile: Compact progress dots */}
+          <div className="flex items-center justify-between gap-2 sm:hidden">
+            <div className="flex items-center gap-1.5">
+              {STEPS.map((step, index) => {
+                const isCompleted = index < currentStepIndex;
+                const isCurrent = step.id === currentStep;
+                return (
+                  <div
+                    key={step.id}
+                    className={cn(
+                      'h-2 w-2 rounded-full transition-all',
+                      isCompleted
+                        ? 'bg-emerald-500'
+                        : isCurrent
+                          ? 'h-2.5 w-2.5 bg-violet-500'
+                          : 'bg-zinc-700'
+                    )}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-2">
+              {(() => {
+                const CurrentIcon = STEPS[currentStepIndex]?.icon;
+                return CurrentIcon ? (
+                  <>
+                    <CurrentIcon className="h-4 w-4 text-violet-400" />
+                    <span className="text-sm font-medium text-white">
+                      {STEPS[currentStepIndex]?.label}
+                    </span>
+                  </>
+                ) : null;
+              })()}
+              <span className="text-xs text-zinc-500">
+                {currentStepIndex + 1}/{STEPS.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Desktop: Full stepper */}
+          <div className="hidden sm:flex sm:items-center sm:gap-0">
             {STEPS.map((step, index) => {
               const Icon = step.icon;
               const isCompleted = index < currentStepIndex;
@@ -354,11 +394,11 @@ export default function ClipGeneratorPage() {
               const isLast = index === STEPS.length - 1;
 
               return (
-                <div key={step.id} className={cn('flex items-center', !isLast && 'sm:flex-1')}>
-                  <div className="flex flex-col items-center gap-1.5 sm:flex-row sm:gap-3">
+                <div key={step.id} className={cn('flex items-center', !isLast && 'flex-1')}>
+                  <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-all sm:h-10 sm:w-10',
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 transition-all',
                         isCompleted
                           ? 'border-emerald-500 bg-emerald-500'
                           : isCurrent
@@ -367,19 +407,16 @@ export default function ClipGeneratorPage() {
                       )}
                     >
                       {isCompleted ? (
-                        <Check className="h-4 w-4 text-white sm:h-5 sm:w-5" />
+                        <Check className="h-5 w-5 text-white" />
                       ) : (
                         <Icon
-                          className={cn(
-                            'h-4 w-4 sm:h-5 sm:w-5',
-                            isCurrent ? 'text-violet-400' : 'text-zinc-500'
-                          )}
+                          className={cn('h-5 w-5', isCurrent ? 'text-violet-400' : 'text-zinc-500')}
                         />
                       )}
                     </div>
                     <span
                       className={cn(
-                        'whitespace-nowrap text-xs font-medium sm:text-sm',
+                        'whitespace-nowrap text-sm font-medium',
                         isCurrent ? 'text-white' : isCompleted ? 'text-zinc-400' : 'text-zinc-600'
                       )}
                     >
@@ -390,7 +427,7 @@ export default function ClipGeneratorPage() {
                   {!isLast && (
                     <div
                       className={cn(
-                        'mx-2 h-px w-8 shrink-0 sm:mx-4 sm:w-auto sm:flex-1',
+                        'mx-4 h-px flex-1',
                         index < currentStepIndex ? 'bg-emerald-500' : 'bg-zinc-800'
                       )}
                     />
