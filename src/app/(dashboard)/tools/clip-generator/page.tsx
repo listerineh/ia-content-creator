@@ -21,6 +21,8 @@ import {
   Check,
   RotateCcw,
   Zap,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
@@ -102,7 +104,13 @@ export default function ClipGeneratorPage() {
   const [wizardState, setWizardState] = useState<WizardState>(DEFAULT_WIZARD_STATE);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
-  const { analyze, result: audioResult, isAnalyzing } = useAudioAnalysis();
+  const {
+    analyze,
+    result: audioResult,
+    isAnalyzing,
+    error: audioError,
+    isRateLimited,
+  } = useAudioAnalysis();
   const clipGenerator = useClipGenerator();
   const { currentBand } = useBand();
 
@@ -502,6 +510,47 @@ export default function ClipGeneratorPage() {
                   <p className="text-xs text-zinc-600">
                     Descargando y procesando, esto puede tomar unos segundos
                   </p>
+                </div>
+              ) : isRateLimited ? (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-8 text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10">
+                    <Clock className="h-8 w-8 text-amber-500" />
+                  </div>
+                  <h3 className="mt-4 text-base font-medium text-amber-400">
+                    Límite de descargas alcanzado
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-400">
+                    Google Drive está limitando las descargas temporalmente.
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Espera 2-5 minutos e intenta de nuevo.
+                  </p>
+                  <Button
+                    onClick={() => analyze(videoUrl)}
+                    variant="outline"
+                    className="mt-6 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Reintentar
+                  </Button>
+                </div>
+              ) : audioError ? (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/5 p-8 text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
+                    <AlertTriangle className="h-8 w-8 text-red-500" />
+                  </div>
+                  <h3 className="mt-4 text-base font-medium text-red-400">
+                    Error al analizar el video
+                  </h3>
+                  <p className="mt-2 text-sm text-zinc-400">{audioError}</p>
+                  <Button
+                    onClick={() => analyze(videoUrl)}
+                    variant="outline"
+                    className="mt-6 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Reintentar
+                  </Button>
                 </div>
               ) : filteredMoments.length > 0 ? (
                 <AudioMomentsMobileV2
