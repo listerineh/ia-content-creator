@@ -68,7 +68,7 @@ export default function BandsPage() {
     <div className="mx-auto max-w-4xl px-4 py-6 pt-16 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3">
+        <div className="flex flex-1 items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-white">Mis Bandas</h1>
             <p className="mt-1 text-sm text-zinc-500">Gestiona tus bandas y cambia entre ellas</p>
