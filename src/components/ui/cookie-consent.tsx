@@ -20,19 +20,25 @@ export function CookieConsent() {
   );
 
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+
     async function checkConsent() {
       const prefs = await getCookiePreferences();
 
       if (prefs === null) {
         // User hasn't accepted cookies yet - show banner
-        const timer = setTimeout(() => setIsVisible(true), 500);
-        return () => clearTimeout(timer);
+        timer = setTimeout(() => setIsVisible(true), 500);
       } else {
         // User has preferences saved
         setPreferences(prefs);
       }
     }
+
     checkConsent();
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   const handleAcceptAll = async () => {
