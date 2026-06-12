@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, startTransition } from 'react';
-import { useRouter } from 'next/navigation';
 import { VideoUrlInput } from '@/components/features/video-upload';
 import {
   FormatSelector,
@@ -31,7 +30,19 @@ import { ClipProgressList } from '@/components/features/clip-generator';
 import { type AudioMoment } from '@/lib/audio';
 import { Download, Clapperboard } from 'lucide-react';
 
-type Step = 'video' | 'moments' | 'formats' | 'intent' | 'subtitles' | 'generate';
+type Step = 'video' | 'formats' | 'intent' | 'moments' | 'subtitles' | 'generate';
+
+// Mapeo de intenciones a categorías de momentos
+const INTENT_TO_MOMENT_TYPES: Record<string, AudioMoment['type'][]> = {
+  viral: ['peak'],
+  educational: ['silence'],
+  storytelling: ['transition'],
+  highlights: ['peak', 'transition'],
+  behind_scenes: ['silence', 'transition'],
+  promotional: ['peak'],
+  tutorial: ['silence', 'transition'],
+  entertainment: ['peak', 'transition'],
+};
 
 interface VideoInfo {
   accessible: boolean;
@@ -47,7 +58,7 @@ interface WizardState {
   audioMoments: AudioMoment[];
   selectedMomentIndices: number[];
   selectedFormats: string[];
-  selectedIntent: string | null;
+  selectedIntents: string[];
   subtitleSettings: SubtitleSettings;
 }
 
@@ -63,9 +74,9 @@ const DEFAULT_SUBTITLE_SETTINGS: SubtitleSettings = {
 
 const STEPS: { id: Step; label: string; icon: React.ElementType }[] = [
   { id: 'video', label: 'Video', icon: Film },
-  { id: 'moments', label: 'Momentos', icon: Zap },
   { id: 'formats', label: 'Formatos', icon: Layers },
   { id: 'intent', label: 'Intención', icon: Sparkles },
+  { id: 'moments', label: 'Momentos', icon: Zap },
   { id: 'subtitles', label: 'Subtítulos', icon: Type },
   { id: 'generate', label: 'Generar', icon: Clapperboard },
 ];
@@ -77,12 +88,11 @@ const DEFAULT_WIZARD_STATE: WizardState = {
   audioMoments: [],
   selectedMomentIndices: [],
   selectedFormats: [],
-  selectedIntent: 'viral',
+  selectedIntents: [],
   subtitleSettings: DEFAULT_SUBTITLE_SETTINGS,
 };
 
 export default function ClipGeneratorPage() {
-  const router = useRouter();
   const [isHydrated, setIsHydrated] = useState(false);
   const [wizardState, setWizardState] = useState<WizardState>(DEFAULT_WIZARD_STATE);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -122,9 +132,18 @@ export default function ClipGeneratorPage() {
     audioMoments,
     selectedMomentIndices,
     selectedFormats,
-    selectedIntent,
+    selectedIntents,
     subtitleSettings,
   } = wizardState;
+
+  // Filtrar momentos basados en las intenciones seleccionadas
+  const allowedMomentTypes = selectedIntents.flatMap(
+    intent => INTENT_TO_MOMENT_TYPES[intent] || []
+  );
+  const filteredMoments =
+    allowedMomentTypes.length > 0
+      ? audioMoments.filter(m => allowedMomentTypes.includes(m.type))
+      : audioMoments;
 
   const updateWizard = useCallback((updates: Partial<WizardState>) => {
     setWizardState(prev => ({ ...prev, ...updates }));
@@ -195,28 +214,32 @@ export default function ClipGeneratorPage() {
   };
 
   const handleNext = () => {
+    // Nuevo orden: video → formats → intent → moments → subtitles → generate
     if (currentStep === 'video' && videoInfo) {
-      updateWizard({ currentStep: 'moments' });
-    } else if (currentStep === 'moments') {
       updateWizard({ currentStep: 'formats' });
     } else if (currentStep === 'formats' && selectedFormats.length > 0) {
       updateWizard({ currentStep: 'intent' });
-    } else if (currentStep === 'intent' && selectedIntent) {
+    } else if (currentStep === 'intent' && selectedIntents.length > 0) {
+      updateWizard({ currentStep: 'moments' });
+    } else if (currentStep === 'moments') {
       updateWizard({ currentStep: 'subtitles' });
     } else if (currentStep === 'subtitles') {
-      router.push('/tools/clip-generator/processing');
+      updateWizard({ currentStep: 'generate' });
     }
   };
 
   const handleBack = () => {
-    if (currentStep === 'moments') {
+    // Nuevo orden inverso
+    if (currentStep === 'formats') {
       updateWizard({ currentStep: 'video' });
-    } else if (currentStep === 'formats') {
-      updateWizard({ currentStep: 'moments' });
     } else if (currentStep === 'intent') {
       updateWizard({ currentStep: 'formats' });
-    } else if (currentStep === 'subtitles') {
+    } else if (currentStep === 'moments') {
       updateWizard({ currentStep: 'intent' });
+    } else if (currentStep === 'subtitles') {
+      updateWizard({ currentStep: 'moments' });
+    } else if (currentStep === 'generate') {
+      updateWizard({ currentStep: 'subtitles' });
     }
   };
 
@@ -232,9 +255,9 @@ export default function ClipGeneratorPage() {
 
   const canProceed = () => {
     if (currentStep === 'video') return !!videoInfo;
-    if (currentStep === 'moments') return true;
     if (currentStep === 'formats') return selectedFormats.length > 0;
-    if (currentStep === 'intent') return !!selectedIntent;
+    if (currentStep === 'intent') return selectedIntents.length > 0;
+    if (currentStep === 'moments') return true;
     if (currentStep === 'subtitles') return true;
     if (currentStep === 'generate') return clipGenerator.clips.length > 0;
     return false;
@@ -398,7 +421,7 @@ export default function ClipGeneratorPage() {
               <div>
                 <h2 className="text-lg font-medium text-white">Momentos detectados</h2>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Analizamos tu video y detectamos estos momentos interesantes
+                  Momentos filtrados según tus intenciones seleccionadas
                 </p>
               </div>
 
@@ -410,9 +433,9 @@ export default function ClipGeneratorPage() {
                     Descargando y procesando, esto puede tomar unos segundos
                   </p>
                 </div>
-              ) : audioMoments && audioMoments.length > 0 ? (
+              ) : filteredMoments.length > 0 ? (
                 <AudioMomentsMobileV2
-                  moments={audioMoments}
+                  moments={filteredMoments}
                   selectedMoments={selectedMomentIndices}
                   videoUrl={videoUrl || ''}
                   duration={audioResult?.duration || 0}
@@ -423,6 +446,17 @@ export default function ClipGeneratorPage() {
                     updateWizard({ selectedMomentIndices: newSelected });
                   }}
                 />
+              ) : audioMoments.length > 0 ? (
+                <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-8 text-center">
+                  <Zap className="mx-auto h-12 w-12 text-amber-500" />
+                  <p className="mt-4 text-sm text-amber-400">
+                    No hay momentos para las intenciones seleccionadas
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Vuelve atrás y selecciona otras intenciones, o el video no tiene momentos de ese
+                    tipo
+                  </p>
+                </div>
               ) : (
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 text-center">
                   <Zap className="mx-auto h-12 w-12 text-zinc-600" />
@@ -457,13 +491,30 @@ export default function ClipGeneratorPage() {
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-medium text-white">Tipo de contenido</h2>
-                <p className="mt-1 text-sm text-zinc-500">¿Qué tipo de clips quieres generar?</p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Selecciona uno o más tipos de clips que quieres generar
+                </p>
               </div>
 
               <IntentSelector
-                selectedIntent={selectedIntent}
-                onSelectionChange={intent => updateWizard({ selectedIntent: intent })}
+                selectedIntents={selectedIntents}
+                onSelectionChange={intents => updateWizard({ selectedIntents: intents })}
               />
+
+              {selectedIntents.length > 0 && (
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-3">
+                  <p className="text-xs text-zinc-500">
+                    Se mostrarán momentos de tipo:{' '}
+                    <span className="text-zinc-300">
+                      {[...new Set(selectedIntents.flatMap(i => INTENT_TO_MOMENT_TYPES[i] || []))]
+                        .map(t =>
+                          t === 'peak' ? 'Picos' : t === 'silence' ? 'Silencios' : 'Transiciones'
+                        )
+                        .join(', ')}
+                    </span>
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

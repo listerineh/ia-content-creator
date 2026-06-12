@@ -12,19 +12,27 @@ const ICON_MAP: Record<VideoIntent['iconName'], LucideIcon> = {
 };
 
 interface IntentSelectorProps {
-  selectedIntent: string | null;
-  onSelectionChange: (intent: string) => void;
+  selectedIntents: string[];
+  onSelectionChange: (intents: string[]) => void;
 }
 
-export function IntentSelector({ selectedIntent, onSelectionChange }: IntentSelectorProps) {
+export function IntentSelector({ selectedIntents, onSelectionChange }: IntentSelectorProps) {
+  const toggleIntent = (intentId: string) => {
+    if (selectedIntents.includes(intentId)) {
+      onSelectionChange(selectedIntents.filter(id => id !== intentId));
+    } else {
+      onSelectionChange([...selectedIntents, intentId]);
+    }
+  };
+
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {VIDEO_INTENTS.map(intent => (
         <IntentCard
           key={intent.id}
           intent={intent}
-          isSelected={selectedIntent === intent.id}
-          onClick={() => onSelectionChange(intent.id)}
+          isSelected={selectedIntents.includes(intent.id)}
+          onClick={() => toggleIntent(intent.id)}
         />
       ))}
     </div>
