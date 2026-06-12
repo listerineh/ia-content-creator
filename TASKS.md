@@ -327,14 +327,34 @@
 ### 5.8 Bugfixes y Mejoras UX ✅ COMPLETADO
 
 - [x] Fix: Preview de audio reproducía siempre el primer momento
-  - Archivos: `src/components/features/audio-moments/audio-moments-mobile-v2.tsx`
-  - Solución: Limpiar audio anterior y usar timestamp correcto de cada momento
 - [x] Remover límite artificial de 20 momentos en analyzer
-  - Archivos: `src/lib/audio/analyzer.ts`
 - [x] Remover preselección automática de top 3 momentos
-  - Archivos: `src/app/(dashboard)/tools/clip-generator/page.tsx`
 - [x] Remover estrellas de "top 10" en UI de momentos
+- [x] Top 5 sugerencias con estrella y color amber en timeline
+- [x] Categorización de momentos por intención seleccionada
+- [x] Preview de audio restaurado usando Blob URL
+- [x] Retry con delay para rate limits de Google Drive
+- [x] UI de error amigable para rate limits (429)
 - [ ] Tag: v0.5.0
+
+### 5.9 Mejoras UI Bandas ✅ COMPLETADO
+
+- [x] Modal de crear banda (sin redirigir a /onboarding)
+- [x] Responsive mejorado en /bands (flex-col mobile, flex-row desktop)
+- [x] Selector de géneros con chips clickeables (multi-selección)
+- [x] Retrocompatibilidad con bandas de un solo género
+- [x] Card expandible con "Ver más géneros"
+- [x] Hasta 5 géneros por banda
+
+### 5.10 Sistema de Tours Guiados ✅ COMPLETADO
+
+- [x] Integrar Shepherd.js para tutoriales
+- [x] Tema personalizado CSS para OpenStage
+- [x] Hook useTour con persistencia en localStorage
+- [x] Auto-start en primera visita
+- [x] Botón de ayuda (?) para reiniciar tour
+- [x] Indicador de progreso con dots
+- [x] Tours predefinidos: bands, dashboard, clip-generator
 
 ---
 
@@ -419,7 +439,10 @@
 | 2026-06-12 | -       | FASE 5: Generación multi-formato, duración por formato, crop sin franjas |
 | 2026-06-12 | -       | UX: Stepper responsive, layout previews, timestamps reales            |
 | 2026-06-12 | -       | "Canciones completas" marcado como Próximamente                       |
+| 2026-06-12 | -       | Top 5 sugerencias, preview audio con blob, retry rate limits          |
+| 2026-06-12 | -       | Modal crear banda, selector géneros multi-select con chips            |
+| 2026-06-12 | -       | Sistema de tours guiados con Shepherd.js                              |
 
 ---
 
-Última actualización: 12 de Junio 2026
+Última actualización: 12 de Junio 2026 (3:40am)
