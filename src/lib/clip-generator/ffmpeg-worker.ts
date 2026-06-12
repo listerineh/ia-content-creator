@@ -95,11 +95,12 @@ async function generateSingleClip(
   const targetWidth = Math.min(format.width, 720);
   const targetHeight = Math.min(format.height, 1280);
 
+  // -ss después de -i para corte preciso (más lento pero exacto)
   const ffmpegArgs = [
-    '-ss',
-    startTime.toString(),
     '-i',
     'input.mp4',
+    '-ss',
+    startTime.toString(),
     '-t',
     duration.toString(),
     '-vf',
