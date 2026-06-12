@@ -339,7 +339,7 @@
 - [x] Preview de audio restaurado usando Blob URL
 - [x] Retry con delay para rate limits de Google Drive
 - [x] UI de error amigable para rate limits (429)
-- [ ] Tag: v0.5.0
+- [x] Tag: v0.5.0 ✅
 
 ### 5.9 Mejoras UI Bandas ✅ COMPLETADO
 
@@ -465,7 +465,8 @@
 | 2026-06-12 | -       | Sistema de tours guiados con Shepherd.js, persistencia Supabase       |
 | 2026-06-12 | -       | Páginas legales (privacy, cookies), banner GDPR, config en settings   |
 | 2026-06-12 | -       | Transcripción con Whisper WASM, extracción audio FFmpeg, UI completa  |
+| 2026-06-12 | v0.5.0  | FASE 5 completada: análisis audio, tours, cookies, transcripción      |
 
 ---
 
-Última actualización: 12 de Junio 2026 (4:35am)
+Última actualización: 12 de Junio 2026 (4:36am)
