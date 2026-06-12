@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { type AudioMoment } from '@/lib/audio';
 import {
   type ClipResult,
@@ -13,6 +14,42 @@ import {
 export { generateClipFilename };
 import { generateClipConfigs } from '@/lib/clip-generator/duration';
 import { generateMultipleClips } from '@/lib/clip-generator/ffmpeg-worker';
+
+const fireConfetti = () => {
+  // Lanzar confetti desde ambos lados
+  const defaults = {
+    spread: 60,
+    ticks: 100,
+    gravity: 0.8,
+    decay: 0.94,
+    startVelocity: 30,
+    colors: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#22c55e', '#4ade80'],
+  };
+
+  confetti({
+    ...defaults,
+    particleCount: 40,
+    origin: { x: 0.2, y: 0.6 },
+    angle: 60,
+  });
+
+  confetti({
+    ...defaults,
+    particleCount: 40,
+    origin: { x: 0.8, y: 0.6 },
+    angle: 120,
+  });
+
+  // Segundo burst después de 150ms
+  setTimeout(() => {
+    confetti({
+      ...defaults,
+      particleCount: 30,
+      origin: { x: 0.5, y: 0.5 },
+      spread: 100,
+    });
+  }, 150);
+};
 
 const initialState: GeneratorState = {
   isGenerating: false,
@@ -130,6 +167,9 @@ export function useClipGenerator() {
           ...prev,
           isGenerating: false,
         }));
+
+        // 🎉 Celebrar cuando termine!
+        fireConfetti();
       } catch (error) {
         setState(prev => ({
           ...prev,
