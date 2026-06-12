@@ -65,12 +65,15 @@ export function calculateSmartDuration(
     }
   }
 
-  const finalDuration = Math.round(endTime - startTime);
+  // Asegurar que la duración sea positiva y válida
+  const finalDuration = Math.max(1, Math.round(endTime - startTime));
+  const finalStartTime = Math.max(0, Math.round(startTime * 100) / 100);
+  const finalEndTime = Math.min(videoDuration, Math.round(endTime * 100) / 100);
 
   return {
-    startTime: Math.round(startTime * 100) / 100,
-    endTime: Math.round(endTime * 100) / 100,
-    duration: finalDuration,
+    startTime: finalStartTime,
+    endTime: Math.max(finalStartTime + 1, finalEndTime),
+    duration: Math.max(1, finalDuration),
   };
 }
 

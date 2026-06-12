@@ -216,6 +216,14 @@ export async function generateMultipleClips(
   // Escribir input una sola vez
   await ff.writeFile('input.mp4', videoData);
 
+  // Marcar descarga como completada para el primer clip
+  onProgress({
+    momentIndex: configs[0]?.momentIndex ?? 0,
+    stage: 'processing',
+    progress: 0,
+    message: 'Video descargado, procesando clips...',
+  });
+
   // Generar cada clip reutilizando el input
   for (const config of configs) {
     try {
