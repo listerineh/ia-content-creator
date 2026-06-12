@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { BackButton } from '@/components/ui/back-button';
 
 export const metadata: Metadata = {
   title: 'Política de Privacidad | OpenStage',
@@ -11,13 +11,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-zinc-950">
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-zinc-500 transition-colors hover:text-white"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Volver al inicio
-        </Link>
+        <BackButton />
 
         <article className="prose prose-invert prose-zinc max-w-none">
           <h1 className="text-3xl font-bold text-white">Política de Privacidad</h1>
