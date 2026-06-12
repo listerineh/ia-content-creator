@@ -1,5 +1,10 @@
 /* Shepherd.js custom theme for OpenStage */
 
+/* Prevent overflow when tour is active */
+body.shepherd-active {
+  overflow: hidden !important;
+}
+
 .shepherd-element {
   z-index: 9999;
   background: transparent !important;
@@ -14,6 +19,8 @@
 /* Modal overlay with blur */
 .shepherd-modal-overlay-container {
   z-index: 9998;
+  position: fixed !important;
+  inset: 0 !important;
 }
 
 .shepherd-modal-overlay-container.shepherd-modal-is-visible {
@@ -21,7 +28,6 @@
 }
 
 /* Apply blur to the entire page when tour is active */
-.shepherd-modal-is-visible ~ *,
 body.shepherd-active > *:not(.shepherd-modal-overlay-container):not(.shepherd-element) {
   filter: blur(4px);
   pointer-events: none;
