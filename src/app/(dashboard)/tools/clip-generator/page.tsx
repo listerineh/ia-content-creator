@@ -281,6 +281,7 @@ export default function ClipGeneratorPage() {
   };
 
   const handleClearAll = () => {
+    clipGenerator.reset();
     setWizardState(DEFAULT_WIZARD_STATE);
     setVerifyError(null);
   };
