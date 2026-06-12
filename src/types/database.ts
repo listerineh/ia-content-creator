@@ -1,5 +1,11 @@
 export type BandRole = 'admin' | 'editor' | 'viewer';
 
+export interface CookiePreferences {
+  essential: boolean;
+  functional: boolean;
+  analytics: boolean;
+}
+
 export interface Profile {
   id: string;
   email: string;
@@ -8,6 +14,7 @@ export interface Profile {
   current_band_id: string | null;
   onboarding_completed: boolean;
   completed_tours: string[];
+  cookie_preferences: CookiePreferences;
   created_at: string;
   updated_at: string;
 }
