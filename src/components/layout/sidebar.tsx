@@ -127,7 +127,7 @@ export function Sidebar({ user }: SidebarProps) {
         <Link href="/dashboard" onClick={() => setIsOpen(false)} className="relative">
           <Logo size="lg" />
           <span className="absolute -bottom-3 -right-7 rounded-full bg-zinc-800/50 px-2 py-0.5 text-[10px] font-medium text-zinc-400">
-            alpha-v0.4.4
+            alpha-v0.5.0
           </span>
         </Link>
         <button
