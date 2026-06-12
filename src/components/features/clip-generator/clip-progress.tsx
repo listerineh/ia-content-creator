@@ -157,11 +157,11 @@ export function ClipProgressList({
               </div>
             )}
 
-            {/* Video preview */}
+            {/* Video preview - Mobile first responsive */}
             {isComplete && clip && (
-              <div className="flex flex-col gap-3">
-                {/* Video container - altura adaptada al formato vertical */}
-                <div className="relative mx-auto w-full max-w-50 overflow-hidden rounded-xl bg-black">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+                {/* Video container - Full width en mobile, fixed en desktop */}
+                <div className="relative mx-auto w-full max-w-70 overflow-hidden rounded-xl bg-black sm:mx-0 sm:w-40 sm:shrink-0 md:w-48">
                   <div className="aspect-9/16">
                     <video
                       ref={el => {
@@ -181,22 +181,22 @@ export function ClipProgressList({
                     )}
                   >
                     {playingId === clip.id ? (
-                      <Pause className="h-12 w-12 text-white drop-shadow-lg" />
+                      <Pause className="h-10 w-10 text-white drop-shadow-lg sm:h-8 sm:w-8" />
                     ) : (
-                      <Play className="h-12 w-12 text-white drop-shadow-lg" />
+                      <Play className="h-10 w-10 text-white drop-shadow-lg sm:h-8 sm:w-8" />
                     )}
                   </button>
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-2">
-                  {/* Descargar */}
+                {/* Actions - Stack en mobile, column en desktop */}
+                <div className="flex flex-1 flex-col gap-2">
+                  {/* Descargar - Touch friendly 44px min height */}
                   <button
                     onClick={() => onDownload(clip)}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-violet-500/20 py-2.5 text-sm font-medium text-violet-400 transition-colors hover:bg-violet-500/30 active:scale-95"
+                    className="flex min-h-11 items-center justify-center gap-2 rounded-lg bg-violet-500/20 px-4 py-3 text-sm font-medium text-violet-400 transition-colors hover:bg-violet-500/30 active:scale-[0.98] sm:py-2.5"
                   >
                     <Download className="h-4 w-4" />
-                    Descargar
+                    <span>Descargar</span>
                   </button>
 
                   {/* Guardar en Drive */}
@@ -205,7 +205,7 @@ export function ClipProgressList({
                       onClick={() => handleSaveToDrive(clip)}
                       disabled={savingToDrive === clip.id || savedToDrive.has(clip.id)}
                       className={cn(
-                        'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors active:scale-95',
+                        'flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors active:scale-[0.98] sm:py-2.5',
                         savedToDrive.has(clip.id)
                           ? 'bg-emerald-500/20 text-emerald-400'
                           : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
@@ -218,15 +218,17 @@ export function ClipProgressList({
                       ) : (
                         <Cloud className="h-4 w-4" />
                       )}
-                      {savedToDrive.has(clip.id) ? 'Guardado' : 'Drive'}
+                      <span>
+                        {savedToDrive.has(clip.id) ? 'Guardado en Drive' : 'Guardar en Drive'}
+                      </span>
                     </button>
                   ) : onConnectDrive ? (
                     <button
                       onClick={onConnectDrive}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-zinc-800 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-300 active:scale-95"
+                      className="flex min-h-11 items-center justify-center gap-2 rounded-lg bg-zinc-800 px-4 py-3 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-300 active:scale-[0.98] sm:py-2.5"
                     >
                       <CloudOff className="h-4 w-4" />
-                      Conectar
+                      <span>Conectar Drive</span>
                     </button>
                   ) : null}
                 </div>
