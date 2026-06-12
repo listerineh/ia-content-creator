@@ -134,6 +134,8 @@ export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions)
 
     tour.on('cancel', () => {
       document.body.classList.remove('shepherd-active');
+      // Mark as completed when user closes/skips the tour
+      markTourComplete(tourId).then(() => setIsCompleted(true));
     });
 
     // Add steps
