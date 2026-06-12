@@ -1,6 +1,16 @@
 'use client';
 
-import { Loader2, CheckCircle2, XCircle, Download, Play, Pause } from 'lucide-react';
+import {
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  Download,
+  Play,
+  Pause,
+  Cloud,
+  CloudOff,
+  Check,
+} from 'lucide-react';
 import { useState, useRef } from 'react';
 import { type ClipProgress, type ClipResult } from '@/lib/clip-generator/types';
 import { formatTimestamp } from '@/lib/audio';
@@ -10,11 +20,34 @@ interface ClipProgressListProps {
   progress: ClipProgress[];
   clips: ClipResult[];
   onDownload: (clip: ClipResult) => void;
+  driveConnected?: boolean;
+  onConnectDrive?: () => void;
+  onSaveToDrive?: (clip: ClipResult) => Promise<void>;
 }
 
-export function ClipProgressList({ progress, clips, onDownload }: ClipProgressListProps) {
+export function ClipProgressList({
+  progress,
+  clips,
+  onDownload,
+  driveConnected = false,
+  onConnectDrive,
+  onSaveToDrive,
+}: ClipProgressListProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [savingToDrive, setSavingToDrive] = useState<string | null>(null);
+  const [savedToDrive, setSavedToDrive] = useState<Set<string>>(new Set());
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
+
+  const handleSaveToDrive = async (clip: ClipResult) => {
+    if (!onSaveToDrive || savingToDrive) return;
+    setSavingToDrive(clip.id);
+    try {
+      await onSaveToDrive(clip);
+      setSavedToDrive(prev => new Set([...prev, clip.id]));
+    } finally {
+      setSavingToDrive(null);
+    }
+  };
 
   const getClipForMoment = (momentIndex: number) => {
     return clips.find(c => c.momentIndex === momentIndex);
@@ -126,37 +159,77 @@ export function ClipProgressList({ progress, clips, onDownload }: ClipProgressLi
 
             {/* Video preview */}
             {isComplete && clip && (
-              <div className="flex flex-col gap-2">
-                <div className="relative aspect-9/16 max-h-48 w-full overflow-hidden rounded-lg bg-black">
-                  <video
-                    ref={el => {
-                      if (el) videoRefs.current.set(clip.id, el);
-                    }}
-                    src={clip.url}
-                    className="h-full w-full object-contain"
-                    onEnded={() => setPlayingId(null)}
-                    playsInline
-                  />
+              <div className="flex flex-col gap-3">
+                {/* Video container - altura adaptada al formato vertical */}
+                <div className="relative mx-auto w-full max-w-50 overflow-hidden rounded-xl bg-black">
+                  <div className="aspect-9/16">
+                    <video
+                      ref={el => {
+                        if (el) videoRefs.current.set(clip.id, el);
+                      }}
+                      src={clip.url}
+                      className="h-full w-full object-cover"
+                      onEnded={() => setPlayingId(null)}
+                      playsInline
+                    />
+                  </div>
                   <button
                     onClick={() => togglePlay(clip.id)}
-                    className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity hover:opacity-100"
+                    className={cn(
+                      'absolute inset-0 flex items-center justify-center transition-opacity',
+                      playingId === clip.id ? 'bg-black/20' : 'bg-black/40 hover:bg-black/30'
+                    )}
                   >
                     {playingId === clip.id ? (
-                      <Pause className="h-10 w-10 text-white" />
+                      <Pause className="h-12 w-12 text-white drop-shadow-lg" />
                     ) : (
-                      <Play className="h-10 w-10 text-white" />
+                      <Play className="h-12 w-12 text-white drop-shadow-lg" />
                     )}
                   </button>
                 </div>
 
                 {/* Actions */}
-                <button
-                  onClick={() => onDownload(clip)}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-violet-500/20 py-2 text-sm font-medium text-violet-400 transition-colors hover:bg-violet-500/30"
-                >
-                  <Download className="h-4 w-4" />
-                  Descargar
-                </button>
+                <div className="flex gap-2">
+                  {/* Descargar */}
+                  <button
+                    onClick={() => onDownload(clip)}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-violet-500/20 py-2.5 text-sm font-medium text-violet-400 transition-colors hover:bg-violet-500/30 active:scale-95"
+                  >
+                    <Download className="h-4 w-4" />
+                    Descargar
+                  </button>
+
+                  {/* Guardar en Drive */}
+                  {driveConnected && onSaveToDrive ? (
+                    <button
+                      onClick={() => handleSaveToDrive(clip)}
+                      disabled={savingToDrive === clip.id || savedToDrive.has(clip.id)}
+                      className={cn(
+                        'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors active:scale-95',
+                        savedToDrive.has(clip.id)
+                          ? 'bg-emerald-500/20 text-emerald-400'
+                          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                      )}
+                    >
+                      {savingToDrive === clip.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : savedToDrive.has(clip.id) ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <Cloud className="h-4 w-4" />
+                      )}
+                      {savedToDrive.has(clip.id) ? 'Guardado' : 'Drive'}
+                    </button>
+                  ) : onConnectDrive ? (
+                    <button
+                      onClick={onConnectDrive}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-zinc-800 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-300 active:scale-95"
+                    >
+                      <CloudOff className="h-4 w-4" />
+                      Conectar
+                    </button>
+                  ) : null}
+                </div>
               </div>
             )}
 

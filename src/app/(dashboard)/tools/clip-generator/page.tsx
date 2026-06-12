@@ -25,10 +25,12 @@ import {
 import { cn } from '@/lib/utils';
 import { useAudioAnalysis } from '@/hooks/use-audio-analysis';
 import { useClipGenerator } from '@/hooks/use-clip-generator';
+import { useBand } from '@/hooks/use-band';
 import { AudioMomentsMobileV2 } from '@/components/features/audio-moments';
 import { ClipProgressList } from '@/components/features/clip-generator';
 import { type AudioMoment } from '@/lib/audio';
-import { Download, Clapperboard } from 'lucide-react';
+import { type ClipResult } from '@/lib/clip-generator/types';
+import { Download, Clapperboard, Cloud } from 'lucide-react';
 
 type Step = 'video' | 'formats' | 'intent' | 'moments' | 'subtitles' | 'generate';
 
@@ -99,6 +101,33 @@ export default function ClipGeneratorPage() {
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const { analyze, result: audioResult, isAnalyzing } = useAudioAnalysis();
   const clipGenerator = useClipGenerator();
+  const { currentBand } = useBand();
+
+  const driveConnected = !!currentBand?.drive_folder_id;
+
+  const handleConnectDrive = () => {
+    if (currentBand?.slug) {
+      window.location.href = `/bands/${currentBand.slug}/settings?tab=integrations`;
+    }
+  };
+
+  const handleSaveToDrive = async (clip: ClipResult) => {
+    if (!currentBand?.drive_folder_id || !clip.blob) return;
+
+    const formData = new FormData();
+    formData.append('file', clip.blob, `clip-${clip.momentIndex + 1}.mp4`);
+    formData.append('folderId', currentBand.drive_folder_id);
+    formData.append('bandId', currentBand.id);
+
+    const response = await fetch('/api/drive/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al guardar en Drive');
+    }
+  };
 
   useEffect(() => {
     try {
@@ -571,12 +600,48 @@ export default function ClipGeneratorPage() {
                   progress={clipGenerator.progress}
                   clips={clipGenerator.clips}
                   onDownload={clipGenerator.downloadClip}
+                  driveConnected={driveConnected}
+                  onConnectDrive={handleConnectDrive}
+                  onSaveToDrive={handleSaveToDrive}
                 />
               )}
 
               {clipGenerator.error && (
                 <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
                   <p className="text-sm text-red-400">{clipGenerator.error}</p>
+                </div>
+              )}
+
+              {/* Drive status banner */}
+              {clipGenerator.clips.length > 0 && !clipGenerator.isGenerating && (
+                <div
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg border p-3',
+                    driveConnected
+                      ? 'border-emerald-500/30 bg-emerald-500/5'
+                      : 'border-zinc-800 bg-zinc-900/50'
+                  )}
+                >
+                  <Cloud
+                    className={cn('h-5 w-5', driveConnected ? 'text-emerald-400' : 'text-zinc-500')}
+                  />
+                  <div className="flex-1">
+                    <p
+                      className={cn(
+                        'text-sm',
+                        driveConnected ? 'text-emerald-400' : 'text-zinc-400'
+                      )}
+                    >
+                      {driveConnected
+                        ? 'Conectado a Google Drive'
+                        : 'Conecta Google Drive para autoguardar'}
+                    </p>
+                  </div>
+                  {!driveConnected && (
+                    <Button size="sm" variant="outline" onClick={handleConnectDrive}>
+                      Conectar
+                    </Button>
+                  )}
                 </div>
               )}
 
