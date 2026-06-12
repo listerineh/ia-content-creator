@@ -101,9 +101,37 @@ async function generateSingleClip(
 
   const outputName = `clip_${momentIndex}.mp4`;
 
-  // Optimizado para memoria: 720p max, ultrafast, CRF 32
-  const targetWidth = Math.min(format.width, 720);
-  const targetHeight = Math.min(format.height, 1280);
+  // Determinar resolución objetivo según aspect ratio
+  // Para formatos horizontales (16:9): max 1280x720
+  // Para formatos verticales (9:16): max 720x1280
+  // Para cuadrados (1:1): max 720x720
+  let targetWidth: number;
+  let targetHeight: number;
+  let videoFilter: string;
+
+  if (format.aspectRatio === '16:9') {
+    // YouTube horizontal: recortar centro del video vertical
+    targetWidth = Math.min(format.width, 1280);
+    targetHeight = Math.min(format.height, 720);
+    // Crop del centro y luego scale
+    videoFilter = `crop=ih*16/9:ih,scale=${targetWidth}:${targetHeight}`;
+  } else if (format.aspectRatio === '1:1') {
+    // Cuadrado: recortar al centro
+    targetWidth = Math.min(format.width, 720);
+    targetHeight = Math.min(format.height, 720);
+    videoFilter = `crop=min(iw\\,ih):min(iw\\,ih),scale=${targetWidth}:${targetHeight}`;
+  } else if (format.aspectRatio === '4:5') {
+    // Instagram portrait
+    targetWidth = Math.min(format.width, 720);
+    targetHeight = Math.min(format.height, 900);
+    videoFilter = `crop=ih*4/5:ih,scale=${targetWidth}:${targetHeight}`;
+  } else {
+    // 9:16 vertical (TikTok, Reels, Shorts, Story)
+    targetWidth = Math.min(format.width, 720);
+    targetHeight = Math.min(format.height, 1280);
+    // Si el video es horizontal, agregar padding negro
+    videoFilter = `scale=${targetWidth}:${targetHeight}:force_original_aspect_ratio=decrease,pad=${targetWidth}:${targetHeight}:(ow-iw)/2:(oh-ih)/2:black`;
+  }
 
   // -ss después de -i para corte preciso (más lento pero exacto)
   const ffmpegArgs = [
@@ -114,7 +142,7 @@ async function generateSingleClip(
     '-t',
     duration.toString(),
     '-vf',
-    `scale=${targetWidth}:${targetHeight}:force_original_aspect_ratio=decrease,pad=${targetWidth}:${targetHeight}:(ow-iw)/2:(oh-ih)/2:black`,
+    videoFilter,
     '-c:v',
     'libx264',
     '-preset',
