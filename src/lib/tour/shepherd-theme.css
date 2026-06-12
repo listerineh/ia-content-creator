@@ -26,14 +26,13 @@ body.shepherd-active::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
   z-index: 9997;
 }
 
-/* Apply blur to the entire page when tour is active */
+/* Disable interactions on page content when tour is active */
 body.shepherd-active > *:not(.shepherd-element) {
-  filter: blur(4px);
   pointer-events: none;
 }
 
