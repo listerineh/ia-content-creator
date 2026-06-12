@@ -54,20 +54,38 @@ export function AudioMomentsMobileV2({
         return;
       }
 
-      // Crear nuevo audio para cada reproducción
       const audio = new Audio();
-      audio.src = `/api/download-video?fileId=${match[1]}`;
+      // Usar el timestamp del momento como cache buster para forzar nuevo request
+      audio.src = `/api/download-video?fileId=${match[1]}&seek=${Math.floor(m.timestamp)}`;
+      audio.preload = 'metadata';
       audioRef.current = audio;
 
-      // Esperar a que cargue metadata
+      // Calcular el tiempo de inicio deseado
+      const startTime = Math.max(0, m.timestamp - 1.5);
+
+      // Esperar a que cargue suficiente para hacer seek
       await new Promise<void>((resolve, reject) => {
-        audio.onloadedmetadata = () => {
-          // Ir al timestamp del momento (1.5s antes para contexto)
-          audio.currentTime = Math.max(0, m.timestamp - 1.5);
+        const onCanPlay = () => {
+          audio.removeEventListener('canplay', onCanPlay);
           resolve();
         };
+        audio.addEventListener('canplay', onCanPlay);
         audio.onerror = () => reject(new Error('Error loading audio'));
         audio.load();
+      });
+
+      // Establecer tiempo ANTES de reproducir
+      audio.currentTime = startTime;
+
+      // Esperar a que el seek se complete
+      await new Promise<void>(resolve => {
+        const onSeeked = () => {
+          audio.removeEventListener('seeked', onSeeked);
+          resolve();
+        };
+        audio.addEventListener('seeked', onSeeked);
+        // Fallback si seeked no dispara
+        setTimeout(resolve, 100);
       });
 
       await audio.play();
@@ -82,7 +100,6 @@ export function AudioMomentsMobileV2({
         }
       }, 4000);
 
-      // Limpiar timeout si se pausa manualmente
       audio.onpause = () => clearTimeout(timeoutId);
     } catch {
       setLoading(null);
