@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'fileId or url is required' }, { status: 400 });
   }
 
+  console.log('[download-video] Starting download for fileId:', fileId || 'extracting from URL');
+
   try {
     // If fileId not provided, extract from URL
     if (!fileId && url) {
@@ -123,14 +125,19 @@ export async function GET(request: NextRequest) {
 
     // Final check - if still HTML, we failed
     if (contentType.includes('text/html')) {
+      console.log(
+        '[download-video] Failed - received HTML instead of video (rate limit or auth required)'
+      );
       return NextResponse.json(
         {
           error:
-            'Could not download video - file may require authentication or is not publicly accessible',
+            'Could not download video - file may require authentication, is not publicly accessible, or Google Drive rate limit reached. Try again in a few seconds.',
         },
-        { status: 400 }
+        { status: 429 } // 429 = Too Many Requests
       );
     }
+
+    console.log('[download-video] Success - streaming video');
 
     // Stream the video response directly without buffering
     const contentLength = response.headers.get('content-length');

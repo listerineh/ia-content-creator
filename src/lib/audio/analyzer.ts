@@ -52,11 +52,38 @@ export async function analyzeAudio(
     }
     const fileId = fileIdMatch[1];
 
-    // Download video through our API endpoint
-    const response = await fetch(`/api/download-video?fileId=${fileId}`);
-    if (!response.ok) {
-      throw new Error('Failed to download video');
+    // Download video through our API endpoint with retry
+    let response: Response | null = null;
+    let lastError = '';
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) {
+        // Wait before retry (2s, 4s)
+        await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+        console.log(`[analyzeAudio] Retry attempt ${attempt + 1}...`);
+      }
+
+      response = await fetch(`/api/download-video?fileId=${fileId}`);
+
+      if (response.ok) {
+        break;
+      }
+
+      // If rate limited (429), retry
+      if (response.status === 429) {
+        lastError = 'Google Drive rate limit - retrying...';
+        continue;
+      }
+
+      // Other errors, don't retry
+      lastError = `Failed to download video: ${response.status}`;
+      break;
     }
+
+    if (!response || !response.ok) {
+      throw new Error(lastError || 'Failed to download video');
+    }
+
     const arrayBuffer = await response.arrayBuffer();
 
     // Create audio context
