@@ -526,7 +526,7 @@ export default function ClipGeneratorPage() {
                     Espera 2-5 minutos e intenta de nuevo.
                   </p>
                   <Button
-                    onClick={() => analyze(videoUrl)}
+                    onClick={() => videoUrl && analyze(videoUrl)}
                     variant="outline"
                     className="mt-6 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
                   >
@@ -544,7 +544,7 @@ export default function ClipGeneratorPage() {
                   </h3>
                   <p className="mt-2 text-sm text-zinc-400">{audioError}</p>
                   <Button
-                    onClick={() => analyze(videoUrl)}
+                    onClick={() => videoUrl && analyze(videoUrl)}
                     variant="outline"
                     className="mt-6 border-red-500/30 text-red-400 hover:bg-red-500/10"
                   >
