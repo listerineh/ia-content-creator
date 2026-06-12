@@ -1,5 +1,5 @@
 import { type AudioMoment } from '@/lib/audio';
-import { DURATION_BY_MOMENT_TYPE, type ClipFormat } from './types';
+import { type ClipFormat } from './types';
 
 export interface DurationResult {
   startTime: number;
@@ -13,50 +13,42 @@ export function calculateSmartDuration(
   format: ClipFormat,
   allMoments: AudioMoment[] = []
 ): DurationResult {
-  const momentConfig = DURATION_BY_MOMENT_TYPE[moment.type];
-
-  // Usar la duración ideal del formato como base, ajustada por el tipo de momento
+  // Usar la duración ideal del formato directamente
+  // TikTok: 30s, Reels: 30s, Shorts: 45s, Story: 15s, YouTube: 120s
   const formatIdeal = format.idealDuration;
   const maxAllowed = format.maxDuration;
 
-  // Duración mínima: al menos 50% del ideal del formato, mínimo 10 segundos
-  const minDuration = Math.max(10, Math.round(formatIdeal * 0.5));
+  // Duración mínima: 80% del ideal, mínimo 10 segundos
+  const minDuration = Math.max(10, Math.round(formatIdeal * 0.8));
 
-  // Calcular duración base: promedio ponderado entre formato y tipo de momento
-  // El formato tiene más peso (70%) porque define la plataforma objetivo
-  let idealDuration = Math.round(formatIdeal * 0.7 + momentConfig.ideal * 0.3);
+  // Usar el ideal del formato como base
+  let clipDuration = formatIdeal;
 
-  // Ajustar según confianza del momento
+  // Pequeño ajuste por confianza (±10% máximo)
   if (moment.confidence > 0.8) {
-    idealDuration = Math.min(idealDuration * 1.15, maxAllowed);
+    clipDuration = Math.round(clipDuration * 1.1);
   } else if (moment.confidence < 0.5) {
-    idealDuration = Math.max(idealDuration * 0.85, minDuration);
+    clipDuration = Math.round(clipDuration * 0.9);
   }
 
-  // Ajustar según energía
-  if (moment.energy > 0.8) {
-    idealDuration = Math.min(idealDuration * 1.1, maxAllowed);
-  }
+  // Asegurar que esté dentro de los límites estrictos
+  clipDuration = Math.min(clipDuration, maxAllowed);
+  clipDuration = Math.max(clipDuration, minDuration);
 
-  // Asegurar que esté dentro de los límites
-  idealDuration = Math.round(idealDuration);
-  idealDuration = Math.min(idealDuration, maxAllowed);
-  idealDuration = Math.max(idealDuration, minDuration);
-
-  const halfDuration = idealDuration / 2;
+  const halfDuration = clipDuration / 2;
   let startTime = moment.timestamp - halfDuration;
   let endTime = moment.timestamp + halfDuration;
 
   // Ajustar si el clip empieza antes del video
   if (startTime < 0) {
     startTime = 0;
-    endTime = Math.min(idealDuration, videoDuration);
+    endTime = Math.min(clipDuration, videoDuration);
   }
 
   // Ajustar si el clip termina después del video
   if (endTime > videoDuration) {
     endTime = videoDuration;
-    startTime = Math.max(0, videoDuration - idealDuration);
+    startTime = Math.max(0, videoDuration - clipDuration);
   }
 
   // Verificar si hay suficiente espacio para el clip mínimo
@@ -77,7 +69,7 @@ export function calculateSmartDuration(
   const nearbyMoments = allMoments.filter(m => {
     if (m === moment) return false;
     const diff = Math.abs(m.timestamp - moment.timestamp);
-    return diff < idealDuration && diff > 2;
+    return diff < clipDuration && diff > 2;
   });
 
   if (nearbyMoments.length > 0) {
