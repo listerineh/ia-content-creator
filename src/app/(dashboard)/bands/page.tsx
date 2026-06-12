@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Users, Music, Settings, Check, Loader2, Crown, Edit, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BandRole } from '@/types/database';
+import { CreateBandModal } from '@/components/features/bands/create-band-modal';
 
 const ROLE_CONFIG: Record<BandRole, { label: string; icon: typeof Crown; color: string }> = {
   admin: { label: 'Admin', icon: Crown, color: 'text-amber-400' },
@@ -18,6 +19,7 @@ const ROLE_CONFIG: Record<BandRole, { label: string; icon: typeof Crown; color: 
 export default function BandsPage() {
   const { bands, loading, switchBand } = useBand();
   const [switching, setSwitching] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleSwitchBand = async (bandId: string) => {
     if (switching) return;
@@ -40,18 +42,22 @@ export default function BandsPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 pt-16 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">Mis Bandas</h1>
           <p className="mt-1 text-sm text-zinc-500">Gestiona tus bandas y cambia entre ellas</p>
         </div>
-        <Link href="/onboarding">
-          <Button className="bg-violet-600 hover:bg-violet-500">
-            <Plus className="mr-2 h-4 w-4" />
-            Nueva banda
-          </Button>
-        </Link>
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          className="bg-violet-600 hover:bg-violet-500"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          <span>Nueva banda</span>
+        </Button>
       </div>
+
+      {/* Create Band Modal */}
+      <CreateBandModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} />
 
       {/* Bands grid */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -150,12 +156,13 @@ export default function BandsPage() {
           <p className="mt-2 text-sm text-zinc-500">
             Crea tu primera banda para empezar a usar OpenStage
           </p>
-          <Link href="/onboarding" className="mt-6 inline-block">
-            <Button className="bg-violet-600 hover:bg-violet-500">
-              <Plus className="mr-2 h-4 w-4" />
-              Crear banda
-            </Button>
-          </Link>
+          <Button
+            onClick={() => setShowCreateModal(true)}
+            className="mt-6 bg-violet-600 hover:bg-violet-500"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            <span>Crear banda</span>
+          </Button>
         </div>
       )}
     </div>
