@@ -198,11 +198,11 @@ export default function ClipGeneratorPage() {
     if (audioResult && currentStep === 'moments' && (!audioMoments || audioMoments.length === 0)) {
       // Use startTransition to avoid cascading renders
       startTransition(() => {
-        // Select only top 10 moments by confidence
+        // Select only top 3 moments by confidence
         const topMoments = audioResult.moments
           .map((moment, index) => ({ moment, index }))
           .sort((a, b) => b.moment.confidence - a.moment.confidence)
-          .slice(0, 10)
+          .slice(0, 3)
           .map(item => item.index);
 
         updateWizard({
