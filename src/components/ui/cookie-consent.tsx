@@ -20,23 +20,27 @@ export function CookieConsent() {
   );
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let isMounted = true;
+    let timer: NodeJS.Timeout | undefined;
 
     async function checkConsent() {
       const prefs = await getCookiePreferences();
 
+      if (!isMounted) return;
+
       if (prefs === null) {
         // User hasn't accepted cookies yet - show banner
-        timer = setTimeout(() => setIsVisible(true), 500);
-      } else {
-        // User has preferences saved
-        setPreferences(prefs);
+        timer = setTimeout(() => {
+          if (isMounted) setIsVisible(true);
+        }, 500);
       }
+      // No need to setPreferences here - already loaded from localStorage
     }
 
     checkConsent();
 
     return () => {
+      isMounted = false;
       if (timer) clearTimeout(timer);
     };
   }, []);
