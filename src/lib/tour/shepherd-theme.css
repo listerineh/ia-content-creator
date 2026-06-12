@@ -1,0 +1,213 @@
+/* Shepherd.js custom theme for OpenStage */
+
+/* Prevent overflow when tour is active */
+body.shepherd-active {
+  overflow: hidden !important;
+}
+
+.shepherd-element {
+  z-index: 9999;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.shepherd-element[data-popper-placement] {
+  background: transparent !important;
+}
+
+/* Hide Shepherd's modal overlay completely - we use our own */
+.shepherd-modal-overlay-container {
+  display: none !important;
+}
+
+/* Our custom overlay */
+body.shepherd-active::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(1.5px);
+  z-index: 9997;
+}
+
+/* Disable interactions on page content when tour is active */
+body.shepherd-active > *:not(.shepherd-element) {
+  pointer-events: none;
+}
+
+body.shepherd-active .shepherd-element {
+  filter: none !important;
+  pointer-events: auto !important;
+}
+
+/* Tooltip container */
+.shepherd-content {
+  background: rgb(24 24 27); /* zinc-900 */
+  border: 1px solid rgb(139 92 246 / 0.3); /* violet border */
+  border-radius: 1rem;
+  box-shadow:
+    0 0 0 1px rgb(139 92 246 / 0.1),
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 60px -15px rgb(139 92 246 / 0.3);
+  max-width: 380px;
+}
+
+/* Header */
+.shepherd-header {
+  background: transparent;
+  padding: 1.25rem 1.25rem 0.5rem;
+  position: relative;
+}
+
+.shepherd-title {
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  padding-right: 2rem;
+}
+
+.shepherd-cancel-icon {
+  position: absolute !important;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: rgb(113 113 122); /* zinc-500 */
+  font-size: 1.25rem;
+  font-weight: 300;
+  transition: all 0.15s;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+}
+
+.shepherd-cancel-icon:hover {
+  color: white;
+  background: rgb(39 39 42); /* zinc-800 */
+}
+
+/* Text content */
+.shepherd-text {
+  color: rgb(161 161 170); /* zinc-400 */
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 0 1rem 1rem;
+}
+
+.shepherd-text p {
+  margin: 0;
+}
+
+/* Footer with buttons */
+.shepherd-footer {
+  background: transparent;
+  border-top: 1px solid rgb(39 39 42); /* zinc-800 */
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Buttons */
+.shepherd-button {
+  background: rgb(39 39 42); /* zinc-800 */
+  border: 1px solid rgb(63 63 70); /* zinc-700 */
+  border-radius: 0.5rem;
+  color: rgb(212 212 216); /* zinc-300 */
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s;
+}
+
+.shepherd-button:hover {
+  background: rgb(63 63 70); /* zinc-700 */
+  color: white;
+}
+
+.shepherd-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3); /* violet ring */
+}
+
+/* Primary button */
+.shepherd-button-primary {
+  background: rgb(124 58 237); /* violet-600 */
+  border-color: rgb(124 58 237);
+  color: white;
+}
+
+.shepherd-button-primary:hover {
+  background: rgb(139 92 246); /* violet-500 */
+  border-color: rgb(139 92 246);
+}
+
+/* Secondary/Skip button */
+.shepherd-button-secondary {
+  background: transparent;
+  border-color: transparent;
+  color: rgb(113 113 122); /* zinc-500 */
+}
+
+.shepherd-button-secondary:hover {
+  background: rgb(39 39 42); /* zinc-800 */
+  color: rgb(161 161 170); /* zinc-400 */
+}
+
+/* Arrow */
+.shepherd-arrow,
+.shepherd-arrow::before {
+  background: rgb(24 24 27); /* zinc-900 */
+}
+
+.shepherd-arrow::before {
+  border: 1px solid rgb(63 63 70); /* zinc-700 */
+}
+
+/* Progress indicator */
+.shepherd-progress {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 0 1rem 0.5rem;
+}
+
+.shepherd-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(63 63 70); /* zinc-700 */
+  transition: background 0.15s;
+}
+
+.shepherd-progress-dot.active {
+  background: rgb(139 92 246); /* violet-500 */
+}
+
+/* Highlighted element */
+.shepherd-target-highlight {
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.4) !important;
+  border-radius: 0.5rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .shepherd-content {
+    max-width: calc(100vw - 2rem);
+    margin: 0 1rem;
+  }
+
+  .shepherd-footer {
+    flex-direction: column;
+  }
+
+  .shepherd-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

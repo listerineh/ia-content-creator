@@ -50,3 +50,26 @@ git push origin vX.X.X
 ```
 
 <!-- END:gitflow-rules -->
+
+<!-- BEGIN:tasks-tracking-rules -->
+
+# Task Tracking Rules
+
+**SIEMPRE revisar y actualizar `TASKS.md` con cada cambio significativo.**
+
+## Operaciones permitidas:
+
+- Marcar tareas como completadas: `- [ ]` → `- [x]`
+- Agregar nuevas tareas: `- [ ] Nueva tarea`
+- Eliminar tareas obsoletas
+
+## Formato:
+
+Solo modificar las líneas de checkmarks. NO agregar descripciones, archivos, ni detalles adicionales.
+
+```markdown
+- [x] Tarea completada
+- [ ] Tarea pendiente
+```
+
+<!-- END:tasks-tracking-rules -->

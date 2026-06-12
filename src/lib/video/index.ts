@@ -1,12 +1,12 @@
+// Re-export clip generator (unificado)
 export {
-  loadFFmpeg,
-  downloadVideo,
-  generateClip,
-  processVideo,
-  type ProcessingProgress,
-  type ProcessingConfig,
-  type GeneratedClip,
-} from './video-processor-client';
+  generateMultipleClips,
+  type ClipConfig,
+  type ClipProgress,
+  type ClipResult,
+  type ClipFormat,
+  CLIP_FORMATS,
+} from '../clip-generator';
 
 // Re-export constants for convenience
 export {

@@ -254,17 +254,30 @@
 
 > Mejora del generador de clips con IA
 
-### 5.1 Análisis de Audio (Cliente)
+### 5.1 Análisis de Audio (Cliente) ✅ COMPLETADO
 
-- [ ] Integrar Web Audio API para análisis de energía
-- [ ] Detectar picos de audio (aplausos, gritos, drops)
-- [ ] Detectar silencios y transiciones
+- [x] Integrar Web Audio API para análisis de energía
+- [x] Detectar picos de audio (aplausos, gritos, drops)
+- [x] Detectar silencios y transiciones
+- [x] Crear utilidad `analyzer.ts` con cálculo de RMS
+- [x] Hook `useAudioAnalysis` para React
+- [x] Componente `AudioMomentsList` para mostrar momentos
+- [x] Componente `AudioTimeline` con visualización temporal
+- [x] Integrar en wizard del Clip Generator
+- [x] Nuevo step "Momentos" en el flujo
+- [x] Análisis automático al entrar al step
+- [x] Selección/deselección de momentos
+- [x] Guardar momentos en estado del wizard
 
-### 5.2 Transcripción con Whisper
+### 5.2 Transcripción con Whisper ✅ COMPLETADO
 
-- [ ] Integrar Whisper WASM para transcripción local
-- [ ] Extraer audio del video con FFmpeg
-- [ ] Generar transcripción con timestamps
+- [x] Integrar Whisper WASM para transcripción local
+- [x] Extraer audio del video con FFmpeg
+- [x] Generar transcripción con timestamps
+- [x] Hook useTranscription para React
+- [x] Componente TranscriptionViewer con UI
+- [x] Integrado en Clip Generator (step momentos)
+- [x] Soporte para español, copiar texto, toggle timestamps
 
 ### 5.3 Análisis con IA (Gemini/DeepSeek)
 
@@ -273,12 +286,96 @@
 - [ ] Prompt engineering para detectar momentos virales
 - [ ] Recibir sugerencias con timestamps y razones
 
-### 5.4 UI de Sugerencias
+### 5.4 UI de Sugerencias ✅ COMPLETADO
 
-- [ ] Timeline visual con momentos detectados
-- [ ] Selección/deselección de momentos
-- [ ] Preview rápido de cada momento
+- [x] Timeline visual con momentos detectados
+- [x] Selección/deselección de momentos
+- [x] Preview rápido de cada momento
+- [x] Categorización de momentos (Picos, Silencios, Transiciones)
+- [x] Filtrado por categoría con tabs
+- [x] Timeline dinámico que se actualiza según categoría
+- [x] Audio preview con loader y estados (loading/playing/stopped)
+- [x] Selección automática de top 3 momentos por confianza
+- [x] Badge visual para identificar top momentos
+- [x] Barra de energía con label y porcentaje
+- [x] Banner informativo explicando indicadores
+- [x] Diseño responsive mobile-first
+- [x] Componente AudioMomentsMobile optimizado
+- [x] Timeline más alto y visible (h-16 móvil, h-20 desktop)
+
+### 5.5 Generación Multi-Formato ✅ COMPLETADO
+
+- [x] Generar clips para cada formato seleccionado (TikTok, YouTube, etc.)
+- [x] Nomenclatura descriptiva: `{video}_clip{n}_{timestamp}_{formato}.mp4`
+- [x] Duración ideal por formato (TikTok 30s, YouTube 2min, Story 15s)
+- [x] Aspect ratio correcto con crop al centro (sin franjas negras)
+- [x] Progress tracking por clip y formato
+- [x] Preview con aspect ratio dinámico según formato
+- [x] Contador de clips: momentos × formatos = total
+
+### 5.6 Mejoras UX Clip Generator ✅ COMPLETADO
+
+- [x] Wizard stepper responsive (dots en mobile, full en desktop)
+- [x] Layout consistente de previews (altura fija, botones debajo)
+- [x] Banner de Google Drive al inicio de las cards
+- [x] Mostrar tiempo de inicio real del clip (no el momento detectado)
+- [x] Duración mínima garantizada (80% del ideal del formato)
+
+### 5.7 Tipos de Contenido Especializados
+
+- [x] "Canciones completas" marcado como "Próximamente"
+- [ ] Implementar detección de momentos divertidos (risas, fails, reacciones)
+- [ ] Implementar detección de canciones completas (silencios largos entre canciones)
+- [ ] UI para marcar inicio/fin de canciones manualmente
+
+### 5.8 Bugfixes y Mejoras UX ✅ COMPLETADO
+
+- [x] Fix: Preview de audio reproducía siempre el primer momento
+- [x] Remover límite artificial de 20 momentos en analyzer
+- [x] Remover preselección automática de top 3 momentos
+- [x] Remover estrellas de "top 10" en UI de momentos
+- [x] Top 5 sugerencias con estrella y color amber en timeline
+- [x] Categorización de momentos por intención seleccionada
+- [x] Preview de audio restaurado usando Blob URL
+- [x] Retry con delay para rate limits de Google Drive
+- [x] UI de error amigable para rate limits (429)
 - [ ] Tag: v0.5.0
+
+### 5.9 Mejoras UI Bandas ✅ COMPLETADO
+
+- [x] Modal de crear banda (sin redirigir a /onboarding)
+- [x] Responsive mejorado en /bands (flex-col mobile, flex-row desktop)
+- [x] Selector de géneros con chips clickeables (multi-selección)
+- [x] Retrocompatibilidad con bandas de un solo género
+- [x] Card expandible con "Ver más géneros"
+- [x] Hasta 5 géneros por banda
+
+### 5.10 Sistema de Tours Guiados ✅ COMPLETADO
+
+- [x] Integrar Shepherd.js para tutoriales
+- [x] Tema personalizado CSS para OpenStage
+- [x] Hook useTour con persistencia en Supabase
+- [x] Auto-start en primera visita
+- [x] Botón de ayuda (?) para reiniciar tour
+- [x] Indicador de progreso con dots
+- [x] Tours predefinidos: bands, dashboard, clip-generator
+- [x] Botón "Reiniciar tutoriales" en settings
+- [x] Fix: marcar tour como completado al saltar o cerrar
+- [x] Fix: overlay blur optimizado (2px, 0.3 opacity)
+
+### 5.11 Páginas Legales y Cookies ✅ COMPLETADO
+
+- [x] Página de Política de Privacidad (/privacy)
+- [x] Página de Política de Cookies (/cookies)
+- [x] Banner de consentimiento de cookies (GDPR compliant)
+- [x] Configuración de cookies en /settings
+- [x] Persistencia en Supabase (profiles.cookie_preferences)
+- [x] Fallback a localStorage para usuarios no logueados
+- [x] Helpers: hasConsentFor(), shouldLoadAnalytics()
+- [x] BackButton inteligente (redirige a /dashboard si logueado)
+- [x] Consentimiento explícito requerido (default NULL)
+- [x] Banner full-width con gradiente violeta
+- [x] Toggles para cookies funcionales y analytics
 
 ---
 
@@ -360,7 +457,15 @@
 | 2026-06-09 | -       | FASE 2: Tool Registry, nuevo homepage, dashboard, migración clip-gen  |
 | 2026-06-09 | -       | Dominio openstage.online configurado, docs actualizados               |
 | 2026-06-09 | v0.2.0  | FASE 2 completada: arquitectura modular, rebranding, dominio          |
+| 2026-06-12 | -       | FASE 5: Generación multi-formato, duración por formato, crop sin franjas |
+| 2026-06-12 | -       | UX: Stepper responsive, layout previews, timestamps reales            |
+| 2026-06-12 | -       | "Canciones completas" marcado como Próximamente                       |
+| 2026-06-12 | -       | Top 5 sugerencias, preview audio con blob, retry rate limits          |
+| 2026-06-12 | -       | Modal crear banda, selector géneros multi-select con chips            |
+| 2026-06-12 | -       | Sistema de tours guiados con Shepherd.js, persistencia Supabase       |
+| 2026-06-12 | -       | Páginas legales (privacy, cookies), banner GDPR, config en settings   |
+| 2026-06-12 | -       | Transcripción con Whisper WASM, extracción audio FFmpeg, UI completa  |
 
 ---
 
-Última actualización: 9 de Junio 2026
+Última actualización: 12 de Junio 2026 (4:35am)
