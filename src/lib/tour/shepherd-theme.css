@@ -23,6 +23,11 @@ body.shepherd-active {
   inset: 0 !important;
 }
 
+/* Hide the default SVG overlay - we use our own */
+.shepherd-modal-overlay-container svg {
+  display: none !important;
+}
+
 .shepherd-modal-overlay-container.shepherd-modal-is-visible {
   opacity: 1;
 }
