@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, startTransition } from 'react';
 import { VideoUrlInput } from '@/components/features/video-upload';
 import { ClipGeneratorTour } from '@/components/features/tours/clip-generator-tour';
+import { TranscriptionButton } from '@/components/features/transcription/transcription-button';
 import {
   FormatSelector,
   IntentSelector,
@@ -588,6 +589,19 @@ export default function ClipGeneratorPage() {
                   <p className="mt-1 text-xs text-zinc-600">
                     Puedes continuar sin seleccionar momentos específicos
                   </p>
+                </div>
+              )}
+
+              {/* Transcription section */}
+              {!isAnalyzing && !isRateLimited && !audioError && (
+                <div className="mt-8 border-t border-zinc-800 pt-6">
+                  <div className="mb-4">
+                    <h3 className="text-base font-medium text-white">Transcripción (Opcional)</h3>
+                    <p className="mt-1 text-sm text-zinc-500">
+                      Obtén el texto completo del video con timestamps
+                    </p>
+                  </div>
+                  <TranscriptionButton videoUrl={videoUrl || undefined} videoFile={null} />
                 </div>
               )}
             </div>
