@@ -58,25 +58,37 @@ body.shepherd-active .shepherd-modal-overlay-container {
 /* Header */
 .shepherd-header {
   background: transparent;
-  padding: 1rem 1rem 0.5rem;
+  padding: 1.25rem 1.25rem 0.5rem;
+  position: relative;
 }
 
 .shepherd-title {
   color: white;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   margin: 0;
+  padding-right: 2rem;
 }
 
 .shepherd-cancel-icon {
-  color: rgb(161 161 170); /* zinc-400 */
-  font-size: 1.5rem;
+  position: absolute !important;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: rgb(113 113 122); /* zinc-500 */
+  font-size: 1.25rem;
   font-weight: 300;
-  transition: color 0.15s;
+  transition: all 0.15s;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
 }
 
 .shepherd-cancel-icon:hover {
   color: white;
+  background: rgb(39 39 42); /* zinc-800 */
 }
 
 /* Text content */
