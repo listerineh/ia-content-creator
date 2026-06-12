@@ -6,8 +6,8 @@ import { X, Cookie, Check } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import {
-  getLocalCookieConsent,
   getLocalCookiePreferences,
+  getCookiePreferences,
   saveCookiePreferences,
 } from '@/lib/cookies/preferences';
 import type { CookiePreferences } from '@/types/database';
@@ -20,13 +20,19 @@ export function CookieConsent() {
   );
 
   useEffect(() => {
-    const consent = getLocalCookieConsent();
+    async function checkConsent() {
+      const prefs = await getCookiePreferences();
 
-    if (consent === null) {
-      // Small delay to avoid flash
-      const timer = setTimeout(() => setIsVisible(true), 500);
-      return () => clearTimeout(timer);
+      if (prefs === null) {
+        // User hasn't accepted cookies yet - show banner
+        const timer = setTimeout(() => setIsVisible(true), 500);
+        return () => clearTimeout(timer);
+      } else {
+        // User has preferences saved
+        setPreferences(prefs);
+      }
     }
+    checkConsent();
   }, []);
 
   const handleAcceptAll = async () => {

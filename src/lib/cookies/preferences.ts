@@ -37,7 +37,7 @@ export function setLocalCookiePreferences(prefs: CookiePreferences): void {
 }
 
 // Supabase helpers (for logged-in users)
-export async function getCookiePreferences(): Promise<CookiePreferences> {
+export async function getCookiePreferences(): Promise<CookiePreferences | null> {
   const supabase = createClient();
   const {
     data: { user },
@@ -45,6 +45,10 @@ export async function getCookiePreferences(): Promise<CookiePreferences> {
 
   if (!user) {
     // Fallback to localStorage for non-logged users
+    const localConsent = getLocalCookieConsent();
+    if (localConsent === null) {
+      return null; // User hasn't accepted yet
+    }
     return getLocalCookiePreferences();
   }
 
@@ -54,11 +58,12 @@ export async function getCookiePreferences(): Promise<CookiePreferences> {
     .eq('id', user.id)
     .single();
 
-  if (profile?.cookie_preferences) {
-    return profile.cookie_preferences as CookiePreferences;
+  // If NULL in database, user hasn't accepted yet
+  if (profile?.cookie_preferences === null || profile?.cookie_preferences === undefined) {
+    return null;
   }
 
-  return { essential: true, functional: false, analytics: false };
+  return profile.cookie_preferences as CookiePreferences;
 }
 
 export async function saveCookiePreferences(prefs: CookiePreferences): Promise<void> {
@@ -82,6 +87,7 @@ export async function saveCookiePreferences(prefs: CookiePreferences): Promise<v
 // Check if user has given consent for a specific cookie type
 export async function hasConsentFor(type: keyof CookiePreferences): Promise<boolean> {
   const prefs = await getCookiePreferences();
+  if (!prefs) return false; // No consent given yet
   return prefs[type];
 }
 

@@ -68,7 +68,9 @@ export default function SettingsPage() {
   useEffect(() => {
     async function loadCookiePrefs() {
       const prefs = await getCookiePreferences();
-      setCookiePrefs(prefs);
+      if (prefs) {
+        setCookiePrefs(prefs);
+      }
     }
     loadCookiePrefs();
   }, []);
