@@ -156,6 +156,8 @@ export function AudioMomentsMobileV2({
           {filtered.map(m => {
             const i = moments.indexOf(m);
             const pct = Math.min(Math.max((m.timestamp / duration) * 100, 2), 98);
+            const isTop5 = top5Indices.includes(i);
+            const isSelected = selectedMoments.includes(i);
             return (
               <button
                 key={i}
@@ -166,7 +168,11 @@ export function AudioMomentsMobileV2({
                 <div
                   className={cn(
                     'h-16 w-2 rounded-full',
-                    color(m.type, selectedMoments.includes(i))
+                    isTop5
+                      ? isSelected
+                        ? 'bg-amber-500'
+                        : 'bg-amber-500/70'
+                      : color(m.type, isSelected)
                   )}
                 />
               </button>
@@ -174,6 +180,10 @@ export function AudioMomentsMobileV2({
           })}
         </div>
         <div className="flex gap-2 text-[10px] text-zinc-500">
+          <span className="flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            Sugerencias
+          </span>
           <span className="flex items-center gap-1">
             <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
             Picos
