@@ -1,17 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback, startTransition } from 'react';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import { VideoUrlInput } from '@/components/features/video-upload';
 import { ClipGeneratorTour } from '@/components/features/tours/clip-generator-tour';
 
-const TranscriptionButton = dynamic(
-  () =>
-    import('@/components/features/transcription/transcription-button').then(mod => ({
-      default: mod.TranscriptionButton,
-    })),
-  { ssr: false }
-);
+// TEMPORAL: Comentado para debug build
+// const TranscriptionButton = dynamic(
+//   () =>
+//     import('@/components/features/transcription/transcription-button').then(mod => ({
+//       default: mod.TranscriptionButton,
+//     })),
+//   { ssr: false }
+// );
 import {
   FormatSelector,
   IntentSelector,
@@ -600,8 +601,8 @@ export default function ClipGeneratorPage() {
                 </div>
               )}
 
-              {/* Transcription section */}
-              {!isAnalyzing && !isRateLimited && !audioError && (
+              {/* Transcription section - TEMPORAL: Comentado para debug build */}
+              {/* {!isAnalyzing && !isRateLimited && !audioError && (
                 <div className="mt-8 border-t border-zinc-800 pt-6">
                   <div className="mb-4">
                     <h3 className="text-base font-medium text-white">Transcripción (Opcional)</h3>
@@ -611,7 +612,7 @@ export default function ClipGeneratorPage() {
                   </div>
                   <TranscriptionButton videoUrl={videoUrl || undefined} videoFile={null} />
                 </div>
-              )}
+              )} */}
             </div>
           )}
 

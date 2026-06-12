@@ -1,18 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import dynamic from 'next/dynamic';
 import { Providers } from '@/components/providers';
+import { CookieConsentProvider } from '@/components/providers/cookie-consent-provider';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import '@/lib/tour/shepherd-theme.css';
-
-const CookieConsent = dynamic(
-  () => import('@/components/ui/cookie-consent').then(mod => ({ default: mod.CookieConsent })),
-  {
-    ssr: false,
-  }
-);
 
 const inter = Inter({
   variable: '--font-sans',
@@ -116,7 +109,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-zinc-950 font-sans">
         <Providers>{children}</Providers>
-        <CookieConsent />
+        <CookieConsentProvider />
       </body>
       <Analytics />
     </html>
