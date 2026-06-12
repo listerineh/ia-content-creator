@@ -20,6 +20,11 @@
   🌐 <a href="https://openstage.online"><strong>Producción</strong></a> | <a href="https://open-stage-dev.vercel.app"><strong>Staging</strong></a>
 </p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.5.0-violet?style=flat-square" alt="Version" />
+  <img src="https://img.shields.io/badge/build-passing-brightgreen?style=flat-square" alt="Build Status" />
+</p>
+
 ---
 
 ## 🎯 ¿Qué es OpenStage?
