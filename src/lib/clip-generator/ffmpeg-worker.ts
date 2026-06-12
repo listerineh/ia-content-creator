@@ -4,6 +4,10 @@ import { type ClipConfig, type ClipProgress } from './types';
 
 let ffmpeg: FFmpeg | null = null;
 let ffmpegLoaded = false;
+// Callback mutable para progreso por clip
+const progressState = {
+  callback: null as ((progress: number) => void) | null,
+};
 
 async function loadFFmpeg(onProgress: (msg: string) => void): Promise<FFmpeg> {
   if (ffmpeg && ffmpegLoaded) {
@@ -16,8 +20,11 @@ async function loadFFmpeg(onProgress: (msg: string) => void): Promise<FFmpeg> {
     console.log('[FFmpeg]', message);
   });
 
+  // Progreso dinámico - se actualiza por clip
   ffmpeg.on('progress', ({ progress }) => {
-    onProgress(`Procesando: ${Math.round(progress * 100)}%`);
+    if (progressState.callback && progress >= 0 && progress <= 1) {
+      progressState.callback(progress);
+    }
   });
 
   onProgress('Cargando FFmpeg...');
@@ -85,8 +92,8 @@ async function generateSingleClip(
   onProgress({
     momentIndex,
     stage: 'processing',
-    progress: 30,
-    message: 'Cortando clip...',
+    progress: 0,
+    message: 'Preparando clip...',
   });
 
   const outputName = `clip_${momentIndex}.mp4`;
@@ -123,19 +130,26 @@ async function generateSingleClip(
     outputName,
   ];
 
-  onProgress({
-    momentIndex,
-    stage: 'encoding',
-    progress: 50,
-    message: 'Codificando video...',
-  });
+  // Configurar callback de progreso para este clip
+  progressState.callback = (progress: number) => {
+    const percent = Math.round(progress * 100);
+    onProgress({
+      momentIndex,
+      stage: 'encoding',
+      progress: percent,
+      message: `Codificando... ${percent}%`,
+    });
+  };
 
   await ff.exec(ffmpegArgs);
 
+  // Limpiar callback
+  progressState.callback = null;
+
   onProgress({
     momentIndex,
     stage: 'encoding',
-    progress: 90,
+    progress: 95,
     message: 'Finalizando...',
   });
 
