@@ -37,11 +37,9 @@ export function AudioMomentsMobileV2({
   }, []);
 
   const play = async (m: AudioMoment, i: number) => {
-    // Pausar y limpiar audio anterior completamente
+    // Pausar audio anterior
     if (mediaRef.current) {
       mediaRef.current.pause();
-      mediaRef.current.src = '';
-      mediaRef.current.load();
       mediaRef.current = null;
     }
 
@@ -59,36 +57,23 @@ export function AudioMomentsMobileV2({
         return;
       }
 
-      // Usar video element (mejor soporte para seeking que audio)
       const media = document.createElement('video');
       media.src = `/api/download-video?fileId=${match[1]}`;
-      media.preload = 'auto';
       mediaRef.current = media;
 
       // Tiempo de inicio deseado
       const startTime = Math.max(0, m.timestamp - 1.5);
 
-      // Esperar a que tenga suficientes datos para seek
+      // Esperar a que cargue metadata
       await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('Timeout')), 10000);
-
-        media.onloadedmetadata = () => {
-          clearTimeout(timeout);
-          // Hacer seek inmediatamente después de metadata
-          media.currentTime = startTime;
-        };
-
-        media.onseeked = () => {
-          resolve();
-        };
-
-        media.onerror = () => {
-          clearTimeout(timeout);
-          reject(new Error('Error loading'));
-        };
-
+        media.onloadedmetadata = () => resolve();
+        media.onerror = () => reject(new Error('Error loading'));
         media.load();
       });
+
+      // Hacer seek y esperar un momento
+      media.currentTime = startTime;
+      await new Promise(r => setTimeout(r, 200));
 
       await media.play();
       setLoading(null);
