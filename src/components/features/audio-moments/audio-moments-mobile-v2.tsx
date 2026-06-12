@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Zap, Volume2, TrendingUp, CheckCircle2, Play, Pause, Loader2, Star } from 'lucide-react';
+import { Zap, Volume2, TrendingUp, CheckCircle2, Play, Pause, Loader2 } from 'lucide-react';
 import { type AudioMoment, formatTimestamp, getMomentDescription } from '@/lib/audio';
 import { cn } from '@/lib/utils';
 
@@ -34,7 +34,13 @@ export function AudioMomentsMobileV2({
   }, []);
 
   const play = async (m: AudioMoment, i: number) => {
-    audioRef.current?.pause();
+    // Pausar audio anterior
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    // Si ya estaba reproduciendo este, solo pausar
     if (playing === i) {
       setPlaying(null);
       return;
@@ -43,17 +49,24 @@ export function AudioMomentsMobileV2({
     try {
       setLoading(i);
       const match = videoUrl.match(/\/d\/([^/]+)/);
-      if (!match) return;
+      if (!match) {
+        setLoading(null);
+        return;
+      }
 
-      const audio = new Audio(`/api/download-video?fileId=${match[1]}`);
+      // Crear nuevo audio para cada reproducción
+      const audio = new Audio();
+      audio.src = `/api/download-video?fileId=${match[1]}`;
       audioRef.current = audio;
 
-      await new Promise<void>((res, rej) => {
+      // Esperar a que cargue metadata
+      await new Promise<void>((resolve, reject) => {
         audio.onloadedmetadata = () => {
+          // Ir al timestamp del momento (1.5s antes para contexto)
           audio.currentTime = Math.max(0, m.timestamp - 1.5);
-          res();
+          resolve();
         };
-        audio.onerror = () => rej();
+        audio.onerror = () => reject(new Error('Error loading audio'));
         audio.load();
       });
 
@@ -61,10 +74,16 @@ export function AudioMomentsMobileV2({
       setLoading(null);
       setPlaying(i);
 
-      setTimeout(() => {
-        audio.pause();
-        setPlaying(null);
+      // Parar después de 4 segundos
+      const timeoutId = setTimeout(() => {
+        if (audioRef.current === audio) {
+          audio.pause();
+          setPlaying(null);
+        }
       }, 4000);
+
+      // Limpiar timeout si se pausa manualmente
+      audio.onpause = () => clearTimeout(timeoutId);
     } catch {
       setLoading(null);
       setPlaying(null);
@@ -72,11 +91,6 @@ export function AudioMomentsMobileV2({
   };
 
   const filtered = category === 'all' ? moments : moments.filter(m => m.type === category);
-  const top10 = moments
-    .map((m, i) => ({ m, i }))
-    .sort((a, b) => b.m.confidence - a.m.confidence)
-    .slice(0, 10)
-    .map(x => x.i);
 
   const icon = (t: string) => (t === 'peak' ? Zap : t === 'silence' ? Volume2 : TrendingUp);
   const color = (t: string, sel: boolean) =>
@@ -164,8 +178,7 @@ export function AudioMomentsMobileV2({
 
       {/* Info */}
       <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
-        <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-        <span>Top 10 preseleccionados • ▶ Preview 4s</span>
+        <span>▶ Preview 4s • Selecciona los momentos para generar clips</span>
       </div>
 
       {/* List */}
@@ -174,7 +187,6 @@ export function AudioMomentsMobileV2({
           const i = moments.indexOf(m);
           const Icon = icon(m.type);
           const sel = selectedMoments.includes(i);
-          const isTop = top10.includes(i);
 
           return (
             <div
@@ -196,12 +208,9 @@ export function AudioMomentsMobileV2({
 
               {/* Info */}
               <div className="flex min-w-0 flex-1 flex-col gap-0.5 overflow-hidden">
-                <div className="flex items-center gap-1.5 overflow-hidden">
-                  <span className="truncate text-sm font-medium text-white">
-                    {getMomentDescription(m)}
-                  </span>
-                  {isTop && <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />}
-                </div>
+                <span className="truncate text-sm font-medium text-white">
+                  {getMomentDescription(m)}
+                </span>
                 <span className="text-xs text-zinc-500">
                   {formatTimestamp(m.timestamp)} • {Math.round(m.energy * 100)}% energía
                 </span>

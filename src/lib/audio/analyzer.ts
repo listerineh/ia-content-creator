@@ -206,13 +206,8 @@ function detectMoments(
     }
   }
 
-  // Keep only top moments by confidence (max 20 total)
-  const topMoments = filteredMoments
-    .sort((a, b) => b.confidence - a.confidence)
-    .slice(0, 20)
-    .sort((a, b) => a.timestamp - b.timestamp);
-
-  return topMoments;
+  // Ordenar por timestamp (sin límite artificial)
+  return filteredMoments.sort((a, b) => a.timestamp - b.timestamp);
 }
 
 /**
