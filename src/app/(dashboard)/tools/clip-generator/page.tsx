@@ -296,12 +296,12 @@ export default function ClipGeneratorPage() {
   };
 
   const handleStartGeneration = () => {
-    if (!videoUrl || !audioResult) return;
+    if (!videoUrl || audioMoments.length === 0) return;
     clipGenerator.generate(
       videoUrl,
       audioMoments,
       selectedMomentIndices,
-      audioResult.duration,
+      audioDuration,
       selectedFormats[0] || 'tiktok'
     );
   };
