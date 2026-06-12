@@ -619,7 +619,7 @@ export default function ClipGeneratorPage() {
                     ? `Procesando ${clipGenerator.currentClip} de ${clipGenerator.totalClips} clips...`
                     : clipGenerator.clips.length > 0
                       ? `${clipGenerator.clips.length} clips generados`
-                      : `Se generarán ${selectedMomentIndices.length} clips`}
+                      : `Se generarán ${selectedMomentIndices.length * selectedFormats.length} clips`}
                 </p>
               </div>
 
@@ -630,7 +630,8 @@ export default function ClipGeneratorPage() {
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-zinc-400">
-                      {selectedMomentIndices.length} momentos seleccionados
+                      {selectedMomentIndices.length} momentos × {selectedFormats.length} formatos ={' '}
+                      {selectedMomentIndices.length * selectedFormats.length} clips
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
                       La duración de cada clip se calculará automáticamente

@@ -159,15 +159,34 @@ export function ClipProgressList({
             {/* Video preview - Mobile first responsive */}
             {isComplete && clip && (
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                {/* Video container - Full width en mobile, fixed en desktop */}
-                <div className="relative mx-auto w-full max-w-70 overflow-hidden rounded-xl bg-black sm:mx-0 sm:w-40 sm:shrink-0 md:w-48">
-                  <div className="aspect-9/16">
+                {/* Video container - Aspect ratio dinámico según formato */}
+                <div
+                  className={cn(
+                    'relative mx-auto overflow-hidden rounded-xl bg-black sm:mx-0 sm:shrink-0',
+                    clip.format.aspectRatio === '16:9'
+                      ? 'w-full max-w-80 sm:w-56 md:w-64'
+                      : clip.format.aspectRatio === '1:1'
+                        ? 'w-full max-w-48 sm:w-32 md:w-40'
+                        : 'w-full max-w-70 sm:w-40 md:w-48'
+                  )}
+                >
+                  <div
+                    className={cn(
+                      clip.format.aspectRatio === '16:9'
+                        ? 'aspect-video'
+                        : clip.format.aspectRatio === '1:1'
+                          ? 'aspect-square'
+                          : clip.format.aspectRatio === '4:5'
+                            ? 'aspect-4/5'
+                            : 'aspect-9/16'
+                    )}
+                  >
                     <video
                       ref={el => {
                         if (el) videoRefs.current.set(clip.id, el);
                       }}
                       src={clip.url}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain"
                       onEnded={() => setPlayingId(null)}
                       playsInline
                     />
