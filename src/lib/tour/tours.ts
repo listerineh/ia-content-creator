@@ -70,7 +70,7 @@ export const DASHBOARD_TOUR: TourStep[] = [
     text: 'Esta sección te guía para crear tu primer clip viral. Haz clic en "Generar clips" para empezar.',
     attachTo: {
       element: '[data-tour="getting-started"]',
-      on: 'top',
+      on: 'bottom',
     },
   },
   {
