@@ -98,6 +98,7 @@ export interface VideoIntent {
   description: string;
   iconName: 'Zap' | 'Music' | 'Star' | 'Laugh';
   examples: string[];
+  comingSoon?: boolean; // Para funcionalidades en desarrollo
 }
 
 export const VIDEO_INTENTS: VideoIntent[] = [
@@ -114,6 +115,7 @@ export const VIDEO_INTENTS: VideoIntent[] = [
     description: 'Cada canción como un clip separado',
     iconName: 'Music',
     examples: ['Covers', 'Canciones originales', 'Setlist completo'],
+    comingSoon: true,
   },
   {
     id: 'highlights',

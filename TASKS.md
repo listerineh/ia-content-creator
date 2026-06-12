@@ -282,7 +282,7 @@
 - [ ] Prompt engineering para detectar momentos virales
 - [ ] Recibir sugerencias con timestamps y razones
 
-### 5.4 UI de Sugerencias
+### 5.4 UI de Sugerencias ✅ COMPLETADO
 
 - [x] Timeline visual con momentos detectados
 - [x] Selección/deselección de momentos
@@ -291,13 +291,38 @@
 - [x] Filtrado por categoría con tabs
 - [x] Timeline dinámico que se actualiza según categoría
 - [x] Audio preview con loader y estados (loading/playing/stopped)
-- [x] Selección automática de top 10 momentos por confianza
+- [x] Selección automática de top 3 momentos por confianza
 - [x] Badge visual para identificar top momentos
 - [x] Barra de energía con label y porcentaje
 - [x] Banner informativo explicando indicadores
 - [x] Diseño responsive mobile-first
 - [x] Componente AudioMomentsMobile optimizado
 - [x] Timeline más alto y visible (h-16 móvil, h-20 desktop)
+
+### 5.5 Generación Multi-Formato ✅ COMPLETADO
+
+- [x] Generar clips para cada formato seleccionado (TikTok, YouTube, etc.)
+- [x] Nomenclatura descriptiva: `{video}_clip{n}_{timestamp}_{formato}.mp4`
+- [x] Duración ideal por formato (TikTok 30s, YouTube 2min, Story 15s)
+- [x] Aspect ratio correcto con crop al centro (sin franjas negras)
+- [x] Progress tracking por clip y formato
+- [x] Preview con aspect ratio dinámico según formato
+- [x] Contador de clips: momentos × formatos = total
+
+### 5.6 Mejoras UX Clip Generator ✅ COMPLETADO
+
+- [x] Wizard stepper responsive (dots en mobile, full en desktop)
+- [x] Layout consistente de previews (altura fija, botones debajo)
+- [x] Banner de Google Drive al inicio de las cards
+- [x] Mostrar tiempo de inicio real del clip (no el momento detectado)
+- [x] Duración mínima garantizada (80% del ideal del formato)
+
+### 5.7 Tipos de Contenido Especializados
+
+- [x] "Canciones completas" marcado como "Próximamente"
+- [ ] Implementar detección de momentos divertidos (risas, fails, reacciones)
+- [ ] Implementar detección de canciones completas (silencios largos entre canciones)
+- [ ] UI para marcar inicio/fin de canciones manualmente
 - [ ] Tag: v0.5.0
 
 ---
@@ -380,7 +405,10 @@
 | 2026-06-09 | -       | FASE 2: Tool Registry, nuevo homepage, dashboard, migración clip-gen  |
 | 2026-06-09 | -       | Dominio openstage.online configurado, docs actualizados               |
 | 2026-06-09 | v0.2.0  | FASE 2 completada: arquitectura modular, rebranding, dominio          |
+| 2026-06-12 | -       | FASE 5: Generación multi-formato, duración por formato, crop sin franjas |
+| 2026-06-12 | -       | UX: Stepper responsive, layout previews, timestamps reales            |
+| 2026-06-12 | -       | "Canciones completas" marcado como Próximamente                       |
 
 ---
 
-Última actualización: 9 de Junio 2026
+Última actualización: 12 de Junio 2026
