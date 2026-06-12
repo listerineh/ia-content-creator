@@ -57,28 +57,19 @@ git push origin vX.X.X
 
 **SIEMPRE revisar y actualizar `TASKS.md` con cada cambio significativo.**
 
-## Flujo obligatorio:
+## Operaciones permitidas:
 
-1. **Antes de hacer cambios**: Revisar `TASKS.md` para entender el contexto y estado actual
-2. **Durante el desarrollo**: Mantener sincronizado el progreso en `TASKS.md`
-3. **Después de completar**: Actualizar `TASKS.md` con lo realizado y próximos pasos
+- Marcar tareas como completadas: `- [ ]` → `- [x]`
+- Agregar nuevas tareas: `- [ ] Nueva tarea`
+- Eliminar tareas obsoletas
 
-## Qué actualizar:
+## Formato:
 
-- Estado de tareas (TODO → IN PROGRESS → DONE)
-- Archivos modificados y cambios realizados
-- Problemas encontrados y soluciones aplicadas
-- Próximos pasos o tareas pendientes
-- Decisiones técnicas importantes
-
-## Ejemplo:
+Solo modificar las líneas de checkmarks. NO agregar descripciones, archivos, ni detalles adicionales.
 
 ```markdown
-## [DONE] Implementar análisis de audio
-
-- Archivos: `src/lib/audio/analyzer.ts`, `src/hooks/use-audio-analysis.ts`
-- Cambios: Detección de momentos peak/silence/transition
-- Próximo: Mejorar UI de selección de momentos
+- [x] Tarea completada
+- [ ] Tarea pendiente
 ```
 
 <!-- END:tasks-tracking-rules -->
