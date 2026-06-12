@@ -269,11 +269,15 @@
 - [x] Selección/deselección de momentos
 - [x] Guardar momentos en estado del wizard
 
-### 5.2 Transcripción con Whisper
+### 5.2 Transcripción con Whisper ✅ COMPLETADO
 
-- [ ] Integrar Whisper WASM para transcripción local
-- [ ] Extraer audio del video con FFmpeg
-- [ ] Generar transcripción con timestamps
+- [x] Integrar Whisper WASM para transcripción local
+- [x] Extraer audio del video con FFmpeg
+- [x] Generar transcripción con timestamps
+- [x] Hook useTranscription para React
+- [x] Componente TranscriptionViewer con UI
+- [x] Integrado en Clip Generator (step momentos)
+- [x] Soporte para español, copiar texto, toggle timestamps
 
 ### 5.3 Análisis con IA (Gemini/DeepSeek)
 
@@ -460,7 +464,8 @@
 | 2026-06-12 | -       | Modal crear banda, selector géneros multi-select con chips            |
 | 2026-06-12 | -       | Sistema de tours guiados con Shepherd.js, persistencia Supabase       |
 | 2026-06-12 | -       | Páginas legales (privacy, cookies), banner GDPR, config en settings   |
+| 2026-06-12 | -       | Transcripción con Whisper WASM, extracción audio FFmpeg, UI completa  |
 
 ---
 
-Última actualización: 12 de Junio 2026 (4:26am)
+Última actualización: 12 de Junio 2026 (4:35am)
