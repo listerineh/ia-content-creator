@@ -1,10 +1,12 @@
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { toBlobURL } from '@ffmpeg/util';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let ffmpeg: any | null = null;
 
-let ffmpeg: FFmpeg | null = null;
-
-export async function initFFmpegForAudio(): Promise<FFmpeg> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function initFFmpegForAudio(): Promise<any> {
   if (ffmpeg) return ffmpeg;
+
+  const { FFmpeg } = await import('@ffmpeg/ffmpeg');
+  const { toBlobURL } = await import('@ffmpeg/util');
 
   ffmpeg = new FFmpeg();
 
@@ -46,8 +48,8 @@ export async function extractAudioFromVideo(videoFile: File): Promise<File> {
   await ffmpegInstance.deleteFile('output.wav');
 
   // Convert to File
-  // @ts-expect-error - FFmpeg FileData type compatibility issue
-  const audioBlob = new Blob([audioData], { type: 'audio/wav' });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const audioBlob = new Blob([audioData as any], { type: 'audio/wav' });
   return new File([audioBlob], 'audio.wav', { type: 'audio/wav' });
 }
 

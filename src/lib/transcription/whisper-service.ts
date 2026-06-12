@@ -1,5 +1,3 @@
-import { FileTranscriber, type TranscribeResult } from '@transcribe/transcriber';
-
 export interface TranscriptionSegment {
   text: string;
   start: number;
@@ -28,7 +26,8 @@ const MODEL_URLS = {
 
 export type ModelSize = keyof typeof MODEL_URLS;
 
-let transcriber: FileTranscriber | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let transcriber: any | null = null;
 let currentModel: ModelSize | null = null;
 
 export async function initTranscriber(
@@ -42,6 +41,7 @@ export async function initTranscriber(
   onProgress?.({ status: 'loading-model', message: `Cargando modelo ${modelSize}...` });
 
   try {
+    const { FileTranscriber } = await import('@transcribe/transcriber');
     const createModule = (await import('@transcribe/shout')).default;
 
     transcriber = new FileTranscriber({
@@ -71,11 +71,13 @@ export async function transcribeAudio(
   onProgress?.({ status: 'transcribing', progress: 0, message: 'Transcribiendo...' });
 
   try {
-    const result: TranscribeResult = await transcriber.transcribe(audioFile, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result: any = await transcriber.transcribe(audioFile, {
       lang: language === 'auto' ? undefined : language,
     });
 
-    const segments: TranscriptionSegment[] = result.transcription.map(seg => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const segments: TranscriptionSegment[] = result.transcription.map((seg: any) => ({
       text: seg.text.trim(),
       start: seg.offsets.from,
       end: seg.offsets.to,

@@ -5,19 +5,17 @@ import Link from 'next/link';
 import { X, Cookie, Check } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
-import {
-  getLocalCookiePreferences,
-  getCookiePreferences,
-  saveCookiePreferences,
-} from '@/lib/cookies/preferences';
+import { getCookiePreferences, saveCookiePreferences } from '@/lib/cookies/preferences';
 import type { CookiePreferences } from '@/types/database';
 
 export function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [preferences, setPreferences] = useState<CookiePreferences>(() =>
-    getLocalCookiePreferences()
-  );
+  const [preferences, setPreferences] = useState<CookiePreferences>({
+    essential: true,
+    functional: false,
+    analytics: false,
+  });
 
   useEffect(() => {
     // Only run on client side

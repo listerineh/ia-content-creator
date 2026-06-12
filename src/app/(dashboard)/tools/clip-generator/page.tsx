@@ -1,9 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback, startTransition } from 'react';
+import dynamic from 'next/dynamic';
 import { VideoUrlInput } from '@/components/features/video-upload';
 import { ClipGeneratorTour } from '@/components/features/tours/clip-generator-tour';
-import { TranscriptionButton } from '@/components/features/transcription/transcription-button';
+
+const TranscriptionButton = dynamic(
+  () =>
+    import('@/components/features/transcription/transcription-button').then(mod => ({
+      default: mod.TranscriptionButton,
+    })),
+  { ssr: false }
+);
 import {
   FormatSelector,
   IntentSelector,
