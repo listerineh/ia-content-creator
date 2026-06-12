@@ -4,17 +4,48 @@
   z-index: 9999;
 }
 
+/* Modal overlay with blur */
 .shepherd-modal-overlay-container {
   z-index: 9998;
+}
+
+.shepherd-modal-overlay-container.shepherd-modal-is-visible {
+  opacity: 1;
+}
+
+/* Apply blur to the entire page when tour is active */
+.shepherd-modal-is-visible ~ *,
+body.shepherd-active > *:not(.shepherd-modal-overlay-container):not(.shepherd-element) {
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+body.shepherd-active .shepherd-element,
+body.shepherd-active .shepherd-modal-overlay-container {
+  filter: none !important;
+  pointer-events: auto !important;
+}
+
+/* Dark overlay */
+.shepherd-modal-overlay-container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: -1;
 }
 
 /* Tooltip container */
 .shepherd-content {
   background: rgb(24 24 27); /* zinc-900 */
-  border: 1px solid rgb(63 63 70); /* zinc-700 */
+  border: 1px solid rgb(139 92 246 / 0.3); /* violet border */
   border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  max-width: 340px;
+  box-shadow:
+    0 0 0 1px rgb(139 92 246 / 0.1),
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 60px -15px rgb(139 92 246 / 0.3);
+  max-width: 380px;
 }
 
 /* Header */

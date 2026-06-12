@@ -94,6 +94,19 @@ export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions)
       },
     });
 
+    // Add/remove body class for blur effect
+    tour.on('start', () => {
+      document.body.classList.add('shepherd-active');
+    });
+
+    tour.on('complete', () => {
+      document.body.classList.remove('shepherd-active');
+    });
+
+    tour.on('cancel', () => {
+      document.body.classList.remove('shepherd-active');
+    });
+
     // Add steps
     steps.forEach((step, index) => {
       const isFirst = index === 0;
