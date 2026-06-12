@@ -115,13 +115,11 @@ export function useTour({ tourId, steps, onComplete, onCancel }: UseTourOptions)
     }
 
     const tour = new Shepherd.Tour({
-      useModalOverlay: true,
+      useModalOverlay: false,
       defaultStepOptions: {
         classes: 'shepherd-theme-custom',
         scrollTo: { behavior: 'smooth', block: 'center' },
         cancelIcon: { enabled: true },
-        modalOverlayOpeningPadding: 8,
-        modalOverlayOpeningRadius: 8,
       },
     });
 
