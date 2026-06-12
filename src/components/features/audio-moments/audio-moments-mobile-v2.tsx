@@ -34,7 +34,7 @@ export function AudioMomentsMobileV2({
   const [category, setCategory] = useState<Category>('all');
   const [playing, setPlaying] = useState<number | null>(null);
   const [loading, setLoading] = useState<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     return () => {
@@ -62,36 +62,44 @@ export function AudioMomentsMobileV2({
     try {
       setLoading(i);
 
-      // Crear audio element con el blob URL
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
+      // Usar video element (mejor soporte de seeking en blobs)
+      const video = document.createElement('video');
+      video.src = audioUrl;
+      video.preload = 'auto';
+      audioRef.current = video;
 
       // Tiempo de inicio (1.5s antes del momento)
       const startTime = Math.max(0, m.timestamp - 1.5);
 
       // Esperar a que cargue metadata
       await new Promise<void>((resolve, reject) => {
-        audio.onloadedmetadata = () => resolve();
-        audio.onerror = () => reject(new Error('Error loading'));
+        video.onloadedmetadata = () => resolve();
+        video.onerror = () => reject(new Error('Error loading'));
       });
 
       // Hacer seek al timestamp
-      audio.currentTime = startTime;
+      video.currentTime = startTime;
 
-      await audio.play();
+      // Esperar a que el seek se complete
+      await new Promise<void>(resolve => {
+        video.onseeked = () => resolve();
+        setTimeout(resolve, 200); // Fallback
+      });
+
+      await video.play();
       setLoading(null);
       setPlaying(i);
 
       // Parar después de 4 segundos
       const timeoutId = setTimeout(() => {
-        if (audioRef.current === audio) {
-          audio.pause();
+        if (audioRef.current === video) {
+          video.pause();
           setPlaying(null);
         }
       }, 4000);
 
-      audio.onpause = () => clearTimeout(timeoutId);
-      audio.onended = () => {
+      video.onpause = () => clearTimeout(timeoutId);
+      video.onended = () => {
         clearTimeout(timeoutId);
         setPlaying(null);
       };
