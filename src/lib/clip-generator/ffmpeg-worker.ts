@@ -110,26 +110,29 @@ async function generateSingleClip(
   let videoFilter: string;
 
   if (format.aspectRatio === '16:9') {
-    // YouTube horizontal: recortar centro del video vertical
+    // YouTube horizontal
     targetWidth = Math.min(format.width, 1280);
     targetHeight = Math.min(format.height, 720);
-    // Crop del centro y luego scale
-    videoFilter = `crop=ih*16/9:ih,scale=${targetWidth}:${targetHeight}`;
+    // Usar scale con aspect ratio forzado y padding si es necesario
+    // Esto funciona tanto con videos verticales como horizontales
+    videoFilter = `scale=${targetWidth}:${targetHeight}:force_original_aspect_ratio=decrease,pad=${targetWidth}:${targetHeight}:(ow-iw)/2:(oh-ih)/2:black`;
   } else if (format.aspectRatio === '1:1') {
-    // Cuadrado: recortar al centro
+    // Cuadrado
     targetWidth = Math.min(format.width, 720);
     targetHeight = Math.min(format.height, 720);
-    videoFilter = `crop=min(iw\\,ih):min(iw\\,ih),scale=${targetWidth}:${targetHeight}`;
+    // Scale y pad para cuadrado
+    videoFilter = `scale=${targetWidth}:${targetHeight}:force_original_aspect_ratio=decrease,pad=${targetWidth}:${targetHeight}:(ow-iw)/2:(oh-ih)/2:black`;
   } else if (format.aspectRatio === '4:5') {
     // Instagram portrait
     targetWidth = Math.min(format.width, 720);
     targetHeight = Math.min(format.height, 900);
-    videoFilter = `crop=ih*4/5:ih,scale=${targetWidth}:${targetHeight}`;
+    // Scale y pad para 4:5
+    videoFilter = `scale=${targetWidth}:${targetHeight}:force_original_aspect_ratio=decrease,pad=${targetWidth}:${targetHeight}:(ow-iw)/2:(oh-ih)/2:black`;
   } else {
     // 9:16 vertical (TikTok, Reels, Shorts, Story)
     targetWidth = Math.min(format.width, 720);
     targetHeight = Math.min(format.height, 1280);
-    // Si el video es horizontal, agregar padding negro
+    // Scale y pad para vertical
     videoFilter = `scale=${targetWidth}:${targetHeight}:force_original_aspect_ratio=decrease,pad=${targetWidth}:${targetHeight}:(ow-iw)/2:(oh-ih)/2:black`;
   }
 
