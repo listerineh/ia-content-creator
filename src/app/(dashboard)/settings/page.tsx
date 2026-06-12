@@ -2,10 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Mail, Calendar, Shield, LogOut, Loader2, ArrowLeft } from 'lucide-react';
+import {
+  Mail,
+  Calendar,
+  Shield,
+  LogOut,
+  Loader2,
+  ArrowLeft,
+  RotateCcw,
+  Check,
+  Cookie,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
+import { resetAllTours, clearTourCache } from '@/lib/tour';
+import { getCookiePreferences, saveCookiePreferences } from '@/lib/cookies';
+import type { CookiePreferences } from '@/types/database';
+import { cn } from '@/lib/utils';
 
 interface UserProfile {
   id: string;
@@ -19,6 +33,15 @@ interface UserProfile {
 export default function SettingsPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [resettingTours, setResettingTours] = useState(false);
+  const [toursReset, setToursReset] = useState(false);
+  const [cookiePrefs, setCookiePrefs] = useState<CookiePreferences>({
+    essential: true,
+    functional: false,
+    analytics: false,
+  });
+  const [savingCookies, setSavingCookies] = useState(false);
+  const [cookiesSaved, setCookiesSaved] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -40,6 +63,16 @@ export default function SettingsPage() {
       setLoading(false);
     }
     loadProfile();
+  }, []);
+
+  useEffect(() => {
+    async function loadCookiePrefs() {
+      const prefs = await getCookiePreferences();
+      if (prefs) {
+        setCookiePrefs(prefs);
+      }
+    }
+    loadCookiePrefs();
   }, []);
 
   if (loading) {
@@ -158,6 +191,152 @@ export default function SettingsPage() {
                 <p className="text-sm text-zinc-500">Miembro desde</p>
                 <p className="text-sm font-medium text-white">{formatDate(profile.createdAt)}</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Preferences */}
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50">
+          <div className="border-b border-zinc-800 px-6 py-4">
+            <h3 className="font-medium text-white">Preferencias</h3>
+          </div>
+          <div className="p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-white">Tutoriales guiados</p>
+                <p className="text-sm text-zinc-500">
+                  Reinicia los tutoriales para volver a verlos en cada sección
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  setResettingTours(true);
+                  await resetAllTours();
+                  clearTourCache();
+                  setToursReset(true);
+                  setResettingTours(false);
+                  setTimeout(() => setToursReset(false), 3000);
+                }}
+                disabled={resettingTours}
+                className="border-zinc-700 hover:bg-zinc-800"
+              >
+                {resettingTours ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : toursReset ? (
+                  <>
+                    <Check className="h-4 w-4 text-green-400" />
+                    <span className="text-green-400">Reiniciados</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="h-4 w-4" />
+                    Reiniciar tutoriales
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Cookie Preferences */}
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50">
+          <div className="border-b border-zinc-800 px-6 py-4">
+            <div className="flex items-center gap-2">
+              <Cookie className="h-5 w-5 text-violet-400" />
+              <h3 className="font-medium text-white">Preferencias de Cookies</h3>
+            </div>
+            <p className="mt-1 text-sm text-zinc-500">
+              Gestiona cómo usamos cookies en tu navegador.{' '}
+              <Link href="/cookies" className="text-violet-400 hover:text-violet-300">
+                Más información
+              </Link>
+            </p>
+          </div>
+          <div className="space-y-4 p-6">
+            {/* Essential */}
+            <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-800/50 p-4">
+              <div>
+                <p className="text-sm font-medium text-white">Esenciales</p>
+                <p className="text-xs text-zinc-500">Necesarias para el funcionamiento básico</p>
+              </div>
+              <div className="flex h-6 w-11 items-center rounded-full bg-violet-600 px-1">
+                <div className="h-4 w-4 translate-x-5 rounded-full bg-white" />
+              </div>
+            </div>
+
+            {/* Functional */}
+            <button
+              onClick={() => setCookiePrefs(p => ({ ...p, functional: !p.functional }))}
+              className="flex w-full items-center justify-between rounded-lg border border-zinc-800 p-4 transition-colors hover:bg-zinc-800/50"
+            >
+              <div className="text-left">
+                <p className="text-sm font-medium text-white">Funcionales</p>
+                <p className="text-xs text-zinc-500">Recordar preferencias y personalización</p>
+              </div>
+              <div
+                className={cn(
+                  'flex h-6 w-11 items-center rounded-full px-1 transition-colors',
+                  cookiePrefs.functional ? 'bg-violet-600' : 'bg-zinc-700'
+                )}
+              >
+                <div
+                  className={cn(
+                    'h-4 w-4 rounded-full bg-white transition-transform',
+                    cookiePrefs.functional ? 'translate-x-5' : 'translate-x-0'
+                  )}
+                />
+              </div>
+            </button>
+
+            {/* Analytics */}
+            <button
+              onClick={() => setCookiePrefs(p => ({ ...p, analytics: !p.analytics }))}
+              className="flex w-full items-center justify-between rounded-lg border border-zinc-800 p-4 transition-colors hover:bg-zinc-800/50"
+            >
+              <div className="text-left">
+                <p className="text-sm font-medium text-white">Analytics</p>
+                <p className="text-xs text-zinc-500">Ayudarnos a mejorar la plataforma</p>
+              </div>
+              <div
+                className={cn(
+                  'flex h-6 w-11 items-center rounded-full px-1 transition-colors',
+                  cookiePrefs.analytics ? 'bg-violet-600' : 'bg-zinc-700'
+                )}
+              >
+                <div
+                  className={cn(
+                    'h-4 w-4 rounded-full bg-white transition-transform',
+                    cookiePrefs.analytics ? 'translate-x-5' : 'translate-x-0'
+                  )}
+                />
+              </div>
+            </button>
+
+            {/* Save button */}
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={async () => {
+                  setSavingCookies(true);
+                  await saveCookiePreferences(cookiePrefs);
+                  setCookiesSaved(true);
+                  setSavingCookies(false);
+                  setTimeout(() => setCookiesSaved(false), 3000);
+                }}
+                disabled={savingCookies}
+                className="bg-violet-600 hover:bg-violet-500"
+              >
+                {savingCookies ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : cookiesSaved ? (
+                  <>
+                    <Check className="h-4 w-4 text-white" />
+                    Guardado
+                  </>
+                ) : (
+                  'Guardar preferencias'
+                )}
+              </Button>
             </div>
           </div>
         </div>

@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { Providers } from '@/components/providers';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo';
+import { CookieConsent } from '@/components/ui/cookie-consent';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
+import '@/lib/tour/shepherd-theme.css';
 
 const inter = Inter({
   variable: '--font-sans',
@@ -107,6 +109,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-zinc-950 font-sans">
         <Providers>{children}</Providers>
+        <CookieConsent />
       </body>
       <Analytics />
     </html>

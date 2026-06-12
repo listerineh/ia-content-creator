@@ -1,39 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
+  // Accept either fileId directly or url parameter
+  let fileId = request.nextUrl.searchParams.get('fileId');
   const url = request.nextUrl.searchParams.get('url');
 
-  if (!url) {
-    return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+  if (!fileId && !url) {
+    return NextResponse.json({ error: 'fileId or url is required' }, { status: 400 });
   }
 
+  console.log('[download-video] Starting download for fileId:', fileId || 'extracting from URL');
+
   try {
-    // Extract file ID from various Google Drive URL formats
-    let fileId: string | null = null;
-
-    // Format: drive.google.com/file/d/FILE_ID/...
-    const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (fileMatch) {
-      fileId = fileMatch[1];
-    }
-
-    // Format: drive.google.com/uc?export=download&id=FILE_ID (only if not found above)
-    if (!fileId) {
-      const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (ucMatch) {
-        fileId = ucMatch[1];
+    // If fileId not provided, extract from URL
+    if (!fileId && url) {
+      // Format: drive.google.com/file/d/FILE_ID/...
+      const fileMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (fileMatch) {
+        fileId = fileMatch[1];
       }
-    }
 
-    // Also try to extract from any URL with id parameter
-    if (!fileId) {
-      try {
-        const idParam = new URL(url).searchParams.get('id');
-        if (idParam) {
-          fileId = idParam;
+      // Format: drive.google.com/uc?export=download&id=FILE_ID (only if not found above)
+      if (!fileId) {
+        const ucMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (ucMatch) {
+          fileId = ucMatch[1];
         }
-      } catch {
-        // URL parsing failed, continue
+      }
+
+      // Also try to extract from any URL with id parameter
+      if (!fileId) {
+        try {
+          const idParam = new URL(url).searchParams.get('id');
+          if (idParam) {
+            fileId = idParam;
+          }
+        } catch {
+          // URL parsing failed, continue
+        }
       }
     }
 
@@ -121,14 +125,19 @@ export async function GET(request: NextRequest) {
 
     // Final check - if still HTML, we failed
     if (contentType.includes('text/html')) {
+      console.log(
+        '[download-video] Failed - received HTML instead of video (rate limit or auth required)'
+      );
       return NextResponse.json(
         {
           error:
-            'Could not download video - file may require authentication or is not publicly accessible',
+            'Could not download video - file may require authentication, is not publicly accessible, or Google Drive rate limit reached. Try again in a few seconds.',
         },
-        { status: 400 }
+        { status: 429 } // 429 = Too Many Requests
       );
     }
+
+    console.log('[download-video] Success - streaming video');
 
     // Stream the video response directly without buffering
     const contentLength = response.headers.get('content-length');
