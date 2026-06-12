@@ -4,6 +4,7 @@ import { Providers } from '@/components/providers';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/seo';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
+import '@/lib/tour/shepherd-theme.css';
 
 const inter = Inter({
   variable: '--font-sans',

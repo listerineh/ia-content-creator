@@ -1,0 +1,164 @@
+/* Shepherd.js custom theme for OpenStage */
+
+.shepherd-element {
+  z-index: 9999;
+}
+
+.shepherd-modal-overlay-container {
+  z-index: 9998;
+}
+
+/* Tooltip container */
+.shepherd-content {
+  background: rgb(24 24 27); /* zinc-900 */
+  border: 1px solid rgb(63 63 70); /* zinc-700 */
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  max-width: 340px;
+}
+
+/* Header */
+.shepherd-header {
+  background: transparent;
+  padding: 1rem 1rem 0.5rem;
+}
+
+.shepherd-title {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.shepherd-cancel-icon {
+  color: rgb(161 161 170); /* zinc-400 */
+  font-size: 1.5rem;
+  font-weight: 300;
+  transition: color 0.15s;
+}
+
+.shepherd-cancel-icon:hover {
+  color: white;
+}
+
+/* Text content */
+.shepherd-text {
+  color: rgb(161 161 170); /* zinc-400 */
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 0 1rem 1rem;
+}
+
+.shepherd-text p {
+  margin: 0;
+}
+
+/* Footer with buttons */
+.shepherd-footer {
+  background: transparent;
+  border-top: 1px solid rgb(39 39 42); /* zinc-800 */
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Buttons */
+.shepherd-button {
+  background: rgb(39 39 42); /* zinc-800 */
+  border: 1px solid rgb(63 63 70); /* zinc-700 */
+  border-radius: 0.5rem;
+  color: rgb(212 212 216); /* zinc-300 */
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s;
+}
+
+.shepherd-button:hover {
+  background: rgb(63 63 70); /* zinc-700 */
+  color: white;
+}
+
+.shepherd-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3); /* violet ring */
+}
+
+/* Primary button */
+.shepherd-button-primary {
+  background: rgb(124 58 237); /* violet-600 */
+  border-color: rgb(124 58 237);
+  color: white;
+}
+
+.shepherd-button-primary:hover {
+  background: rgb(139 92 246); /* violet-500 */
+  border-color: rgb(139 92 246);
+}
+
+/* Secondary/Skip button */
+.shepherd-button-secondary {
+  background: transparent;
+  border-color: transparent;
+  color: rgb(113 113 122); /* zinc-500 */
+}
+
+.shepherd-button-secondary:hover {
+  background: rgb(39 39 42); /* zinc-800 */
+  color: rgb(161 161 170); /* zinc-400 */
+}
+
+/* Arrow */
+.shepherd-arrow,
+.shepherd-arrow::before {
+  background: rgb(24 24 27); /* zinc-900 */
+}
+
+.shepherd-arrow::before {
+  border: 1px solid rgb(63 63 70); /* zinc-700 */
+}
+
+/* Progress indicator */
+.shepherd-progress {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+  padding: 0 1rem 0.75rem;
+}
+
+.shepherd-progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(63 63 70); /* zinc-700 */
+  transition: background 0.15s;
+}
+
+.shepherd-progress-dot.active {
+  background: rgb(139 92 246); /* violet-500 */
+}
+
+/* Highlighted element */
+.shepherd-target-highlight {
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.4) !important;
+  border-radius: 0.5rem;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .shepherd-content {
+    max-width: calc(100vw - 2rem);
+    margin: 0 1rem;
+  }
+
+  .shepherd-footer {
+    flex-direction: column;
+  }
+
+  .shepherd-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

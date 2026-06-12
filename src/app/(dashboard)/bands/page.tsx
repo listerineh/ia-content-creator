@@ -1,14 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useBand } from '@/hooks/use-band';
 import { Button } from '@/components/ui/button';
-import { Plus, Users, Music, Settings, Check, Loader2, Crown, Edit, Eye } from 'lucide-react';
+import {
+  Plus,
+  Users,
+  Music,
+  Settings,
+  Check,
+  Loader2,
+  Crown,
+  Edit,
+  Eye,
+  HelpCircle,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { BandRole } from '@/types/database';
 import { CreateBandModal } from '@/components/features/bands/create-band-modal';
+import { useTour } from '@/lib/tour';
+import { BANDS_TOUR } from '@/lib/tour/tours';
 
 const ROLE_CONFIG: Record<BandRole, { label: string; icon: typeof Crown; color: string }> = {
   admin: { label: 'Admin', icon: Crown, color: 'text-amber-400' },
@@ -20,6 +33,18 @@ export default function BandsPage() {
   const { bands, loading, switchBand } = useBand();
   const [switching, setSwitching] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const { startTour, isCompleted } = useTour({
+    tourId: 'bands-page',
+    steps: BANDS_TOUR,
+  });
+
+  // Auto-start tour on first visit
+  useEffect(() => {
+    if (!loading && bands.length > 0 && !isCompleted) {
+      startTour();
+    }
+  }, [loading, bands.length, isCompleted, startTour]);
 
   const handleSwitchBand = async (bandId: string) => {
     if (switching) return;
@@ -43,13 +68,23 @@ export default function BandsPage() {
     <div className="mx-auto max-w-4xl px-4 py-6 pt-16 sm:px-6 sm:py-10 md:px-8 lg:px-12 lg:pt-10">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Mis Bandas</h1>
-          <p className="mt-1 text-sm text-zinc-500">Gestiona tus bandas y cambia entre ellas</p>
+        <div className="flex items-start gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-white">Mis Bandas</h1>
+            <p className="mt-1 text-sm text-zinc-500">Gestiona tus bandas y cambia entre ellas</p>
+          </div>
+          <button
+            onClick={() => startTour(true)}
+            className="mt-1 rounded-lg p-1.5 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
+            title="Ver tutorial"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </button>
         </div>
         <Button
           onClick={() => setShowCreateModal(true)}
           className="bg-violet-600 hover:bg-violet-500"
+          data-tour="create-band-button"
         >
           <Plus className="mr-2 h-4 w-4" />
           <span>Nueva banda</span>
@@ -61,7 +96,7 @@ export default function BandsPage() {
 
       {/* Bands grid */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {bands.map(band => {
+        {bands.map((band, index) => {
           const roleConfig = ROLE_CONFIG[band.role];
           const RoleIcon = roleConfig.icon;
           const isCurrent = band.is_current;
@@ -70,6 +105,7 @@ export default function BandsPage() {
           return (
             <div
               key={band.id}
+              data-tour={index === 0 ? 'band-card' : undefined}
               className={cn(
                 'group relative overflow-hidden rounded-2xl border bg-zinc-900/50 p-6 transition-all',
                 isCurrent
