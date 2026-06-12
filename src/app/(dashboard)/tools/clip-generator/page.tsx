@@ -643,25 +643,8 @@ export default function ClipGeneratorPage() {
                 </div>
               )}
 
+              {/* Drive status banner - Al inicio */}
               {(clipGenerator.isGenerating || clipGenerator.clips.length > 0) && (
-                <ClipProgressList
-                  progress={clipGenerator.progress}
-                  clips={clipGenerator.clips}
-                  onDownload={clipGenerator.downloadClip}
-                  driveConnected={driveConnected}
-                  onConnectDrive={handleConnectDrive}
-                  onSaveToDrive={handleSaveToDrive}
-                />
-              )}
-
-              {clipGenerator.error && (
-                <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
-                  <p className="text-sm text-red-400">{clipGenerator.error}</p>
-                </div>
-              )}
-
-              {/* Drive status banner */}
-              {clipGenerator.clips.length > 0 && !clipGenerator.isGenerating && (
                 <div
                   className={cn(
                     'flex items-center gap-3 rounded-lg border p-3',
@@ -690,6 +673,23 @@ export default function ClipGeneratorPage() {
                       Conectar
                     </Button>
                   )}
+                </div>
+              )}
+
+              {(clipGenerator.isGenerating || clipGenerator.clips.length > 0) && (
+                <ClipProgressList
+                  progress={clipGenerator.progress}
+                  clips={clipGenerator.clips}
+                  onDownload={clipGenerator.downloadClip}
+                  driveConnected={driveConnected}
+                  onConnectDrive={handleConnectDrive}
+                  onSaveToDrive={handleSaveToDrive}
+                />
+              )}
+
+              {clipGenerator.error && (
+                <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
+                  <p className="text-sm text-red-400">{clipGenerator.error}</p>
                 </div>
               )}
 
